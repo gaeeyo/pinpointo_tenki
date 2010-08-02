@@ -1,0 +1,77 @@
+<?xml version="1.0" encoding="utf-8"?>
+<TableLayout xmlns:android="http://schemas.android.com/apk/res/android"
+	style="@style/dayTable" android:layout_width="fill_parent"
+	android:layout_height="wrap_content">
+
+	<!-- 日付 -->
+	<TableRow>
+		<TextView style="@style/dayTableTop"></TextView>
+		<TextView style="@style/dayTableTop"></TextView>
+		<TextView style="@style/dayTableTop"></TextView>
+		<TextView style="@style/dayTableTop"></TextView>
+		<TextView style="@style/dayTableTop"></TextView>
+		<TextView style="@style/dayTableTop"></TextView>
+	</TableRow>
+
+	<!-- 天気 -->
+	<TableRow >
+		<LinearLayout android:orientation="vertical" style="@style/dayTableData"
+			android:layout_width="fill_parent" android:layout_height="fill_parent">
+			<ImageView android:layout_width="fill_parent"
+				android:layout_height="wrap_content"></ImageView>
+			<TextView style="@style/dayTableDataWeather"></TextView>
+		</LinearLayout>
+		<LinearLayout android:orientation="vertical" style="@style/dayTableData"
+			android:layout_width="fill_parent" android:layout_height="fill_parent">
+			<ImageView android:layout_width="fill_parent"
+				android:layout_height="wrap_content"></ImageView>
+			<TextView style="@style/dayTableDataWeather"></TextView>
+		</LinearLayout>
+		<LinearLayout android:orientation="vertical" style="@style/dayTableData"
+			android:layout_width="fill_parent" android:layout_height="fill_parent">
+			<ImageView android:layout_width="fill_parent"
+				android:layout_height="wrap_content"></ImageView>
+			<TextView style="@style/dayTableDataWeather"></TextView>
+		</LinearLayout>
+		<LinearLayout android:orientation="vertical" style="@style/dayTableData"
+			android:layout_width="fill_parent" android:layout_height="fill_parent">
+			<ImageView android:layout_width="fill_parent"
+				android:layout_height="wrap_content"></ImageView>
+			<TextView style="@style/dayTableDataWeather"></TextView>
+		</LinearLayout>
+		<LinearLayout android:orientation="vertical" style="@style/dayTableData"
+			android:layout_width="fill_parent" android:layout_height="fill_parent">
+			<ImageView android:layout_width="fill_parent"
+				android:layout_height="wrap_content"></ImageView>
+			<TextView style="@style/dayTableDataWeather"></TextView>
+		</LinearLayout>
+		<LinearLayout android:orientation="vertical" style="@style/dayTableData"
+			android:layout_width="fill_parent" android:layout_height="fill_parent">
+			<ImageView android:layout_width="fill_parent"
+				android:layout_height="wrap_content"></ImageView>
+			<TextView style="@style/dayTableDataWeather"></TextView>
+		</LinearLayout>
+
+	</TableRow>
+
+	<!-- 気温 -->
+	<TableRow>
+		<TextView style="@style/dayTableData"></TextView>
+		<TextView style="@style/dayTableData"></TextView>
+		<TextView style="@style/dayTableData"></TextView>
+		<TextView style="@style/dayTableData"></TextView>
+		<TextView style="@style/dayTableData"></TextView>
+		<TextView style="@style/dayTableData"></TextView>
+	</TableRow>
+
+	<!-- 降水確率 -->
+	<TableRow>
+		<TextView style="@style/dayTableData"></TextView>
+		<TextView style="@style/dayTableData"></TextView>
+		<TextView style="@style/dayTableData"></TextView>
+		<TextView style="@style/dayTableData"></TextView>
+		<TextView style="@style/dayTableData"></TextView>
+		<TextView style="@style/dayTableData"></TextView>
+	</TableRow>
+
+</TableLayout>

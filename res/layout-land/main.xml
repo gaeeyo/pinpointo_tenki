@@ -1,0 +1,64 @@
+<?xml version="1.0" encoding="utf-8"?>
+<ScrollView xmlns:android="http://schemas.android.com/apk/res/android"
+	android:fadingEdge="none" android:layout_width="fill_parent"
+	android:layout_height="fill_parent">
+	<LinearLayout android:layout_width="fill_parent"
+		android:layout_height="fill_parent" android:orientation="vertical"
+		android:paddingTop="3sp" android:paddingLeft="6sp"
+		android:paddingRight="6sp" android:id="@+id/body">
+
+		<TableLayout android:layout_width="fill_parent"
+			android:weightSum="2" android:layout_height="wrap_content" android:visibility="visible">
+			<TableRow>
+				<LinearLayout android:layout_width="fill_parent"
+					android:orientation="vertical" android:layout_height="wrap_content"
+					android:layout_weight="1">
+					android:layout_marginRight="3sp"
+					<!-- 今日の天気 -->
+					<TextView android:layout_width="fill_parent"
+						android:layout_height="wrap_content" android:text="@string/today_text"
+						android:id="@+id/todayHeader" />
+					<nikeno.Tenki.DayView android:layout_height="wrap_content"
+						android:id="@+id/todayTable" android:layout_width="fill_parent">
+					</nikeno.Tenki.DayView>
+				</LinearLayout>
+
+				<LinearLayout android:layout_width="fill_parent"
+					android:orientation="vertical" android:layout_marginLeft="3sp"
+					android:layout_height="wrap_content" android:layout_weight="1">
+					<!-- 明日の天気 -->
+					<TextView android:layout_height="wrap_content"
+						android:text="@string/tomorrow_text" android:layout_width="fill_parent"
+						android:id="@+id/tomorrowHeader"></TextView>
+					<nikeno.Tenki.DayView android:layout_height="wrap_content"
+						android:id="@+id/tomorrowTable" android:layout_width="fill_parent"></nikeno.Tenki.DayView>
+				</LinearLayout>
+			</TableRow>
+		</TableLayout>
+
+		<!-- 週間天気 -->
+		<!--
+			<TextView android:layout_height="wrap_content"
+			android:text="@string/weekly_text"
+		-->
+		<!--
+			android:layout_width="fill_parent"
+			android:id="@+id/weekHeader"></TextView>
+		-->
+		<nikeno.Tenki.WeekView android:layout_height="wrap_content"
+			android:layout_marginTop="3sp" android:id="@+id/weekTable"
+			android:layout_width="fill_parent"></nikeno.Tenki.WeekView>
+
+		<!-- ボタン -->
+		<LinearLayout android:layout_width="wrap_content"
+			android:orientation="horizontal" android:layout_gravity="center"
+			android:layout_margin="8dip" android:layout_height="wrap_content">
+			<Button android:id="@+id/open_browser" android:text="@string/main_open_browser"
+				android:layout_gravity="center_horizontal" android:layout_width="wrap_content"
+				android:layout_height="fill_parent"></Button>
+
+			<Button android:id="@+id/area_select" android:layout_width="wrap_content"
+				android:layout_height="fill_parent" android:text="@string/main_pref"></Button>
+		</LinearLayout>
+	</LinearLayout>
+</ScrollView>

@@ -1,0 +1,98 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+	<style name="MyTheme">
+		<item name="android:windowBackground">@drawable/background_white</item>
+		<item name="android:textColorPrimary">#000000</item>
+		<item name="android:textColorSecondary">#000000</item>
+	</style>
+
+	<drawable name="background_white">#ffffff</drawable>
+	<drawable name="background_gray">#dddddd</drawable>
+
+<!--	<style name="tableText">-->
+<!--		<item name="android:textSize">14sp</item>-->
+<!--		<item name="android:textColor">#ff0000</item>-->
+<!--	</style>-->
+	
+	<style name="tableHeader">
+		<item name="android:background">#f70</item>
+		<item name="android:textColor">#77f</item>
+	</style>
+	
+	<color name="tableTextColor">#000</color>
+	<color name="tableBorderColor">#C6C7C6</color>
+	<color name="tableBackground">#fff</color>
+	<color name="tableDateBackground">#E9EEFD</color>
+	
+	<!-- DayView -->
+	<dimen name="tableTextSize">12sp</dimen>
+	<dimen name="tableWindTextSize">10sp</dimen>
+	<color name="tableTempColor">#F60</color>
+	<color name="tableHumidColor">#090</color>
+	<dimen name="dayTableImageSize">30dip</dimen>
+	
+	<style name="dayTable">
+		<item name="android:background">#C6C6C6</item>
+		<item name="android:paddingLeft">1px</item>
+	</style>
+	
+	<style name="dayTableCell">
+		<item name="android:textColor">#000</item>
+		<item name="android:textSize">12sp</item>
+		<item name="android:layout_height">fill_parent</item>
+		<item name="android:layout_width">fill_parent</item>
+		<item name="android:gravity">center</item>
+		<item name="android:layout_weight">1</item>
+	</style>
+	
+	<style name="dayTableTop" parent="@style/dayTableCell">
+		<item name="android:background">#E9EEFD</item>
+		<item name="android:layout_marginTop">1px</item>
+		<item name="android:layout_marginRight">1px</item>
+		<item name="android:layout_marginBottom">1px</item>
+	</style>
+
+	<style name="dayTableTopLeft" parent="@style/dayTableCell">
+		<item name="android:background">#EEE</item>
+		<item name="android:layout_marginTop">1px</item>
+		<item name="android:layout_marginRight">1px</item>
+		<item name="android:layout_marginBottom">1px</item>
+	</style>
+
+	<style name="dayTableData" parent="@style/dayTableCell">
+		<item name="android:background">#fff</item>
+		<item name="android:layout_marginRight">1px</item>
+		<item name="android:layout_marginBottom">1px</item>
+	</style>
+	
+	<style name="dayTableDataWeather">
+		<item name="android:layout_height">wrap_content</item>
+		<item name="android:layout_width">fill_parent</item>
+		<item name="android:textSize">12sp</item>
+		<item name="android:gravity">center</item>
+	</style>
+
+	<style name="dayTableDataTemp" parent="@style/dayTableData">
+		<item name="android:textColor">#F60</item>
+	</style>
+	
+	<style name="dayTableDataHumid" parent="@style/dayTableData">
+		<item name="android:textColor">#090</item>
+	</style>
+	
+	<style name="dayTableDataWind" parent="@style/dayTableData">
+		<item name="android:textSize">10sp</item>
+	</style>
+	
+	<color name="pastHourBackgroundColor">#EEE</color>
+	<color name="pastHourColor">#999</color>
+	<color name="maxTempColor">#F30</color>
+	<color name="minTempColor">#06F</color>
+	
+	
+	<style name="dayTableDataText">
+		<item name="android:textColor">#090</item>
+	</style>
+	<drawable name="dayTableDataBackground">#fff</drawable>
+	
+</resources>

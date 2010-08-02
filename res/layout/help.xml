@@ -1,0 +1,38 @@
+<?xml version="1.0" encoding="utf-8"?>
+<ScrollView xmlns:android="http://schemas.android.com/apk/res/android"
+	android:layout_width="fill_parent" android:layout_height="fill_parent">
+	<LinearLayout android:layout_height="wrap_content"
+		android:layout_width="fill_parent" android:orientation="vertical"
+		android:padding="6sp">
+		<TextView android:textSize="20sp" android:layout_height="wrap_content"
+			android:layout_width="fill_parent" android:text="今日と明日の天気の見方"
+			android:layout_marginBottom="6sp" android:textStyle="bold"></TextView>
+		<ImageView android:layout_height="wrap_content" android:src="@drawable/help_day_0"
+			android:layout_width="wrap_content"></ImageView>
+		<TextView android:layout_height="wrap_content"
+			android:text="上から、時刻、天気、気温、湿度、降水量(mm/h)、風向風速(m/s) が表示されています。"
+			android:layout_width="fill_parent"></TextView>
+
+
+
+		<TextView android:layout_height="wrap_content" android:text="週間天気予報の見方"
+			android:layout_width="fill_parent" android:layout_marginTop="12sp"
+			android:textSize="20sp" android:layout_marginBottom="6sp"
+			android:textStyle="bold"></TextView>
+
+		<ImageView android:layout_width="wrap_content"
+			android:layout_height="wrap_content" android:src="@drawable/help_week_0"></ImageView>
+		<TextView android:layout_height="wrap_content"
+			android:text="上から日付、天気、気温(最高/最低)、降水確率(%) が表示されています。"
+			android:layout_width="fill_parent"></TextView>
+
+		<TextView android:layout_width="wrap_content"
+			android:layout_height="wrap_content" android:layout_marginTop="12sp"
+			android:layout_marginBottom="6sp"
+			android:textSize="20sp" android:text="天気のデータについて"
+			android:textStyle="bold"></TextView>
+		<TextView android:layout_height="wrap_content"
+			android:layout_width="fill_parent" 
+			android:text="データは Yahoo!天気情報 のページから取得して表示しています。\nYahoo!天気情報の仕様が変更された場合、動作しなくなる可能性があります。"></TextView>
+	</LinearLayout>
+</ScrollView>
