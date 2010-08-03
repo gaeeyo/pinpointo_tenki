@@ -45,7 +45,7 @@ public class MainActivity extends Activity {
     @Override
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        System.gc();
+        //System.gc();
         //Debug.startMethodTracing("MainActivity1");
         
         // ダウンローダーの初期化
@@ -58,6 +58,15 @@ public class MainActivity extends Activity {
 
     	// ウィンドウの初期化
     	requestWindowFeature(Window.FEATURE_PROGRESS);
+    	
+    	initViews();
+        
+        // キャッシュを表示
+        showCache();
+        //Debug.stopMethodTracing();
+    }
+    
+    private void initViews() {
         setContentView(R.layout.main);
 
         // アクティビティのタイトルを保存
@@ -85,10 +94,6 @@ public class MainActivity extends Activity {
 				showPref();
 			}
 		});
-        
-        // キャッシュを表示
-        showCache();
-        //Debug.stopMethodTracing();
     }
     
 //    private boolean isOnline() {
@@ -147,6 +152,7 @@ public class MainActivity extends Activity {
     // リロード完了
     private void reloadComplete(DownloadTask task)
     {
+    	initViews();
 		if (task.mResultMessage != null) {
 			// エラー表示
 			Toast.makeText(getApplicationContext(), task.mResultMessage, Toast.LENGTH_LONG).show();
