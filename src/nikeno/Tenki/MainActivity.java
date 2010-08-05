@@ -12,7 +12,6 @@ import android.content.SharedPreferences.Editor;
 import android.net.Uri;
 import android.os.AsyncTask;
 import android.os.Bundle;
-import android.os.Debug;
 import android.util.Log;
 import android.view.Menu;
 import android.view.MenuItem;
@@ -58,8 +57,12 @@ public class MainActivity extends Activity {
 
     	// ウィンドウの初期化
     	requestWindowFeature(Window.FEATURE_PROGRESS);
+    	requestWindowFeature(Window.FEATURE_INDETERMINATE_PROGRESS);
     	
-    	initViews();
+        // アクティビティのタイトルを保存
+        mDefaultTitle = getTitle().toString();
+
+        initViews();
         
         // キャッシュを表示
         showCache();
@@ -69,9 +72,6 @@ public class MainActivity extends Activity {
     private void initViews() {
         setContentView(R.layout.main);
 
-        // アクティビティのタイトルを保存
-        mDefaultTitle = getTitle().toString();
-        
         mTodayTable = (DayView)findViewById(R.id.todayTable);
         mTomorrowTable = (DayView)findViewById(R.id.tomorrowTable);
         mWeekTable = (WeekView)findViewById(R.id.weekTable);
@@ -168,6 +168,7 @@ public class MainActivity extends Activity {
 			setData(task.mWeatherData);
 		}
     	setProgress(100*100);
+    	setProgressBarIndeterminateVisibility(false);
     }
     
     private void setData(YahooWeather data) {
@@ -217,6 +218,12 @@ public class MainActivity extends Activity {
     	
     	public boolean isCache() {
     		return mIsCache;
+    	}
+    	
+    	@Override
+    	protected void onPreExecute() {
+        	setProgressBarIndeterminateVisibility(true);
+    		super.onPreExecute();
     	}
     	
     	@Override
