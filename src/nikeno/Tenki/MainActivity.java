@@ -26,7 +26,7 @@ public class MainActivity extends Activity {
 	public static final String APP_PREF = "AF.Tenki"; 
 	
 	private static final String TAG = "Tenki_MainActivity";
-	private static final String WeekStr = "“úŒ‰Î…–Ø‹à“y"; 
+	private static final String WeekStr = "æ—¥æœˆç«æ°´æœ¨é‡‘åœŸ"; 
 	
 	private DownloadTask mDownloadTask = null;
 	private DayView mTodayTable;
@@ -47,24 +47,24 @@ public class MainActivity extends Activity {
         //System.gc();
         //Debug.startMethodTracing("MainActivity1");
         
-        // ƒ_ƒEƒ“ƒ[ƒ_[‚Ì‰Šú‰»
+        // ãƒ€ã‚¦ãƒ³ãƒ­ãƒ¼ãƒ€ãƒ¼ã®åˆæœŸåŒ–
         Downloader.initialize(getApplicationContext());
 
-        // İ’è‚ğ“Ç‚İ‚İ
+        // è¨­å®šã‚’èª­ã¿è¾¼ã¿
         mPref = getSharedPreferences(APP_PREF, MODE_PRIVATE);
         loadSettings();
     	reload(false);
 
-    	// ƒEƒBƒ“ƒhƒE‚Ì‰Šú‰»
+    	// ã‚¦ã‚£ãƒ³ãƒ‰ã‚¦ã®åˆæœŸåŒ–
     	requestWindowFeature(Window.FEATURE_PROGRESS);
     	requestWindowFeature(Window.FEATURE_INDETERMINATE_PROGRESS);
     	
-        // ƒAƒNƒeƒBƒrƒeƒB‚Ìƒ^ƒCƒgƒ‹‚ğ•Û‘¶
+        // ã‚¢ã‚¯ãƒ†ã‚£ãƒ“ãƒ†ã‚£ã®ã‚¿ã‚¤ãƒˆãƒ«ã‚’ä¿å­˜
         mDefaultTitle = getTitle().toString();
 
         initViews();
         
-        // ƒLƒƒƒbƒVƒ…‚ğ•\¦
+        // ã‚­ãƒ£ãƒƒã‚·ãƒ¥ã‚’è¡¨ç¤º
         showCache();
         //Debug.stopMethodTracing();
     }
@@ -78,7 +78,7 @@ public class MainActivity extends Activity {
         mTodayHeader = (TextView)findViewById(R.id.todayHeader);
         mTomorrowHeader = (TextView)findViewById(R.id.tomorrowHeader);
         
-        // ƒuƒ‰ƒEƒU‚ÅŠJ‚­ƒ{ƒ^ƒ“
+        // ãƒ–ãƒ©ã‚¦ã‚¶ã§é–‹ããƒœã‚¿ãƒ³
         Button btn;
         btn = (Button)findViewById(R.id.open_browser);
         btn.setOnClickListener(new OnClickListener() {
@@ -87,7 +87,7 @@ public class MainActivity extends Activity {
 			}
 		});
         
-        // ’nˆæ•ÏXƒ{ƒ^ƒ“
+        // åœ°åŸŸå¤‰æ›´ãƒœã‚¿ãƒ³
         btn = (Button)findViewById(R.id.area_select);
         btn.setOnClickListener(new OnClickListener() {
 			public void onClick(View v) {
@@ -105,7 +105,7 @@ public class MainActivity extends Activity {
 //    }
 //
     
-    // ƒuƒ‰ƒEƒU‚ÅŠJ‚­
+    // ãƒ–ãƒ©ã‚¦ã‚¶ã§é–‹ã
     private void doOpenBrowser() {
     	try {
     		Intent i = new Intent(Intent.ACTION_VIEW, Uri.parse(mPrefUrl));
@@ -116,7 +116,7 @@ public class MainActivity extends Activity {
     	}
     }
 
-    // ƒLƒƒƒbƒVƒ…‚ğ•\¦‚·‚é
+    // ã‚­ãƒ£ãƒƒã‚·ãƒ¥ã‚’è¡¨ç¤ºã™ã‚‹
     private void showCache()
     {
     	Calendar today = Calendar.getInstance(Locale.JAPAN);
@@ -134,7 +134,7 @@ public class MainActivity extends Activity {
     	}
     }
     
-    // ƒŠƒ[ƒh‚·‚é
+    // ãƒªãƒ­ãƒ¼ãƒ‰ã™ã‚‹
     private void reload(boolean force) {
     	if (mDownloadTask != null && mDownloadTask.getStatus() != FetchWeatherTask.Status.FINISHED)
     		mDownloadTask.cancel(true);
@@ -143,22 +143,22 @@ public class MainActivity extends Activity {
     	mDownloadTask.execute(mPrefUrl);
     }
     
-    // İ’è‚ğ“Ç‚İ‚İ
+    // è¨­å®šã‚’èª­ã¿è¾¼ã¿
     private void loadSettings() {
     	mPrefUrl = mPref.getString("url", 
     			"http://weather.yahoo.co.jp/weather/jp/13/4410/13101.html");	
     }
     
-    // ƒŠƒ[ƒhŠ®—¹
+    // ãƒªãƒ­ãƒ¼ãƒ‰å®Œäº†
     private void reloadComplete(DownloadTask task)
     {
     	initViews();
 		if (task.mResultMessage != null) {
-			// ƒGƒ‰[•\¦
+			// ã‚¨ãƒ©ãƒ¼è¡¨ç¤º
 			Toast.makeText(getApplicationContext(), task.mResultMessage, Toast.LENGTH_LONG).show();
 		}
 		else {
-			// ƒGƒ‰[‚È‚µ
+			// ã‚¨ãƒ©ãƒ¼ãªã—
 			setProgress(75*100);
 			if (task.isCache()) {
 				Toast.makeText(getApplicationContext(), 
@@ -198,13 +198,13 @@ public class MainActivity extends Activity {
     	Calendar c = Calendar.getInstance(TimeZone.getTimeZone("Asia/Tokyo"));
     	c.setTime(d);
     	int day = c.get(Calendar.DAY_OF_WEEK) - 1;
-    	return String.format("%dŒ%d“ú(%s)",
+    	return String.format("%dæœˆ%dæ—¥(%s)",
     			c.get(Calendar.MONTH) + 1, 
     			c.get(Calendar.DATE),
     			WeekStr.substring(day, day+1));
     }
     
-    // ƒ_ƒEƒ“ƒ[ƒh
+    // ãƒ€ã‚¦ãƒ³ãƒ­ãƒ¼ãƒ‰
     private class DownloadTask extends AsyncTask<String, Integer, String> {
     	
     	private boolean mForceReload; 
@@ -231,19 +231,19 @@ public class MainActivity extends Activity {
     		String result = null;
     		try {
     			publishProgress(25*100);
-    			long since = -1; // ƒŠƒ[ƒh
+    			long since = -1; // ãƒªãƒ­ãƒ¼ãƒ‰
     			if (!mForceReload) {
-    				// 1ŠÔˆÈ“à‚Éæ“¾‚µ‚Ä‚¢‚½‚ç‚»‚ê‚ğ•\¦
+    				// 1æ™‚é–“ä»¥å†…ã«å–å¾—ã—ã¦ã„ãŸã‚‰ãã‚Œã‚’è¡¨ç¤º
     				since = System.currentTimeMillis()/1000-15*60;
     			}
-    			// ƒ_ƒEƒ“ƒ[ƒh
+    			// ãƒ€ã‚¦ãƒ³ãƒ­ãƒ¼ãƒ‰
     			byte [] buff = null;
     			try {
     				buff = Downloader.download(params[0], 50*1024, since, true);
     			}
     			catch (Exception e) {
         			if (since != -1) {
-        				// ƒLƒƒƒbƒVƒ…‚ğ—˜—p
+        				// ã‚­ãƒ£ãƒƒã‚·ãƒ¥ã‚’åˆ©ç”¨
         				buff = Downloader.getCache(params[0], 
         						System.currentTimeMillis()/1000-7*60*60);
         				if (buff != null) {
@@ -281,24 +281,24 @@ public class MainActivity extends Activity {
     	}
     }
     
-    // ƒƒjƒ…[•\¦
+    // ãƒ¡ãƒ‹ãƒ¥ãƒ¼è¡¨ç¤º
     @Override
     public boolean onCreateOptionsMenu(Menu menu) {
     	getMenuInflater().inflate(R.menu.main_menu, menu);
     	return true;
     }
      
-    // ƒƒjƒ…[ƒNƒŠƒbƒN
+    // ãƒ¡ãƒ‹ãƒ¥ãƒ¼ã‚¯ãƒªãƒƒã‚¯
     @Override
     public boolean onOptionsItemSelected(MenuItem item) {
 		switch (item.getItemId()) {
-		case R.id.menu_reload:	// ƒŠƒ[ƒh
+		case R.id.menu_reload:	// ãƒªãƒ­ãƒ¼ãƒ‰
 			reload(true);
 			break;
-		case R.id.menu_pref:	// ’nˆæ•ÏX
+		case R.id.menu_pref:	// åœ°åŸŸå¤‰æ›´
 			showPref();
 			break;
-		case R.id.menu_help:	// ƒwƒ‹ƒv
+		case R.id.menu_help:	// ãƒ˜ãƒ«ãƒ—
 			{
 				Intent i = new Intent(getApplicationContext(), HelpActivity.class);
 				startActivity(i);
@@ -308,13 +308,13 @@ public class MainActivity extends Activity {
     	return true;
     }
     
-    // İ’è‰æ–Ê‚ğ•\¦
+    // è¨­å®šç”»é¢ã‚’è¡¨ç¤º
     void showPref() {
     	Intent i = new Intent(getApplicationContext(), AreaSelectActivity.class);
     	startActivityForResult(i, 0);
     }
     
-    // ’nˆæ•ÏXŠm’è‚Ì“®ì
+    // åœ°åŸŸå¤‰æ›´ç¢ºå®šæ™‚ã®å‹•ä½œ
     @Override
     protected void onActivityResult(int requestCode, int resultCode, Intent data) {
     	super.onActivityResult(requestCode, resultCode, data);
@@ -330,7 +330,7 @@ public class MainActivity extends Activity {
     	}
     }
     
-    // ŒŸõƒ{ƒ^ƒ“
+    // æ¤œç´¢ãƒœã‚¿ãƒ³
     @Override
     public boolean onSearchRequested() {
     	showPref();

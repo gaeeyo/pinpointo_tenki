@@ -19,7 +19,7 @@ public class Downloader {
 	static private FileCache mFileCache = null;
 	static private WeakHashMap<String, Bitmap> mBitmapCache = null;
 
-	// ‰Šú‰»
+	// åˆæœŸåŒ–
 	static public void initialize(Context c) {
 		if (mFileCache == null) {
 			mFileCache = new FileCache(c);
@@ -29,8 +29,8 @@ public class Downloader {
 		}
 	}
 
-	// ƒ_ƒEƒ“ƒ[ƒh
-	// since == -1 : ƒLƒƒƒbƒVƒ…‚©‚ç“Ç‚İ‚Ü‚È‚¢
+	// ãƒ€ã‚¦ãƒ³ãƒ­ãƒ¼ãƒ‰
+	// since == -1 : ã‚­ãƒ£ãƒƒã‚·ãƒ¥ã‹ã‚‰èª­ã¿è¾¼ã¾ãªã„
 	static public byte[] download(String url, int maxSize) throws Exception {
 		//Log.d(TAG, "downloading " + url);
 		byte [] data;

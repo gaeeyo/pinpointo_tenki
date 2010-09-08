@@ -52,18 +52,18 @@ public class AreaSelectActivity extends ListActivity {
 		mSearchBtn = (Button)findViewById(R.id.searchButton);
 		mSearchText = (EditText)findViewById(R.id.searchText);
 		
-		// ƒŠƒXƒg‚Ìİ’è
+		// ãƒªã‚¹ãƒˆã®è¨­å®š
 		mAdapter = new ArrayAdapter<String>(this, R.layout.area_select_row);
 		setListAdapter(mAdapter);
 
-		// ŒŸõButton
+		// æ¤œç´¢Button
 		mSearchBtn.setOnClickListener(new OnClickListener() {
 			public void onClick(View v) {
 				doSearch();
 			}
 		});
 		
-		// ŒŸõEditText
+		// æ¤œç´¢EditText
 		mSearchText.setSingleLine(true);
 		mSearchText.setOnEditorActionListener(new OnEditorActionListener() {
 			public boolean onEditorAction(TextView v, int actionId, KeyEvent event) {
@@ -78,7 +78,7 @@ public class AreaSelectActivity extends ListActivity {
 		loadRecent();
 	}
 	
-	// ƒƒjƒ…[ì¬
+	// ãƒ¡ãƒ‹ãƒ¥ãƒ¼ä½œæˆ
 	@Override
 	public boolean onCreateOptionsMenu(Menu menu) {
 		getMenuInflater().inflate(R.menu.area_select_menu, menu);
@@ -93,7 +93,7 @@ public class AreaSelectActivity extends ListActivity {
 		return super.onMenuItemSelected(featureId, item);
 	}
 	
-	// Å‹ßg‚Á‚½’nˆæ‚ğ“Ç‚İ‚Ş
+	// æœ€è¿‘ä½¿ã£ãŸåœ°åŸŸã‚’èª­ã¿è¾¼ã‚€
 	private void loadRecent() {
 		mRecent = new AreaDataList();
 		
@@ -110,7 +110,7 @@ public class AreaSelectActivity extends ListActivity {
 		setNewList((AreaDataList)mRecent.clone());
 	}
 	
-	// Å‹ßg‚Á‚½’nˆæ‚ğ•Û‘¶
+	// æœ€è¿‘ä½¿ã£ãŸåœ°åŸŸã‚’ä¿å­˜
 	private void saveRecent() {
 		Editor editor = mPref.edit();
 		
@@ -127,7 +127,7 @@ public class AreaSelectActivity extends ListActivity {
 		editor.commit();
 	}
 	
-	// ŒŸõ‚ğÀs
+	// æ¤œç´¢ã‚’å®Ÿè¡Œ
 	private void doSearch() {
 		Log.d(TAG, "doSearch");
 		String text = mSearchText.getText().toString();
@@ -147,7 +147,7 @@ public class AreaSelectActivity extends ListActivity {
 		mSearchTask.execute(new String[] {});
 	}
 	
-	// ƒŠƒXƒg‚ªƒNƒŠƒbƒN‚³‚ê‚½‚çŒ‹‰Ê‚ğ•Ô‚·
+	// ãƒªã‚¹ãƒˆãŒã‚¯ãƒªãƒƒã‚¯ã•ã‚ŒãŸã‚‰çµæœã‚’è¿”ã™
 	@Override
 	protected void onListItemClick(ListView l, View v, int position, long id) {
 		super.onListItemClick(l, v, position, id);
@@ -168,7 +168,7 @@ public class AreaSelectActivity extends ListActivity {
 		finish();
 	}
 	
-	// ’nˆæƒf[ƒ^
+	// åœ°åŸŸãƒ‡ãƒ¼ã‚¿
 	public static class AreaData {
 		public String zipCode;
 		public String address1;
@@ -195,7 +195,7 @@ public class AreaSelectActivity extends ListActivity {
 		}
 	}
 	
-	// ’nˆæƒf[ƒ^”z—ñ
+	// åœ°åŸŸãƒ‡ãƒ¼ã‚¿é…åˆ—
 	private static class AreaDataList extends Vector<AreaData> {
 		private static final long serialVersionUID = 6002692427075044056L;
 		
@@ -204,14 +204,14 @@ public class AreaSelectActivity extends ListActivity {
 			
 			html = html.replace("\n", "");
 			
-			// ‚´‚Á‚­‚è‚Æ‚µ‚½j
+			// ã–ã£ãã‚Šã¨ã—ãŸç¥
 			Pattern p = Pattern.compile("class=\"yjw_table3\"(.*?)yjw_main_md", 
 					Pattern.CASE_INSENSITIVE);
 			Matcher m = p.matcher(html);
 			if (m.find()) {
 				
 				html = m.group(1);
-				// <tr>‚²‚Æ‚Ìƒ‹[ƒv
+				// <tr>ã”ã¨ã®ãƒ«ãƒ¼ãƒ—
 				m = Pattern.compile(
 						"<tr.*?<td.*?>(.*?)</td><td.*?>(.*?)</td><td.*?(http://[a-zA-Z0-9./_]*).*?>(.*?)</a>"
 						).matcher(html);
@@ -229,7 +229,7 @@ public class AreaSelectActivity extends ListActivity {
 		}
 	}
 	
-	// AreaDataList ‚ğƒŠƒXƒg‚ÉƒZƒbƒg‚·‚é
+	// AreaDataList ã‚’ãƒªã‚¹ãƒˆã«ã‚»ãƒƒãƒˆã™ã‚‹
 	private void setNewList(AreaDataList newList) {
 		mListData = newList;
 		mAdapter.clear();
@@ -239,7 +239,7 @@ public class AreaSelectActivity extends ListActivity {
 		}
 	}
 		
-	// ’nˆæƒf[ƒ^‚ÌŒŸõƒ^ƒXƒN
+	// åœ°åŸŸãƒ‡ãƒ¼ã‚¿ã®æ¤œç´¢ã‚¿ã‚¹ã‚¯
 	private class SearchTask extends AsyncTask<String, Integer, AreaDataList> {
 		private final String TAG = "SearchTask";
 		private String mSearchText;

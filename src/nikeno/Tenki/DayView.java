@@ -57,7 +57,7 @@ public class DayView extends LinearLayout {
 		table.setPadding(1, 1, 0, 0);
 		table.setBackgroundColor(res.getColor(R.color.tableBorderColor));
 		
-		// TableRow ‚ð’Ç‰Á
+		// TableRow ã‚’è¿½åŠ 
 		int j;
 		TableRow row;
 		for (j=0; j<6; j++) {
@@ -78,7 +78,7 @@ public class DayView extends LinearLayout {
 		lp_cell.bottomMargin = 1;
 		lp_cell.rightMargin = 1;
 		
-		// ’Pƒ‚È TextView ‚ð’Ç‰Á
+		// å˜ç´”ãª TextView ã‚’è¿½åŠ 
 		float textSize;
 		int textColor;
 		int background;
@@ -114,7 +114,7 @@ public class DayView extends LinearLayout {
 			}
 		}
 		
-		// ƒAƒCƒRƒ“‚ÆƒeƒLƒXƒg‚Ìs
+		// ã‚¢ã‚¤ã‚³ãƒ³ã¨ãƒ†ã‚­ã‚¹ãƒˆã®è¡Œ
 
 //		LinearLayout.LayoutParams lp_image = new LinearLayout.LayoutParams(
 //				LinearLayout.LayoutParams.WRAP_CONTENT,

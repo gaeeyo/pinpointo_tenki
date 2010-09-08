@@ -23,7 +23,7 @@ public class FileCache  {
 		mDB = db.getWritableDatabase();
 	}
 	
-	// ƒf[ƒ^‚ğ•Û‘¶
+	// ãƒ‡ãƒ¼ã‚¿ã‚’ä¿å­˜
 	public void put(String key, byte [] data)
 	{
 		Log.d(TAG, "put "+key);
@@ -34,7 +34,7 @@ public class FileCache  {
 		mDB.replace(DB_TABLE, null, values);
 	}
 	
-	// ƒf[ƒ^‚ğæ“¾
+	// ãƒ‡ãƒ¼ã‚¿ã‚’å–å¾—
 	public byte [] get(String key, long modifiedSince)
 	{
 		Cursor cursor = null;

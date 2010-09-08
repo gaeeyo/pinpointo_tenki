@@ -20,12 +20,12 @@ public class YahooWeather {
 
 		html = html.replace("\n", "");
 		
-		// ’nˆæ–¼‚ğæ“¾
-		Matcher m = Pattern.compile("<title.*?>(.*?)(i§.*?j)?‚Ì“V‹C.*?</title>").matcher(html);
+		// åœ°åŸŸåã‚’å–å¾—
+		Matcher m = Pattern.compile("<title.*?>(.*?)(ï¼ˆã€’.*?ï¼‰)?ã®å¤©æ°—.*?</title>").matcher(html);
 		if (!m.find()) throw new YahooWeatherParseException(4);
 		yw.areaName = m.group(1).replace(" ", "");
 		
-		// ¡“ú‚Æ–¾“ú‚Ì“V‹C‚ğˆ—
+		// ä»Šæ—¥ã¨æ˜æ—¥ã®å¤©æ°—ã‚’å‡¦ç†
 		Pattern p = Pattern.compile("<!---Point--->(.*?)<!---/Point--->", 
 				Pattern.CASE_INSENSITIVE);
 		m = p.matcher(html);
@@ -35,7 +35,7 @@ public class YahooWeather {
 		if (!m.find()) throw new YahooWeatherParseException(2);
 		yw.tomorrow = parseDay(m.group(1));
 		
-		// TŠÔ“V‹C‚ğˆ—
+		// é€±é–“å¤©æ°—ã‚’å‡¦ç†
 		m = Pattern.compile("\"yjw_table\"(.*?)</table>").matcher(html);
 		if (!m.find()) throw new YahooWeatherParseException(3);
 		yw.days = parseWeek(m.group(1));
@@ -43,14 +43,14 @@ public class YahooWeather {
 		return yw;
 	}
 	
-	// u¡“úv‚Æu–¾“úv‚Ì•”•ª‚ğˆ—
+	// ã€Œä»Šæ—¥ã€ã¨ã€Œæ˜æ—¥ã€ã®éƒ¨åˆ†ã‚’å‡¦ç†
 	private static Day parseDay(String html) throws YahooWeatherParseException {
 		Day result = new Day();
 		Pattern pRow = Pattern.compile("<tr.*?>(.*?)</tr>", Pattern.CASE_INSENSITIVE);
 		Pattern pColumn = Pattern.compile("<td.*?>(.*?)</td>", Pattern.CASE_INSENSITIVE);
 		Pattern pUrl = Pattern.compile("(http://[a-zA-Z0-9./_]*)", Pattern.CASE_INSENSITIVE);
 
-		Pattern pDate = Pattern.compile("yjSt.*?([\\d]+)Œ[ ]*?([\\d]+)“ú");
+		Pattern pDate = Pattern.compile("yjSt.*?([\\d]+)æœˆ[ ]*?([\\d]+)æ—¥");
 		Matcher dm = pDate.matcher(html);
 		if (!dm.find()) {
 			throw new YahooWeatherParseException(25);
@@ -73,11 +73,11 @@ public class YahooWeather {
 				
 				String text = removeTag(cm.group(1));
 				switch (r) {
-				case 0:	// ŠÔ
-					text = text.replace("", "").trim();
+				case 0:	// æ™‚é–“
+					text = text.replace("æ™‚", "").trim();
 					hour.hour = Integer.parseInt(text);
 					break;
-				case 1:	// “V‹C
+				case 1:	// å¤©æ°—
 					hour.text = text;
 					Matcher mUrl = pUrl.matcher(cm.group(1));
 					if (!mUrl.find()) {
@@ -85,16 +85,16 @@ public class YahooWeather {
 					}
 					hour.setImageUrl(mUrl.group(1));
 					break;
-				case 2:	// ‹C‰·
+				case 2:	// æ°—æ¸©
 					hour.temp = text;
 					break;
-				case 3:	// ¼“x
+				case 3:	// æ¹¿åº¦
 					hour.humidity = text;
 					break;
-				case 4:	// ~…—Ê
+				case 4:	// é™æ°´é‡
 					hour.rain = text;
 					break;
-				case 5:	// •—‘¬
+				case 5:	// é¢¨é€Ÿ
 					hour.wind = text;
 					break;
 				}
@@ -146,11 +146,11 @@ public class YahooWeather {
 				
 				String text = removeTag(cm.group(1));
 				switch (r) {
-				case 0:	// “ú•t
+				case 0:	// æ—¥ä»˜
 					day.date = text;
 					if (cm.groupCount() == 2) day.date += "\n" + removeTag(cm.group(2)); 
 					break;
-				case 1:	// “V‹C
+				case 1:	// å¤©æ°—
 					if (cm.groupCount() != 2) {
 						throw new YahooWeatherParseException(22);
 					}
@@ -161,18 +161,18 @@ public class YahooWeather {
 						//throw new YahooWeatherParseException(24);
 					}
 					else {
-						// TŠÔ“V‹C—\•ñ‚Å‚Í7“úŒã‚Ì—\•ñ‚ªŒöŠJ‚³‚ê‚Ä‚¢‚È‚¢‚±‚Æ‚ª‚ ‚é
+						// é€±é–“å¤©æ°—äºˆå ±ã§ã¯7æ—¥å¾Œã®äºˆå ±ãŒå…¬é–‹ã•ã‚Œã¦ã„ãªã„ã“ã¨ãŒã‚ã‚‹
 						day.imageUrl = null;
 					}
 					break;
-				case 2:	// ‹C‰·
+				case 2:	// æ°—æ¸©
 					if (cm.groupCount() != 2) {
 						throw new YahooWeatherParseException(23);
 					}
 					day.tempMax = text;
 					day.tempMin = removeTag(cm.group(2));
 					break;
-				case 3:	// ~…Šm—¦
+				case 3:	// é™æ°´ç¢ºç‡
 					day.rain = text;
 					break;
 				}
@@ -194,7 +194,7 @@ public class YahooWeather {
 		}
 		@Override
 		public String getMessage() {
-			return String.format("HTML‚Ìˆ—ƒGƒ‰[:%d", errorCode);
+			return String.format("HTMLã®å‡¦ç†ã‚¨ãƒ©ãƒ¼:%d", errorCode);
 		}
 	}
 	
@@ -243,7 +243,7 @@ public class YahooWeather {
 		
 		@Override
 		public String toString() {
-			return String.format("%d %s,%s,%s,%s,%s,%s",
+			return String.format("%dæ™‚ %s,%s,%s,%s,%s,%s",
 					hour, text, temp, humidity, rain, wind, imageUrl);
 		}
 	}
