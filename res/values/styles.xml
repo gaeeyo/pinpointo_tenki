@@ -38,18 +38,21 @@
 	
 	<style name="dayTableCell">
 		<item name="android:textColor">#000</item>
-		<item name="android:textSize">12sp</item>
+		<item name="android:textSize">13sp</item>
 		<item name="android:layout_height">fill_parent</item>
 		<item name="android:layout_width">fill_parent</item>
 		<item name="android:gravity">center</item>
 		<item name="android:layout_weight">1</item>
+		<item name="android:includeFontPadding">false</item>
 	</style>
 	
+	<!-- テーブルの最初の行 -->
 	<style name="dayTableTop" parent="@style/dayTableCell">
 		<item name="android:background">#E9EEFD</item>
 		<item name="android:layout_marginTop">1px</item>
 		<item name="android:layout_marginRight">1px</item>
 		<item name="android:layout_marginBottom">1px</item>
+		<item name="android:textSize">12sp</item>
 	</style>
 
 	<style name="dayTableTopLeft" parent="@style/dayTableCell">
@@ -65,6 +68,7 @@
 		<item name="android:layout_marginBottom">1px</item>
 	</style>
 	
+	<!-- 「晴れ・曇り」の文字 -->
 	<style name="dayTableDataWeather">
 		<item name="android:layout_height">wrap_content</item>
 		<item name="android:layout_width">fill_parent</item>
@@ -72,16 +76,21 @@
 		<item name="android:gravity">center</item>
 	</style>
 
+	<!-- 温度の文字色 -->
 	<style name="dayTableDataTemp" parent="@style/dayTableData">
 		<item name="android:textColor">#F60</item>
+		<item name="android:textSize">15sp</item>
 	</style>
 	
+	<!-- 湿度の文字色 -->
 	<style name="dayTableDataHumid" parent="@style/dayTableData">
 		<item name="android:textColor">#090</item>
+		<item name="android:textSize">15sp</item>
 	</style>
 	
+	<!-- 風の色 -->
 	<style name="dayTableDataWind" parent="@style/dayTableData">
-		<item name="android:textSize">10sp</item>
+		<item name="android:textSize">12sp</item>
 	</style>
 	
 	<color name="pastHourBackgroundColor">#EEE</color>

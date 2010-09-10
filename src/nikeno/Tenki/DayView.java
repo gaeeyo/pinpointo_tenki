@@ -3,8 +3,6 @@ package nikeno.Tenki;
 import java.util.Calendar;
 import java.util.Locale;
 
-import nikeno.Tenki.R;
-
 import android.content.Context;
 import android.content.res.Resources;
 import android.graphics.Bitmap;
@@ -16,7 +14,6 @@ import android.widget.LinearLayout;
 import android.widget.TableLayout;
 import android.widget.TableRow;
 import android.widget.TextView;
-import android.widget.ImageView.ScaleType;
 
 public class DayView extends LinearLayout {
 	@SuppressWarnings("unused")

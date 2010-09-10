@@ -2,6 +2,7 @@ package nikeno.Tenki;
 
 import nikeno.Tenki.R;
 import android.content.Context;
+import android.content.res.Configuration;
 import android.content.res.Resources;
 import android.graphics.Bitmap;
 import android.text.Spannable;
@@ -41,12 +42,15 @@ public class WeekView extends LinearLayout {
 
 	public void setData(YahooWeather.WeeklyDay[] data) {
 		mData = data;
-		ForegroundColorSpan maxTempSpan = new ForegroundColorSpan(maxTempColor);
-		ForegroundColorSpan minTempSpan = new ForegroundColorSpan(minTempColor);
+		final ForegroundColorSpan maxTempSpan = new ForegroundColorSpan(maxTempColor);
+		final ForegroundColorSpan minTempSpan = new ForegroundColorSpan(minTempColor);
+		final boolean isLandscape = getResources().getConfiguration().orientation == Configuration.ORIENTATION_LANDSCAPE;
+		
 		for (int x = 0; x < mData.length; x++) {
 			YahooWeather.WeeklyDay i = mData[x];
 			
-			((TextView)mRows[0].getChildAt(x)).setText(i.date);
+			((TextView)mRows[0].getChildAt(x)).setText(
+					isLandscape ? i.date.replace("\n", "") : i.date);
 
 			LinearLayout ll = (LinearLayout) mRows[1].getChildAt(x);
 			try {

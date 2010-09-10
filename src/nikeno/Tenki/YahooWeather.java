@@ -146,8 +146,8 @@ public class YahooWeather {
 				
 				String text = removeTag(cm.group(1));
 				switch (r) {
-				case 0:	// 日付
-					day.date = text;
+				case 0:	// 日付 
+					day.date = text.replaceAll("[0-9]+月", "");
 					if (cm.groupCount() == 2) day.date += "\n" + removeTag(cm.group(2)); 
 					break;
 				case 1:	// 天気
@@ -247,4 +247,22 @@ public class YahooWeather {
 					hour, text, temp, humidity, rain, wind, imageUrl);
 		}
 	}
+	
+//	private static final String HAN_ZEN = "０１２３４５６７８９";
+//	
+//	public static String NumHanToZen(String src) {
+//		
+//		int src_length = src.length();
+//		String str = "";
+//		int num;
+//		for (int j=0; j<src_length; j++) {
+//			num = src.charAt(j);
+//			if (num >= '0' && num <= '9') {
+//				str += HAN_ZEN.charAt(num - '0');
+//			} else {
+//				str += num;
+//			}
+//		}
+//		return str;
+//	}
 }

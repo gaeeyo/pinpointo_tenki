@@ -10,7 +10,7 @@ import java.util.WeakHashMap;
 import android.content.Context;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
-import android.util.Log;
+import android.util.DisplayMetrics;
 
 public class Downloader {
 	@SuppressWarnings("unused")
@@ -120,6 +120,7 @@ public class Downloader {
 			byte[] data = download(url, maxSize, since, true);
 			if (data != null) {
 				bmp = BitmapFactory.decodeByteArray(data, 0, data.length);
+				bmp.setDensity(DisplayMetrics.DENSITY_MEDIUM);
 				mBitmapCache.put(url, bmp);
 			}
 		}
