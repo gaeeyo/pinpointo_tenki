@@ -5,8 +5,10 @@ import java.util.Vector;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
+import android.app.AlertDialog;
 import android.app.ListActivity;
 import android.content.Context;
+import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.SharedPreferences;
 import android.content.SharedPreferences.Editor;
@@ -20,15 +22,17 @@ import android.view.View;
 import android.view.Window;
 import android.view.View.OnClickListener;
 import android.view.inputmethod.InputMethodManager;
+import android.widget.AdapterView;
 import android.widget.ArrayAdapter;
 import android.widget.Button;
 import android.widget.EditText;
 import android.widget.ListView;
 import android.widget.TextView;
 import android.widget.Toast;
+import android.widget.AdapterView.OnItemLongClickListener;
 import android.widget.TextView.OnEditorActionListener;
 
-public class AreaSelectActivity extends ListActivity {
+public class AreaSelectActivity extends ListActivity implements OnItemLongClickListener {
 	private static final String TAG = "AreaSelectActivity";
 	private static final String SERVER_ENCODING = "EUC-JP";
 	private static final int RECENT_MAX = 5;
@@ -39,7 +43,7 @@ public class AreaSelectActivity extends ListActivity {
 	private ArrayAdapter<String> mAdapter;
 	private SharedPreferences mPref; 
 	private AreaDataList mRecent;
-	
+	private boolean isRecentShowing;
 	
 	@Override
 	protected void onCreate(Bundle savedInstanceState) {
@@ -55,6 +59,7 @@ public class AreaSelectActivity extends ListActivity {
 		// リストの設定
 		mAdapter = new ArrayAdapter<String>(this, R.layout.area_select_row);
 		setListAdapter(mAdapter);
+		getListView().setOnItemLongClickListener(this);
 
 		// 検索Button
 		mSearchBtn.setOnClickListener(new OnClickListener() {
@@ -107,7 +112,7 @@ public class AreaSelectActivity extends ListActivity {
 				}
 			}
 		}
-		setNewList((AreaDataList)mRecent.clone());
+		setNewList((AreaDataList)mRecent.clone(), true);
 	}
 	
 	// 最近使った地域を保存
@@ -167,6 +172,33 @@ public class AreaSelectActivity extends ListActivity {
 		setResult(RESULT_OK, i);
 		finish();
 	}
+	
+	// クリックされた履歴を消す
+	public boolean onItemLongClick(AdapterView<?> parent, View view, int position,
+			long id) {
+		if (isRecentShowing) {
+			final AreaData selected = mRecent.get(position);
+			new AlertDialog.Builder(this)
+				.setTitle(R.string.dlg_recent_remove_title)
+				.setMessage(String.format(getString(R.string.dlg_recent_remove_message), selected.address2))
+				.setPositiveButton(android.R.string.yes, new DialogInterface.OnClickListener() {
+					public void onClick(DialogInterface dialog, int which) {
+						mRecent.remove(selected);
+						saveRecent();
+						setNewList(mRecent, true);
+						dialog.cancel(); 
+					}
+				})
+				.setNegativeButton(android.R.string.no, new DialogInterface.OnClickListener() {
+					public void onClick(DialogInterface dialog, int which) {
+						dialog.cancel();
+					}
+				})
+				.show();
+			
+		}
+		return false;
+	}	
 	
 	// 地域データ
 	public static class AreaData {
@@ -230,7 +262,8 @@ public class AreaSelectActivity extends ListActivity {
 	}
 	
 	// AreaDataList をリストにセットする
-	private void setNewList(AreaDataList newList) {
+	private void setNewList(AreaDataList newList, boolean isRecent) {
+		isRecentShowing = isRecent;
 		mListData = newList;
 		mAdapter.clear();
 		for (int j=0; j<mListData.size(); j++) {
@@ -301,9 +334,11 @@ public class AreaSelectActivity extends ListActivity {
 				}
 			}
 			else {
-				setNewList(result);
+				setNewList(result, false);
 			}
 			Log.d(TAG, "onPostExecute");
 		}
 	}
+
+
 }
