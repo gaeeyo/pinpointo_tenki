@@ -1,11 +1,11 @@
 package nikeno.Tenki;
 
-import java.io.BufferedInputStream;
-import java.io.IOException;
-import java.io.InputStream;
-import java.net.URL;
-import java.net.URLConnection;
+import java.io.ByteArrayOutputStream;
 import java.util.WeakHashMap;
+
+import org.apache.http.HttpResponse;
+import org.apache.http.client.methods.HttpGet;
+import org.apache.http.impl.client.DefaultHttpClient;
 
 import android.content.Context;
 import android.graphics.Bitmap;
@@ -33,44 +33,16 @@ public class Downloader {
 	// since == -1 : キャッシュから読み込まない
 	static public byte[] download(String url, int maxSize) throws Exception {
 		//Log.d(TAG, "downloading " + url);
-		byte [] data;
+		ByteArrayOutputStream baos = new ByteArrayOutputStream(20*1024);
 		
-		InputStream is = null;
-		BufferedInputStream bis = null;
-		try {
-			URL aURL = new URL(url);
-			URLConnection conn = aURL.openConnection();
-			conn.connect();
-			is = conn.getInputStream();
-			bis = new BufferedInputStream(is);
+		DefaultHttpClient client = new DefaultHttpClient();
+		HttpGet	request = new HttpGet(url);
+		
+		HttpResponse response = client.execute(request);
 
-			byte[] buff = new byte[maxSize];
+		response.getEntity().writeTo(baos);
 			
-			int dataSize = 0;
-			int readSize = 0;
-			while ((readSize = bis.read(buff, dataSize, maxSize - dataSize)) >= 0) {
-				dataSize += readSize;
-			}
-			
-			data = new byte[dataSize];
-			System.arraycopy(buff, 0, data, 0, dataSize);
-			
-		} finally {
-			if (bis != null)
-				try {
-					bis.close();
-				} catch (IOException e) {
-					e.printStackTrace();
-				}
-			if (is != null)
-				try {
-					is.close();
-				} catch (IOException e) {
-					e.printStackTrace();
-				}
-		}
-
-		return data;
+		return baos.toByteArray();
 	}
 	
 	static public byte[] download(String url, int maxSize, long since, boolean storeCache) throws Exception {
