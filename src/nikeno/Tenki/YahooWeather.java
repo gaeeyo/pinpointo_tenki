@@ -106,11 +106,12 @@ public class YahooWeather {
 	private static Date convertDate(int month, int date) {
 		Calendar today = Calendar.getInstance(Locale.JAPAN);
 		int year = today.get(Calendar.YEAR);
+		
 		switch (today.get(Calendar.MONTH)) {
-		case 1:
+		case Calendar.JANUARY:
 			if (month == 12) year--;
 			break;
-		case 12:
+		case Calendar.DECEMBER:
 			if (month == 1) year++;
 			break;
 		}
