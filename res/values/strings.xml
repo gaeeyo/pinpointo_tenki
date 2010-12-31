@@ -20,133 +20,16 @@
 	<string name="day_row_humid">湿度</string>
 	<string name="day_row_rain">降水量\nmm/h</string>
 	<string name="day_row_wind">風\nm/s</string>
-<string name="dummy_html">
-&lt;!---Point---&gt; 
-&lt;h3&gt;今日の天気
-&lt;span class=&quot;yjSt&quot;&gt; - 7月15日(木)&lt;/span&gt;&lt;/h3&gt; 
- 
-&lt;table border=1 cellpadding=3 cellspacing=0 class=&quot;yjw_table2&quot; width=&quot;100%&quot;&gt; 
- 
-&lt;tr valign=middle align=center bgcolor=&quot;#e9eefd&quot;&gt; 
-&lt;td width=100 bgcolor=&quot;#eeeeee&quot;&gt;&lt;small&gt;時間&lt;/small&gt;&lt;/td&gt; 
-&lt;td bgcolor=&quot;#eeeeee&quot; width=11%&gt; 
-&lt;small&gt;&lt;font color=&quot;#999999&quot;&gt;0時&lt;/font&gt;&lt;/small&gt;&lt;/td&gt; 
-&lt;td bgcolor=&quot;#eeeeee&quot;width=11%&gt; 
-&lt;small&gt;&lt;font color=&quot;#999999&quot;&gt;3時&lt;/font&gt;&lt;/small&gt;&lt;/td&gt; 
-&lt;td bgcolor=&quot;#eeeeee&quot;width=11%&gt; 
-&lt;small&gt;&lt;font color=&quot;#999999&quot;&gt;6時&lt;/font&gt;&lt;/small&gt;&lt;/td&gt; 
-&lt;td bgcolor=&quot;#eeeeee&quot;width=11%&gt; 
-&lt;small&gt;&lt;font color=&quot;#999999&quot;&gt;9時&lt;/font&gt;&lt;/small&gt;&lt;/td&gt; 
-&lt;td bgcolor=&quot;#e9eefd&quot;width=11%&gt; 
-&lt;small&gt;12時&lt;/small&gt;&lt;/td&gt; 
-&lt;td bgcolor=&quot;#e9eefd&quot;width=11%&gt; 
-&lt;small&gt;15時&lt;/small&gt;&lt;/td&gt; 
-&lt;td bgcolor=&quot;#e9eefd&quot;width=11%&gt; 
-&lt;small&gt;18時&lt;/small&gt;&lt;/td&gt; 
-&lt;td bgcolor=&quot;#e9eefd&quot;width=11%&gt; 
-&lt;small&gt;21時&lt;/small&gt;&lt;/td&gt; 
-&lt;/tr&gt; 
-&lt;tr align=center bgcolor=&quot;#ffffff&quot;&gt; 
-&lt;td bgcolor=&quot;#eeeeee&quot;&gt;&lt;small&gt;天気&lt;/small&gt;&lt;/td&gt; 
-&lt;td&gt;&lt;img src=&quot;http://i.yimg.jp/images/weather/general/forcast/pinpoint/pclouds_g.gif&quot; border=0 width=30 height=30 
-alt=&quot;曇り&quot;&gt;&lt;br&gt; 
-&lt;small&gt;&lt;font color=&quot;#999999&quot;&gt;曇り&lt;/font&gt;&lt;/small&gt;&lt;/td&gt; 
-&lt;td&gt;&lt;img src=&quot;http://i.yimg.jp/images/weather/general/forcast/pinpoint/pclouds_g.gif&quot; border=0 width=30 height=30 
-alt=&quot;曇り&quot;&gt;&lt;br&gt; 
-&lt;small&gt;&lt;font color=&quot;#999999&quot;&gt;曇り&lt;/font&gt;&lt;/small&gt;&lt;/td&gt; 
-&lt;td&gt;&lt;img src=&quot;http://i.yimg.jp/images/weather/general/forcast/pinpoint/pclouds_g.gif&quot; border=0 width=30 height=30 
-alt=&quot;曇り&quot;&gt;&lt;br&gt; 
-&lt;small&gt;&lt;font color=&quot;#999999&quot;&gt;曇り&lt;/font&gt;&lt;/small&gt;&lt;/td&gt; 
-&lt;td&gt;&lt;img src=&quot;http://i.yimg.jp/images/weather/general/forcast/pinpoint/pclouds_g.gif&quot; border=0 width=30 height=30 
-alt=&quot;曇り&quot;&gt;&lt;br&gt; 
-&lt;small&gt;&lt;font color=&quot;#999999&quot;&gt;曇り&lt;/font&gt;&lt;/small&gt;&lt;/td&gt; 
-&lt;td&gt;&lt;img src=&quot;http://i.yimg.jp/images/weather/general/forcast/pinpoint/psun.gif&quot; border=0 width=30 height=30 
-alt=&quot;晴れ&quot;&gt;&lt;br&gt; 
-&lt;small&gt;晴れ&lt;/small&gt;&lt;/td&gt; 
-&lt;td&gt;&lt;img src=&quot;http://i.yimg.jp/images/weather/general/forcast/pinpoint/psun.gif&quot; border=0 width=30 height=30 
-alt=&quot;晴れ&quot;&gt;&lt;br&gt; 
-&lt;small&gt;晴れ&lt;/small&gt;&lt;/td&gt; 
-&lt;td&gt;&lt;img src=&quot;http://i.yimg.jp/images/weather/general/forcast/pinpoint/pmoon.gif&quot; border=0 width=30 height=30 
-alt=&quot;晴れ&quot;&gt;&lt;br&gt; 
-&lt;small&gt;晴れ&lt;/small&gt;&lt;/td&gt; 
-&lt;td&gt;&lt;img src=&quot;http://i.yimg.jp/images/weather/general/forcast/pinpoint/pmoon.gif&quot; border=0 width=30 height=30 
-alt=&quot;晴れ&quot;&gt;&lt;br&gt; 
-&lt;small&gt;晴れ&lt;/small&gt;&lt;/td&gt; 
-&lt;/tr&gt; 
-&lt;tr valign=middle align=center bgcolor=&quot;#ffffff&quot;&gt; 
-&lt;td bgcolor=&quot;#eeeeee&quot;&gt;&lt;small&gt;気温（℃）&lt;/small&gt;&lt;/td&gt; 
-&lt;td&gt;&lt;small&gt;&lt;font color=&quot;#999999&quot;&gt;26&lt;/font&gt;&lt;/small&gt;&lt;/td&gt; 
-&lt;td&gt;&lt;small&gt;&lt;font color=&quot;#999999&quot;&gt;26&lt;/font&gt;&lt;/small&gt;&lt;/td&gt; 
-&lt;td&gt;&lt;small&gt;&lt;font color=&quot;#999999&quot;&gt;26&lt;/font&gt;&lt;/small&gt;&lt;/td&gt; 
-&lt;td&gt;&lt;small&gt;&lt;font color=&quot;#999999&quot;&gt;29&lt;/font&gt;&lt;/small&gt;&lt;/td&gt; 
-&lt;td&gt;&lt;small&gt;&lt;font color=&quot;#FF6600&quot;&gt;31&lt;/font&gt;&lt;/small&gt;&lt;/td&gt; 
-&lt;td&gt;&lt;small&gt;&lt;font color=&quot;#FF6600&quot;&gt;31&lt;/font&gt;&lt;/small&gt;&lt;/td&gt; 
-&lt;td&gt;&lt;small&gt;&lt;font color=&quot;#FF6600&quot;&gt;28&lt;/font&gt;&lt;/small&gt;&lt;/td&gt; 
-&lt;td&gt;&lt;small&gt;&lt;font color=&quot;#FF6600&quot;&gt;27&lt;/font&gt;&lt;/small&gt;&lt;/td&gt; 
-&lt;/tr&gt; 
-&lt;tr valign=middle align=center bgcolor=&quot;#ffffff&quot;&gt; 
-&lt;td bgcolor=&quot;#eeeeee&quot;&gt;&lt;small&gt;湿度（％）&lt;/small&gt;&lt;/td&gt; 
-&lt;td&gt;&lt;small&gt;&lt;font color=&quot;#999999&quot;&gt;---&lt;/font&gt;&lt;/small&gt;&lt;/td&gt; 
-&lt;td&gt;&lt;small&gt;&lt;font color=&quot;#999999&quot;&gt;---&lt;/font&gt;&lt;/small&gt;&lt;/td&gt; 
-&lt;td&gt;&lt;small&gt;&lt;font color=&quot;#999999&quot;&gt;---&lt;/font&gt;&lt;/small&gt;&lt;/td&gt; 
-&lt;td&gt;&lt;small&gt;&lt;font color=&quot;#999999&quot;&gt;---&lt;/font&gt;&lt;/small&gt;&lt;/td&gt; 
-&lt;td&gt;&lt;small&gt;&lt;font color=&quot;#009900&quot;&gt;66&lt;/font&gt;&lt;/small&gt;&lt;/td&gt; 
-&lt;td&gt;&lt;small&gt;&lt;font color=&quot;#009900&quot;&gt;66&lt;/font&gt;&lt;/small&gt;&lt;/td&gt; 
-&lt;td&gt;&lt;small&gt;&lt;font color=&quot;#009900&quot;&gt;76&lt;/font&gt;&lt;/small&gt;&lt;/td&gt; 
-&lt;td&gt;&lt;small&gt;&lt;font color=&quot;#009900&quot;&gt;82&lt;/font&gt;&lt;/small&gt;&lt;/td&gt; 
-&lt;/tr&gt; 
-&lt;tr valign=middle align=center bgcolor=&quot;#ffffff&quot;&gt; 
-&lt;td bgcolor=&quot;#eeeeee&quot; nowrap&gt;&lt;small&gt;降水量（mm/h）&lt;/small&gt;&lt;/td&gt; 
-&lt;td&gt;&lt;small&gt;&lt;font color=&quot;#999999&quot;&gt;0&lt;/font&gt;&lt;/small&gt;&lt;/td&gt; 
-&lt;td&gt;&lt;small&gt;&lt;font color=&quot;#999999&quot;&gt;0&lt;/font&gt;&lt;/small&gt;&lt;/td&gt; 
-&lt;td&gt;&lt;small&gt;&lt;font color=&quot;#999999&quot;&gt;0&lt;/font&gt;&lt;/small&gt;&lt;/td&gt; 
-&lt;td&gt;&lt;small&gt;&lt;font color=&quot;#999999&quot;&gt;0&lt;/font&gt;&lt;/small&gt;&lt;/td&gt; 
-&lt;td&gt;&lt;small&gt;0&lt;/small&gt;&lt;/td&gt; 
-&lt;td&gt;&lt;small&gt;0&lt;/small&gt;&lt;/td&gt; 
-&lt;td&gt;&lt;small&gt;0&lt;/small&gt;&lt;/td&gt; 
-&lt;td&gt;&lt;small&gt;0&lt;/small&gt;&lt;/td&gt; 
-&lt;/tr&gt; 
-&lt;tr align=center valign=&quot;top&quot; bgcolor=&quot;#ffffff&quot;&gt; 
-&lt;td bgcolor=&quot;#eeeeee&quot;&gt;&lt;small&gt;風向&lt;br&gt;風速（m/s）&lt;br&gt;&lt;/small&gt;&lt;/td&gt; 
-&lt;td&gt; 
-&lt;small&gt;&lt;font color=&quot;#999999&quot;&gt;南西&lt;/font&gt;&lt;br&gt; 
-&lt;font color=&quot;#999999&quot;&gt;1&lt;/font&gt;&lt;/small&gt;&lt;/td&gt; 
-&lt;td&gt; 
-&lt;small&gt;&lt;font color=&quot;#999999&quot;&gt;南西&lt;/font&gt;&lt;br&gt; 
-&lt;font color=&quot;#999999&quot;&gt;1&lt;/font&gt;&lt;/small&gt;&lt;/td&gt; 
-&lt;td&gt; 
-&lt;small&gt;&lt;font color=&quot;#999999&quot;&gt;南西&lt;/font&gt;&lt;br&gt; 
-&lt;font color=&quot;#999999&quot;&gt;1&lt;/font&gt;&lt;/small&gt;&lt;/td&gt; 
-&lt;td&gt; 
-&lt;small&gt;&lt;font color=&quot;#999999&quot;&gt;南南西&lt;/font&gt;&lt;br&gt; 
-&lt;font color=&quot;#999999&quot;&gt;1&lt;/font&gt;&lt;/small&gt;&lt;/td&gt; 
-&lt;td&gt; 
-&lt;small&gt;南南西&lt;br&gt; 
-2&lt;/small&gt;&lt;/td&gt; 
-&lt;td&gt; 
-&lt;small&gt;南南西&lt;br&gt; 
-2&lt;/small&gt;&lt;/td&gt; 
-&lt;td&gt; 
-&lt;small&gt;南南西&lt;br&gt; 
-3&lt;/small&gt;&lt;/td&gt; 
-&lt;td&gt; 
-&lt;small&gt;南南西&lt;br&gt; 
-1&lt;/small&gt;&lt;/td&gt; 
-&lt;/tr&gt; 
-&lt;/table&gt; 
-&lt;!---/Point---&gt; 
-
-</string>
-<string name="menu_reload">最新の情報に更新</string>
-<string name="menu_pref">地域を変更</string>
-
-<string name="reload_error">データの取得ができませんでした。</string>
-<string name="using_cache">データの取得が失敗したため、前回の情報を表示します。</string>
-<string name="area_select_search_empty">郵便番号、または地域名を入力して検索してください。</string>
-<string name="area_select_title">ピンポイント天気 - 地域設定</string>
-<string name="area_select_result_empty">見つかりませんでした。</string>
-<string name="week_row_rain">降水\n確率(%)</string>
-<string name="week_row_temp">気温(℃)</string>
-<string name="main_open_browser">Yahoo!天気情報</string>
-<string name="help_title">ピンポイント天気 - ヘルプ</string>
+	<string name="menu_reload">最新の情報に更新</string>
+	<string name="menu_pref">地域を変更</string>
+	
+	<string name="reload_error">データの取得ができませんでした。</string>
+	<string name="using_cache">データの取得が失敗したため、前回の情報を表示します。</string>
+	<string name="area_select_search_empty">郵便番号、または地域名を入力して検索してください。</string>
+	<string name="area_select_title">ピンポイント天気 - 地域設定</string>
+	<string name="area_select_result_empty">見つかりませんでした。</string>
+	<string name="week_row_rain">降水\n確率(%)</string>
+	<string name="week_row_temp">気温(℃)</string>
+	<string name="main_open_browser">Yahoo!天気情報</string>
+	<string name="help_title">ピンポイント天気 - ヘルプ</string>
 </resources>
