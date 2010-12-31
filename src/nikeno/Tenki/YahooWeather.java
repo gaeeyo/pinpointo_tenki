@@ -14,7 +14,7 @@ public class YahooWeather {
 	public Day tomorrow;
 	public WeeklyDay [] days;
 	
-	static YahooWeather parse(byte [] htmlData) throws YahooWeatherParseException, UnsupportedEncodingException  {
+	public static YahooWeather parse(byte [] htmlData) throws YahooWeatherParseException, UnsupportedEncodingException  {
 		String html = new String(htmlData, SERVER_ENCODING);
 		YahooWeather yw = new YahooWeather();
 

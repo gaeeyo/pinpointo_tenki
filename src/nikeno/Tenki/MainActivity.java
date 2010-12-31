@@ -52,7 +52,11 @@ public class MainActivity extends Activity {
 
         // 設定を読み込み
         mPref = getSharedPreferences(APP_PREF, MODE_PRIVATE);
-        loadSettings();
+        
+        mPrefUrl = getIntent().getDataString();
+        if (mPrefUrl == null) {
+        	loadSettings();
+        }
     	reload(false);
 
     	// ウィンドウの初期化
