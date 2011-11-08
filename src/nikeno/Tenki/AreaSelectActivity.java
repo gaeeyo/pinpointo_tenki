@@ -1,10 +1,5 @@
 package nikeno.Tenki;
 
-import java.net.URLEncoder;
-import java.util.Vector;
-import java.util.regex.Matcher;
-import java.util.regex.Pattern;
-
 import android.app.AlertDialog;
 import android.app.ListActivity;
 import android.content.Context;
@@ -19,43 +14,48 @@ import android.view.KeyEvent;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
-import android.view.Window;
 import android.view.View.OnClickListener;
+import android.view.Window;
 import android.view.inputmethod.InputMethodManager;
 import android.widget.AdapterView;
+import android.widget.AdapterView.OnItemLongClickListener;
 import android.widget.ArrayAdapter;
 import android.widget.Button;
 import android.widget.EditText;
 import android.widget.ListView;
 import android.widget.TextView;
-import android.widget.Toast;
-import android.widget.AdapterView.OnItemLongClickListener;
 import android.widget.TextView.OnEditorActionListener;
+import android.widget.Toast;
+
+import java.net.URLEncoder;
+import java.util.Vector;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 
 public class AreaSelectActivity extends ListActivity implements OnItemLongClickListener {
 	private static final String TAG = "AreaSelectActivity";
-	private static final String SERVER_ENCODING = "EUC-JP";
+	private static final String SERVER_ENCODING = "UTF-8";
 	private static final int RECENT_MAX = 5;
 	private Button mSearchBtn;
 	private EditText mSearchText;
 	private SearchTask mSearchTask;
 	private AreaDataList mListData;
 	private ArrayAdapter<String> mAdapter;
-	private SharedPreferences mPref; 
+	private SharedPreferences mPref;
 	private AreaDataList mRecent;
 	private boolean isRecentShowing;
-	
+
 	@Override
 	protected void onCreate(Bundle savedInstanceState) {
 		super.onCreate(savedInstanceState);
 		requestWindowFeature(Window.FEATURE_PROGRESS);
 		setContentView(R.layout.area_select);
-		
+
 		mPref = getSharedPreferences(MainActivity.APP_PREF, MODE_PRIVATE);
-		
+
 		mSearchBtn = (Button)findViewById(R.id.searchButton);
 		mSearchText = (EditText)findViewById(R.id.searchText);
-		
+
 		// リストの設定
 		mAdapter = new ArrayAdapter<String>(this, R.layout.area_select_row);
 		setListAdapter(mAdapter);
@@ -67,7 +67,7 @@ public class AreaSelectActivity extends ListActivity implements OnItemLongClickL
 				doSearch();
 			}
 		});
-		
+
 		// 検索EditText
 		mSearchText.setSingleLine(true);
 		mSearchText.setOnEditorActionListener(new OnEditorActionListener() {
@@ -79,17 +79,17 @@ public class AreaSelectActivity extends ListActivity implements OnItemLongClickL
 			}
 		});
 		mSearchText.requestFocus();
-		
+
 		loadRecent();
 	}
-	
+
 	// メニュー作成
 	@Override
 	public boolean onCreateOptionsMenu(Menu menu) {
 		getMenuInflater().inflate(R.menu.area_select_menu, menu);
     	return true;
 	}
-	
+
 	@Override
 	public boolean onMenuItemSelected(int featureId, MenuItem item) {
 		mRecent.clear();
@@ -97,11 +97,11 @@ public class AreaSelectActivity extends ListActivity implements OnItemLongClickL
 		mAdapter.clear();
 		return super.onMenuItemSelected(featureId, item);
 	}
-	
+
 	// 最近使った地域を読み込む
 	private void loadRecent() {
 		mRecent = new AreaDataList();
-		
+
 		String data;
 		for (int j=0; j<RECENT_MAX; j++) {
 			data = mPref.getString("Recent" + j, null);
@@ -114,11 +114,11 @@ public class AreaSelectActivity extends ListActivity implements OnItemLongClickL
 		}
 		setNewList((AreaDataList)mRecent.clone(), true);
 	}
-	
+
 	// 最近使った地域を保存
 	private void saveRecent() {
 		Editor editor = mPref.edit();
-		
+
 		String key;
 		for (int j=0; j<RECENT_MAX; j++) {
 			key = "Recent" + j;
@@ -131,13 +131,13 @@ public class AreaSelectActivity extends ListActivity implements OnItemLongClickL
 		}
 		editor.commit();
 	}
-	
+
 	// 検索を実行
 	private void doSearch() {
 		Log.d(TAG, "doSearch");
 		String text = mSearchText.getText().toString();
 		if (text.length() == 0) return;
-		
+
 		if (mSearchTask != null && mSearchTask.getStatus() != SearchTask.Status.FINISHED) {
 			mSearchTask.cancel(true);
 			mSearchTask = null;
@@ -147,18 +147,18 @@ public class AreaSelectActivity extends ListActivity implements OnItemLongClickL
 		if (imm != null) {
 			imm.hideSoftInputFromWindow(mSearchText.getWindowToken(), 0);
 		}
-		
+
 		mSearchTask = new SearchTask(this, text);
 		mSearchTask.execute(new String[] {});
 	}
-	
+
 	// リストがクリックされたら結果を返す
 	@Override
 	protected void onListItemClick(ListView l, View v, int position, long id) {
 		super.onListItemClick(l, v, position, id);
-		
+
 		AreaData selected = mListData.get(position);
-		
+
 		mRecent.insertElementAt(selected, 0);
 		for (int j=mRecent.size()-1; j>0; j--) {
 			if (mRecent.get(j).url.compareTo(selected.url)==0) {
@@ -166,13 +166,13 @@ public class AreaSelectActivity extends ListActivity implements OnItemLongClickL
 			}
 		}
 		saveRecent();
-		
+
 		Intent i = new Intent();
 		i.putExtra("url", mListData.get(position).url);
 		setResult(RESULT_OK, i);
 		finish();
 	}
-	
+
 	// クリックされた履歴を消す
 	public boolean onItemLongClick(AdapterView<?> parent, View view, int position,
 			long id) {
@@ -186,7 +186,7 @@ public class AreaSelectActivity extends ListActivity implements OnItemLongClickL
 						mRecent.remove(selected);
 						saveRecent();
 						setNewList(mRecent, true);
-						dialog.cancel(); 
+						dialog.cancel();
 					}
 				})
 				.setNegativeButton(android.R.string.no, new DialogInterface.OnClickListener() {
@@ -195,18 +195,18 @@ public class AreaSelectActivity extends ListActivity implements OnItemLongClickL
 					}
 				})
 				.show();
-			
+
 		}
 		return false;
-	}	
-	
+	}
+
 	// 地域データ
 	public static class AreaData {
 		public String zipCode;
 		public String address1;
 		public String address2;
 		public String url;
-		
+
 		public static AreaData parse(String text) {
 			AreaData data = null;
 			String [] values = text.split("\n");
@@ -220,28 +220,28 @@ public class AreaSelectActivity extends ListActivity implements OnItemLongClickL
 			return data;
 		}
 		public String serialize() {
-			return zipCode + "\n" + 
-				address1 + "\n" + 
+			return zipCode + "\n" +
+				address1 + "\n" +
 				address2 + "\n" +
 				url;
 		}
 	}
-	
+
 	// 地域データ配列
 	private static class AreaDataList extends Vector<AreaData> {
 		private static final long serialVersionUID = 6002692427075044056L;
-		
+
 		public static AreaDataList fromHTML(String html) throws Exception {
 			AreaDataList result = new AreaDataList();
-			
+
 			html = html.replace("\n", "");
-			
+
 			// ざっくりとした祝
-			Pattern p = Pattern.compile("class=\"yjw_table3\"(.*?)yjw_main_md", 
+			Pattern p = Pattern.compile("class=\"yjw_table3 serch-table\"(.*?)</tbody>",
 					Pattern.CASE_INSENSITIVE);
 			Matcher m = p.matcher(html);
 			if (m.find()) {
-				
+
 				html = m.group(1);
 				// <tr>ごとのループ
 				m = Pattern.compile(
@@ -260,7 +260,7 @@ public class AreaSelectActivity extends ListActivity implements OnItemLongClickL
 			return result;
 		}
 	}
-	
+
 	// AreaDataList をリストにセットする
 	private void setNewList(AreaDataList newList, boolean isRecent) {
 		isRecentShowing = isRecent;
@@ -271,36 +271,37 @@ public class AreaSelectActivity extends ListActivity implements OnItemLongClickL
 			mAdapter.add(String.format("%s %s\n%s", d.zipCode, d.address1, d.address2));
 		}
 	}
-		
+
 	// 地域データの検索タスク
 	private class SearchTask extends AsyncTask<String, Integer, AreaDataList> {
 		private final String TAG = "SearchTask";
 		private String mSearchText;
 		private Context mContext;
 		private String mErrorMessage;
-		
+
 		public SearchTask(Context context, String text) {
 			mContext = context;
 			mSearchText = text;
 		}
-		
+
 		@Override
 		protected AreaDataList doInBackground(String... params) {
 			Log.d(TAG, "doInBackground");
 			publishProgress(0);
 			AreaDataList result = null;
     		try {
-    			String url = "http://search.weather.yahoo.co.jp/bin/search?pref=all&x=0&y=0"
-    				+ "&p=" + URLEncoder.encode(mSearchText, SERVER_ENCODING);
-    			
+    			String url = "http://search.weather.yahoo.co.jp/bin/search"
+    				+ "?p=" + URLEncoder.encode(mSearchText, SERVER_ENCODING)
+    				+ "&t=z";
+
     			byte [] buff = Downloader.download(url, 50*1024, -1, false);
     			if (buff == null) {
     				throw new Exception("Download error.");
     			}
-    			
+
     			String html = new String(buff, SERVER_ENCODING);
     			publishProgress(50*100);
-    			
+
     			result = AreaDataList.fromHTML(html);
     			publishProgress(75*100);
     		}
@@ -310,13 +311,13 @@ public class AreaSelectActivity extends ListActivity implements OnItemLongClickL
     		publishProgress(100*100);
 			return result;
 		}
-		
+
 		@Override
 		protected void onProgressUpdate(Integer... values) {
 			super.onProgressUpdate(values);
 			setProgress(values[0]);
 		}
-		
+
 		@Override
 		protected void onPostExecute(AreaDataList result) {
 			super.onPostExecute(result);
@@ -324,12 +325,12 @@ public class AreaSelectActivity extends ListActivity implements OnItemLongClickL
 				//mAdapter.add(/object)
 				mAdapter.clear();
 				if (mErrorMessage != null) {
-	    			Toast.makeText(mContext, 
+	    			Toast.makeText(mContext,
 	    					"ERROR:" + mErrorMessage, Toast.LENGTH_LONG).show();
 				}
 				else {
-					Toast.makeText(mContext, 
-							mContext.getText(R.string.area_select_result_empty), 
+					Toast.makeText(mContext,
+							mContext.getText(R.string.area_select_result_empty),
 							Toast.LENGTH_LONG).show();
 				}
 			}

@@ -8,41 +8,41 @@ import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
 public class YahooWeather {
-	private static final String SERVER_ENCODING ="EUC-JP";
+	private static final String SERVER_ENCODING ="UTF-8";
 	public String areaName = "";
 	public Day today;
 	public Day tomorrow;
 	public WeeklyDay [] days;
-	
+
 	public static YahooWeather parse(byte [] htmlData) throws YahooWeatherParseException, UnsupportedEncodingException  {
 		String html = new String(htmlData, SERVER_ENCODING);
 		YahooWeather yw = new YahooWeather();
 
 		html = html.replace("\n", "");
-		
+
 		// 地域名を取得
 		Matcher m = Pattern.compile("<title.*?>(.*?)(（〒.*?）)?の天気.*?</title>").matcher(html);
 		if (!m.find()) throw new YahooWeatherParseException(4);
 		yw.areaName = m.group(1).replace(" ", "");
-		
+
 		// 今日と明日の天気を処理
-		Pattern p = Pattern.compile("<!---Point--->(.*?)<!---/Point--->", 
+		Pattern p = Pattern.compile("<!---Point--->(.*?)<!---/Point--->",
 				Pattern.CASE_INSENSITIVE);
 		m = p.matcher(html);
 		if (!m.find()) throw new YahooWeatherParseException(1);
 		yw.today = parseDay(m.group(1));
-		
+
 		if (!m.find()) throw new YahooWeatherParseException(2);
 		yw.tomorrow = parseDay(m.group(1));
-		
+
 		// 週間天気を処理
 		m = Pattern.compile("\"yjw_table\"(.*?)</table>").matcher(html);
 		if (!m.find()) throw new YahooWeatherParseException(3);
 		yw.days = parseWeek(m.group(1));
-		
+
 		return yw;
 	}
-	
+
 	// 「今日」と「明日」の部分を処理
 	private static Day parseDay(String html) throws YahooWeatherParseException {
 		Day result = new Day();
@@ -60,17 +60,17 @@ public class YahooWeather {
 			int day = Integer.parseInt(dm.group(2), 10);
 			result.date = convertDate(month, day);
 		}
-		
+
 		Matcher rm = pRow.matcher(html);
 		for (int r=0; r<6; r++) {
 			if (!rm.find()) throw new YahooWeatherParseException(10);
-			
-			Matcher cm = pColumn.matcher(rm.group(1)); 
+
+			Matcher cm = pColumn.matcher(rm.group(1));
 			for (int c=0; c<9; c++) {
 				if (!cm.find()) throw new YahooWeatherParseException(11);
 				if (c == 0) continue;
 				Hour hour = result.hours[c-1];
-				
+
 				String text = removeTag(cm.group(1));
 				switch (r) {
 				case 0:	// 時間
@@ -102,11 +102,11 @@ public class YahooWeather {
 		}
 		return result;
 	}
-	
+
 	private static Date convertDate(int month, int date) {
 		Calendar today = Calendar.getInstance(Locale.JAPAN);
 		int year = today.get(Calendar.YEAR);
-		
+
 		switch (today.get(Calendar.MONTH)) {
 		case Calendar.JANUARY:
 			if (month == 12) year--;
@@ -117,10 +117,10 @@ public class YahooWeather {
 		}
 		Calendar c = Calendar.getInstance(TimeZone.getTimeZone("Asia/Tokyo"));
 		c.set(year , month - 1, date, 0, 0, 0);
-		
+
 		return c.getTime();
 	}
-	
+
 	private static WeeklyDay [] parseWeek(String html) throws YahooWeatherParseException {
 		WeeklyDay [] result = new WeeklyDay [6];
 		for (int j=0; j<result.length; j++) {
@@ -129,27 +129,27 @@ public class YahooWeather {
 		Pattern pRow = Pattern.compile("<tr.*?>(.*?)</tr>", Pattern.CASE_INSENSITIVE);
 		Pattern pColumn = Pattern.compile("<td.*?>(.*?)(<br>.*?)?</td>", Pattern.CASE_INSENSITIVE);
 		Pattern pUrl = Pattern.compile("(http://[a-zA-Z0-9./_]*)", Pattern.CASE_INSENSITIVE);
-		
-		
+
+
 		Matcher rm = pRow.matcher(html);
 		for (int r=0; r<4; r++) {
 			if (!rm.find()) {
 				throw new YahooWeatherParseException(20);
 			}
-			
-			Matcher cm = pColumn.matcher(rm.group(1)); 
+
+			Matcher cm = pColumn.matcher(rm.group(1));
 			for (int c=0; c<7; c++) {
 				if (!cm.find()) {
 					throw new YahooWeatherParseException(21);
 				}
 				if (c == 0) continue;
 				WeeklyDay day = result[c-1];
-				
+
 				String text = removeTag(cm.group(1));
 				switch (r) {
-				case 0:	// 日付 
+				case 0:	// 日付
 					day.date = text.replaceAll("[0-9]+月", "");
-					if (cm.groupCount() == 2) day.date += "\n" + removeTag(cm.group(2)); 
+					if (cm.groupCount() == 2) day.date += "\n" + removeTag(cm.group(2));
 					break;
 				case 1:	// 天気
 					if (cm.groupCount() != 2) {
@@ -178,15 +178,15 @@ public class YahooWeather {
 					break;
 				}
 			}
-		}		
+		}
 		return result;
 	}
-	
+
 	private static String removeTag(String html) {
 		Pattern p = Pattern.compile("<.*?>", Pattern.CASE_INSENSITIVE);
 		return p.matcher(html).replaceAll("");
 	}
-	
+
 	public static class YahooWeatherParseException extends Exception {
 		private static final long serialVersionUID = 1L;
 		public int errorCode;
@@ -198,7 +198,7 @@ public class YahooWeather {
 			return String.format("HTMLの処理エラー:%d", errorCode);
 		}
 	}
-	
+
 	public static class WeeklyDay {
 		public String date;
 		public String text;
@@ -207,7 +207,7 @@ public class YahooWeather {
 		public String tempMin;
 		public String rain;
 	}
-	
+
 	public static class Day {
 		public Date date;
 		public Hour [] hours = new Hour [8];
@@ -217,7 +217,7 @@ public class YahooWeather {
 			}
 		}
 	}
-	
+
 	public static class Hour {
 		public int hour;
 		public String text;
@@ -226,14 +226,14 @@ public class YahooWeather {
 		public String rain;
 		public String wind;
 		private String imageUrl;
-		
+
 		public void setImageUrl(String url) {
 			imageUrl = url.replace("_g.gif", ".gif");
 		}
 		public String getImageUrl(boolean enabled) {
 			if (imageUrl == null) {
 				return null;
-			} 
+			}
 			else if (enabled) {
 				return imageUrl;
 			}
@@ -241,18 +241,18 @@ public class YahooWeather {
 				return imageUrl.replace(".gif", "_g.gif");
 			}
 		}
-		
+
 		@Override
 		public String toString() {
 			return String.format("%d時 %s,%s,%s,%s,%s,%s",
 					hour, text, temp, humidity, rain, wind, imageUrl);
 		}
 	}
-	
+
 //	private static final String HAN_ZEN = "０１２３４５６７８９";
-//	
+//
 //	public static String NumHanToZen(String src) {
-//		
+//
 //		int src_length = src.length();
 //		String str = "";
 //		int num;
