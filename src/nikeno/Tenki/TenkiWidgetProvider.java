@@ -17,6 +17,8 @@ public class TenkiWidgetProvider extends AppWidgetProvider {
 		super.onUpdate(context, appWidgetManager, appWidgetIds);
 
 		WidgetUpdateService.setAlarm(context);
+
+		WidgetUpdateService.start(context);
 	}
 
 	@Override

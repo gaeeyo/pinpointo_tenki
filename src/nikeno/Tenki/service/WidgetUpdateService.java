@@ -21,6 +21,7 @@ import android.widget.RemoteViews;
 import java.util.Calendar;
 import java.util.Locale;
 
+import nikeno.Tenki.Const;
 import nikeno.Tenki.Downloader;
 import nikeno.Tenki.MainActivity;
 import nikeno.Tenki.R;
@@ -33,16 +34,30 @@ import nikeno.Tenki.activity.TenkiWidgetConfigure.WidgetConfig;
 public class WidgetUpdateService extends Service {
 
 	static final String TAG = WidgetUpdateService.class.getSimpleName();
-	static final boolean DEBUG = true;
 
 	UpdateTask mUpdateTask;
 
 
+	public static void start(Context context) {
+		context.startService(new Intent(context, WidgetUpdateService.class));
+	}
+
+	/**
+	 * デフォルトの間隔でアラームを設定
+	 * @param context
+	 */
 	public static void setAlarm(Context context) {
 		setAlarm(context, 1*DateUtils.HOUR_IN_MILLIS);
 	}
 
+	/**
+	 * アラームを設定
+	 * @param context
+	 * @param interval
+	 */
 	public static void setAlarm(Context context, long interval) {
+		if (Const.DEBUG) Log.d(TAG, "setAlarm");
+
 		AlarmManager am = (AlarmManager)context.getSystemService(ALARM_SERVICE);
 
 		Intent intent = new Intent(context, WidgetUpdateService.class);
@@ -50,7 +65,7 @@ public class WidgetUpdateService extends Service {
 				0, intent, 0);
 
 		am.setRepeating(AlarmManager.ELAPSED_REALTIME,
-				SystemClock.currentThreadTimeMillis() + interval,
+				SystemClock.elapsedRealtime() + interval,
 				interval, pi);
 	}
 
@@ -60,14 +75,8 @@ public class WidgetUpdateService extends Service {
 	}
 
 	@Override
-	public void onCreate() {
-		super.onCreate();
-		Downloader.initialize(this);
-	}
-
-	@Override
 	public void onStart(Intent intent, int startId) {
-		if (DEBUG) {
+		if (Const.DEBUG) {
 			Log.d(TAG, "UpdateService started");
 		}
 		super.onStart(intent, startId);
@@ -123,7 +132,8 @@ public class WidgetUpdateService extends Service {
 				WidgetConfig config = TenkiWidgetConfigure.getWidgetConfig(context, id);
 
 				try {
-					byte [] html = Downloader.download(config.url, 50*1024);
+					byte [] html = Downloader.download(config.url, Const.HTML_SIZE_MAX,
+							10*DateUtils.SECOND_IN_MILLIS, true);
 					YahooWeather data = YahooWeather.parse(html);
 
 					RemoteViews views = buildUpdate(context, id, data, theme);

@@ -1,21 +1,21 @@
 package nikeno.Tenki;
 
-import java.io.ByteArrayOutputStream;
-import java.util.WeakHashMap;
-
-import org.apache.http.HttpResponse;
-import org.apache.http.client.methods.HttpGet;
-import org.apache.http.impl.client.DefaultHttpClient;
-
 import android.content.Context;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
 import android.util.DisplayMetrics;
+import android.util.Log;
+
+import java.io.ByteArrayOutputStream;
+import java.io.InputStream;
+import java.net.URL;
+import java.net.URLConnection;
+import java.util.WeakHashMap;
 
 public class Downloader {
 	@SuppressWarnings("unused")
 	static private final String TAG = "Downloader";
-	
+
 	static private FileCache mFileCache = null;
 	static private WeakHashMap<String, Bitmap> mBitmapCache = null;
 
@@ -31,20 +31,38 @@ public class Downloader {
 
 	// ダウンロード
 	// since == -1 : キャッシュから読み込まない
-	static public byte[] download(String url, int maxSize) throws Exception {
-		//Log.d(TAG, "downloading " + url);
-		ByteArrayOutputStream baos = new ByteArrayOutputStream(20*1024);
-		
-		DefaultHttpClient client = new DefaultHttpClient();
-		HttpGet	request = new HttpGet(url);
-		
-		HttpResponse response = client.execute(request);
+	static public byte[] download(String url, int maxSize, boolean storeCache) throws Exception {
+		if (Const.DEBUG) {
+			Log.d(TAG, "downloading " + url);
+		}
+		ByteArrayOutputStream baos = new ByteArrayOutputStream(maxSize);
 
-		response.getEntity().writeTo(baos);
-			
-		return baos.toByteArray();
+		URL u = new URL(url);
+
+		URLConnection uc = u.openConnection();
+		uc.setConnectTimeout(Const.CONNECT_TIMEOUT);
+		uc.getIfModifiedSince();
+
+		InputStream in = uc.getInputStream();
+		try {
+			byte [] buf = new byte [8*1024];
+			int readSize;
+			while ((readSize = in.read(buf)) > 0) {
+				baos.write(buf, 0, readSize);
+			}
+		}
+		finally {
+			in.close();
+		}
+
+		byte [] data = baos.toByteArray();
+		if (data != null && storeCache) {
+			mFileCache.put(url, data, uc.getIfModifiedSince());
+		}
+
+		return data;
 	}
-	
+
 	static public byte[] download(String url, int maxSize, long since, boolean storeCache) throws Exception {
 		byte[] data = null;
 		if (since != -1) {
@@ -53,19 +71,16 @@ public class Downloader {
 				return data;
 			}
 		}
-		data = download(url, maxSize);
-		if (data != null && storeCache) {
-			mFileCache.put(url, data);
-		}
-		
+		data = download(url, maxSize, storeCache);
+
 		return data;
 	}
-	
-	static public byte[] getCache(String url, long since) { 
+
+	static public byte[] getCache(String url, long since) {
 		return mFileCache.get(url, since);
 	}
-	
-//	static public String downloadHtml(String url, String encoding, 
+
+//	static public String downloadHtml(String url, String encoding,
 //			int maxSize, long since, boolean storeCache) throws Exception {
 //
 //		byte [] htmlData = mFileCache.get(url, since);

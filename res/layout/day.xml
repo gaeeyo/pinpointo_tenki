@@ -1,116 +1,221 @@
 <?xml version="1.0" encoding="utf-8"?>
 <TableLayout xmlns:android="http://schemas.android.com/apk/res/android"
-	android:layout_height="wrap_content" android:layout_width="fill_parent"
-	style="@style/dayTable">
+    style="@style/dayTable"
+    android:layout_width="fill_parent"
+    android:layout_height="wrap_content" >
 
-	<TableRow>
-<!--		<TextView android:text="@string/day_row_hour" style="@style/dayTableTopLeft"></TextView>-->
-		<TextView style="@style/dayTableTop"></TextView>
-		<TextView style="@style/dayTableTop"></TextView>
-		<TextView style="@style/dayTableTop"></TextView>
-		<TextView style="@style/dayTableTop"></TextView>
-		<TextView style="@style/dayTableTop"></TextView>
-		<TextView style="@style/dayTableTop"></TextView>
-		<TextView style="@style/dayTableTop"></TextView>
-		<TextView style="@style/dayTableTop"></TextView>
-	</TableRow>
-	
-	<TableRow>
-<!--		<TextView android:text="@string/day_row_weather" style="@style/dayTableLeft"></TextView>-->
-		
-		<LinearLayout android:orientation="vertical" style="@style/dayTableData"
-			android:layout_width="fill_parent" android:layout_height="fill_parent">
-			<ImageView android:layout_width="fill_parent"
-				android:layout_height="wrap_content"></ImageView>
-			<TextView style="@style/dayTableDataWeather"></TextView>
-		</LinearLayout>
-		<LinearLayout android:orientation="vertical" style="@style/dayTableData"
-			android:layout_width="fill_parent" android:layout_height="fill_parent">
-			<ImageView android:layout_width="fill_parent"
-				android:layout_height="wrap_content"></ImageView>
-			<TextView style="@style/dayTableDataWeather"></TextView>
-		</LinearLayout>
-		<LinearLayout android:orientation="vertical" style="@style/dayTableData"
-			android:layout_width="fill_parent" android:layout_height="fill_parent">
-			<ImageView android:layout_width="fill_parent"
-				android:layout_height="wrap_content"></ImageView>
-			<TextView style="@style/dayTableDataWeather"></TextView>
-		</LinearLayout>
-		<LinearLayout android:orientation="vertical" style="@style/dayTableData"
-			android:layout_width="fill_parent" android:layout_height="fill_parent">
-			<ImageView android:layout_width="fill_parent"
-				android:layout_height="wrap_content"></ImageView>
-			<TextView style="@style/dayTableDataWeather"></TextView>
-		</LinearLayout>
-		<LinearLayout android:orientation="vertical" style="@style/dayTableData"
-			android:layout_width="fill_parent" android:layout_height="fill_parent">
-			<ImageView android:layout_width="fill_parent"
-				android:layout_height="wrap_content"></ImageView>
-			<TextView style="@style/dayTableDataWeather"></TextView>
-		</LinearLayout>
-		<LinearLayout android:orientation="vertical" style="@style/dayTableData"
-			android:layout_width="fill_parent" android:layout_height="fill_parent">
-			<ImageView android:layout_width="fill_parent"
-				android:layout_height="wrap_content"></ImageView>
-			<TextView style="@style/dayTableDataWeather"></TextView>
-		</LinearLayout>
-		<LinearLayout android:orientation="vertical" style="@style/dayTableData"
-			android:layout_width="fill_parent" android:layout_height="fill_parent">
-			<ImageView android:layout_width="fill_parent"
-				android:layout_height="wrap_content"></ImageView>
-			<TextView style="@style/dayTableDataWeather"></TextView>
-		</LinearLayout>
-		<LinearLayout android:orientation="vertical" style="@style/dayTableData"
-			android:layout_width="fill_parent" android:layout_height="fill_parent">
-			<ImageView android:layout_width="fill_parent"
-				android:layout_height="wrap_content"></ImageView>
-			<TextView style="@style/dayTableDataWeather"></TextView>
-		</LinearLayout>
-	</TableRow>
-	<TableRow>
-<!--		<TextView android:text="@string/day_row_temp" style="@style/dayTableLeft"></TextView>-->
-		<TextView style="@style/dayTableDataTemp"></TextView>
-		<TextView style="@style/dayTableDataTemp"></TextView>
-		<TextView style="@style/dayTableDataTemp"></TextView>
-		<TextView style="@style/dayTableDataTemp"></TextView>
-		<TextView style="@style/dayTableDataTemp"></TextView>
-		<TextView style="@style/dayTableDataTemp"></TextView>
-		<TextView style="@style/dayTableDataTemp"></TextView>
-		<TextView style="@style/dayTableDataTemp"></TextView>
-	</TableRow>
-	<TableRow>
-<!--		<TextView android:text="@string/day_row_humid" style="@style/dayTableLeft"></TextView>-->
-		<TextView style="@style/dayTableDataHumid"></TextView>
-		<TextView style="@style/dayTableDataHumid"></TextView>
-		<TextView style="@style/dayTableDataHumid"></TextView>
-		<TextView style="@style/dayTableDataHumid"></TextView>
-		<TextView style="@style/dayTableDataHumid"></TextView>
-		<TextView style="@style/dayTableDataHumid"></TextView>
-		<TextView style="@style/dayTableDataHumid"></TextView>
-		<TextView style="@style/dayTableDataHumid"></TextView>
-	</TableRow>
-	<TableRow>
-<!--		<TextView android:text="@string/day_row_rain" style="@style/dayTableLeft"></TextView>-->
-		<TextView style="@style/dayTableData"></TextView>
-		<TextView style="@style/dayTableData"></TextView>
-		<TextView style="@style/dayTableData"></TextView>
-		<TextView style="@style/dayTableData"></TextView>
-		<TextView style="@style/dayTableData"></TextView>
-		<TextView style="@style/dayTableData"></TextView>
-		<TextView style="@style/dayTableData"></TextView>
-		<TextView style="@style/dayTableData"></TextView>
-	</TableRow>
+    <TableRow>
 
-	<TableRow>
-<!--		<TextView android:text="@string/day_row_wind" style="@style/dayTableLeft"></TextView>-->
-		<TextView style="@style/dayTableDataWind"></TextView>
-		<TextView style="@style/dayTableDataWind"></TextView>
-		<TextView style="@style/dayTableDataWind"></TextView>
-		<TextView style="@style/dayTableDataWind"></TextView>
-		<TextView style="@style/dayTableDataWind"></TextView>
-		<TextView style="@style/dayTableDataWind"></TextView>
-		<TextView style="@style/dayTableDataWind"></TextView>
-		<TextView style="@style/dayTableDataWind"></TextView>
-	</TableRow>
+        <!-- <TextView android:text="@string/day_row_hour" style="@style/dayTableTopLeft"></TextView> -->
+
+        <TextView style="@style/dayTableTop" />
+
+        <TextView style="@style/dayTableTop" />
+
+        <TextView style="@style/dayTableTop" />
+
+        <TextView style="@style/dayTableTop" />
+
+        <TextView style="@style/dayTableTop" />
+
+        <TextView style="@style/dayTableTop" />
+
+        <TextView style="@style/dayTableTop" />
+
+        <TextView style="@style/dayTableTop" />
+    </TableRow>
+
+    <TableRow>
+
+        <!-- <TextView android:text="@string/day_row_weather" style="@style/dayTableLeft"></TextView> -->
+
+        <LinearLayout
+            style="@style/dayTableData"
+            android:layout_width="fill_parent"
+            android:layout_height="fill_parent"
+            android:orientation="vertical" >
+
+            <ImageView
+                android:layout_width="fill_parent"
+                android:layout_height="wrap_content" />
+
+            <TextView style="@style/dayTableDataWeather" />
+        </LinearLayout>
+
+        <LinearLayout
+            style="@style/dayTableData"
+            android:layout_width="fill_parent"
+            android:layout_height="fill_parent"
+            android:orientation="vertical" >
+
+            <ImageView
+                android:layout_width="fill_parent"
+                android:layout_height="wrap_content" />
+
+            <TextView style="@style/dayTableDataWeather" />
+        </LinearLayout>
+
+        <LinearLayout
+            style="@style/dayTableData"
+            android:layout_width="fill_parent"
+            android:layout_height="fill_parent"
+            android:orientation="vertical" >
+
+            <ImageView
+                android:layout_width="fill_parent"
+                android:layout_height="wrap_content" />
+
+            <TextView style="@style/dayTableDataWeather" />
+        </LinearLayout>
+
+        <LinearLayout
+            style="@style/dayTableData"
+            android:layout_width="fill_parent"
+            android:layout_height="fill_parent"
+            android:orientation="vertical" >
+
+            <ImageView
+                android:layout_width="fill_parent"
+                android:layout_height="wrap_content" />
+
+            <TextView style="@style/dayTableDataWeather" />
+        </LinearLayout>
+
+        <LinearLayout
+            style="@style/dayTableData"
+            android:layout_width="fill_parent"
+            android:layout_height="fill_parent"
+            android:orientation="vertical" >
+
+            <ImageView
+                android:layout_width="fill_parent"
+                android:layout_height="wrap_content" />
+
+            <TextView style="@style/dayTableDataWeather" />
+        </LinearLayout>
+
+        <LinearLayout
+            style="@style/dayTableData"
+            android:layout_width="fill_parent"
+            android:layout_height="fill_parent"
+            android:orientation="vertical" >
+
+            <ImageView
+                android:layout_width="fill_parent"
+                android:layout_height="wrap_content" />
+
+            <TextView style="@style/dayTableDataWeather" />
+        </LinearLayout>
+
+        <LinearLayout
+            style="@style/dayTableData"
+            android:layout_width="fill_parent"
+            android:layout_height="fill_parent"
+            android:orientation="vertical" >
+
+            <ImageView
+                android:layout_width="fill_parent"
+                android:layout_height="wrap_content" />
+
+            <TextView style="@style/dayTableDataWeather" />
+        </LinearLayout>
+
+        <LinearLayout
+            style="@style/dayTableData"
+            android:layout_width="fill_parent"
+            android:layout_height="fill_parent"
+            android:orientation="vertical" >
+
+            <ImageView
+                android:layout_width="fill_parent"
+                android:layout_height="wrap_content" />
+
+            <TextView style="@style/dayTableDataWeather" />
+        </LinearLayout>
+    </TableRow>
+
+    <TableRow>
+
+        <!-- <TextView android:text="@string/day_row_temp" style="@style/dayTableLeft"></TextView> -->
+
+        <TextView style="@style/dayTableDataTemp" />
+
+        <TextView style="@style/dayTableDataTemp" />
+
+        <TextView style="@style/dayTableDataTemp" />
+
+        <TextView style="@style/dayTableDataTemp" />
+
+        <TextView style="@style/dayTableDataTemp" />
+
+        <TextView style="@style/dayTableDataTemp" />
+
+        <TextView style="@style/dayTableDataTemp" />
+
+        <TextView style="@style/dayTableDataTemp" />
+    </TableRow>
+
+    <TableRow>
+
+        <!-- <TextView android:text="@string/day_row_humid" style="@style/dayTableLeft"></TextView> -->
+
+        <TextView style="@style/dayTableDataHumid" />
+
+        <TextView style="@style/dayTableDataHumid" />
+
+        <TextView style="@style/dayTableDataHumid" />
+
+        <TextView style="@style/dayTableDataHumid" />
+
+        <TextView style="@style/dayTableDataHumid" />
+
+        <TextView style="@style/dayTableDataHumid" />
+
+        <TextView style="@style/dayTableDataHumid" />
+
+        <TextView style="@style/dayTableDataHumid" />
+    </TableRow>
+
+    <TableRow>
+
+        <!-- <TextView android:text="@string/day_row_rain" style="@style/dayTableLeft"></TextView> -->
+
+        <TextView style="@style/dayTableData" />
+
+        <TextView style="@style/dayTableData" />
+
+        <TextView style="@style/dayTableData" />
+
+        <TextView style="@style/dayTableData" />
+
+        <TextView style="@style/dayTableData" />
+
+        <TextView style="@style/dayTableData" />
+
+        <TextView style="@style/dayTableData" />
+
+        <TextView style="@style/dayTableData" />
+    </TableRow>
+
+    <TableRow>
+
+        <!-- <TextView android:text="@string/day_row_wind" style="@style/dayTableLeft"></TextView> -->
+
+        <TextView style="@style/dayTableDataWind" />
+
+        <TextView style="@style/dayTableDataWind" />
+
+        <TextView style="@style/dayTableDataWind" />
+
+        <TextView style="@style/dayTableDataWind" />
+
+        <TextView style="@style/dayTableDataWind" />
+
+        <TextView style="@style/dayTableDataWind" />
+
+        <TextView style="@style/dayTableDataWind" />
+
+        <TextView style="@style/dayTableDataWind" />
+    </TableRow>
 
 </TableLayout>
