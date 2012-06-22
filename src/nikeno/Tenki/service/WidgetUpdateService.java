@@ -43,19 +43,11 @@ public class WidgetUpdateService extends Service {
 	}
 
 	/**
-	 * デフォルトの間隔でアラームを設定
-	 * @param context
-	 */
-	public static void setAlarm(Context context) {
-		setAlarm(context, 1*DateUtils.HOUR_IN_MILLIS);
-	}
-
-	/**
 	 * アラームを設定
 	 * @param context
 	 * @param interval
 	 */
-	public static void setAlarm(Context context, long interval) {
+	public static void setAlarm(Context context) {
 		if (Const.DEBUG) Log.d(TAG, "setAlarm");
 
 		AlarmManager am = (AlarmManager)context.getSystemService(ALARM_SERVICE);
@@ -64,9 +56,9 @@ public class WidgetUpdateService extends Service {
 		PendingIntent pi = PendingIntent.getService(context,
 				0, intent, 0);
 
-		am.setRepeating(AlarmManager.ELAPSED_REALTIME,
-				SystemClock.elapsedRealtime() + interval,
-				interval, pi);
+		am.setInexactRepeating(AlarmManager.ELAPSED_REALTIME,
+				SystemClock.elapsedRealtime(),
+				AlarmManager.INTERVAL_HALF_HOUR, pi);
 	}
 
 	@Override
