@@ -31,6 +31,7 @@
 
                     <TextView
                         android:id="@+id/todayHeader"
+                        style="@style/sectionHeader"
                         android:layout_width="fill_parent"
                         android:layout_height="wrap_content"
                         android:text="@string/today_text" />
@@ -52,6 +53,7 @@
 
                     <TextView
                         android:id="@+id/tomorrowHeader"
+                        style="@style/sectionHeader"
                         android:layout_width="fill_parent"
                         android:layout_height="wrap_content"
                         android:text="@string/tomorrow_text" />
@@ -67,11 +69,11 @@
         <!-- 週間天気 -->
         <!--
 			<TextView android:layout_height="wrap_content"
-			android:text="@string/weekly_text"
+			android:text="@string/weekly_text"
         -->
         <!--
 			android:layout_width="fill_parent"
-			android:id="@+id/weekHeader"></TextView>
+			android:id="@+id/weekHeader"></TextView>
         -->
 
         <nikeno.Tenki.WeekView

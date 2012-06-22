@@ -33,7 +33,6 @@ public class MainActivity extends Activity {
 	private DayView mTomorrowTable;
 	private WeekView mWeekTable;
 	private YahooWeather mWeatherData = null;
-	private String mDefaultTitle;
 	private TextView mTodayHeader;
 	private TextView mTomorrowHeader;
 	private SharedPreferences mPref;
@@ -59,9 +58,6 @@ public class MainActivity extends Activity {
     	// ウィンドウの初期化
     	requestWindowFeature(Window.FEATURE_PROGRESS);
     	requestWindowFeature(Window.FEATURE_INDETERMINATE_PROGRESS);
-
-        // アクティビティのタイトルを保存
-        mDefaultTitle = getTitle().toString();
 
         initViews();
 
@@ -171,7 +167,7 @@ public class MainActivity extends Activity {
     private void setData(YahooWeather data) {
 		mWeatherData = data;
 
-		setTitle(mDefaultTitle + " - " + mWeatherData.areaName);
+		setTitle(getString(R.string.mainTitleFormat, mWeatherData.areaName));
 
 		if (mTodayHeader != null) {
 			mTodayHeader.setText(getDateText(mWeatherData.today.date));

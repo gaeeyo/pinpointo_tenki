@@ -10,7 +10,8 @@
     <string name="area_select_search_label">郵便番号または地名</string>
     <string name="hello">Hello World, MainActivity!</string>
     <string name="app_name">ピンポイント天気</string>
-	<string name="weekly_text">週間天気</string>
+    <string name="mainTitleFormat">%1$s の天気</string>
+   	<string name="weekly_text">週間天気</string>
 	<string name="today_text">今日の天気</string>
 	<string name="tomorrow_text">明日の天気</string>
 	<string name="reload_complete">情報を更新しました</string>

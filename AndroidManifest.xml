@@ -1,80 +1,70 @@
 <?xml version="1.0" encoding="utf-8"?>
-<manifest
-	xmlns:android="http://schemas.android.com/apk/res/android"
-	package="nikeno.Tenki"
-	android:versionCode="8"
-	android:versionName="0.1.6">
-	<application
-		android:icon="@drawable/icon"
-		android:label="@string/app_name"
-		android:theme="@android:style/Theme.Light"
-		android:name="nikeno.Tenki.TenkiApp">
+<manifest xmlns:android="http://schemas.android.com/apk/res/android"
+    package="nikeno.Tenki"
+    android:installLocation="auto"
+    android:versionCode="9"
+    android:versionName="0.1.7" >
 
-		<activity
-			android:name=".MainActivity"
-			android:label="@string/app_name">
-			<intent-filter>
-				<action
-					android:name="android.intent.action.MAIN" />
-				<category
-					android:name="android.intent.category.LAUNCHER" />
-			</intent-filter>
-		</activity>
+    <uses-sdk
+        android:minSdkVersion="4"
+        android:targetSdkVersion="15" />
 
-		<activity
-			android:name="AreaSelectActivity"
-			android:label="@string/area_select_title"
-			android:configChanges="orientation|keyboardHidden">
-			<intent-filter>
-				<action
-					android:name="android.intent.action.MAIN" />
-			</intent-filter>
-		</activity>
+    <uses-permission android:name="android.permission.INTERNET" />
 
-		<activity
-			android:name="HelpActivity"
-			android:label="@string/help_title">
-			<intent-filter>
-				<action
-					android:name="android.intent.action.MAIN" />
-			</intent-filter>
-		</activity>
+    <application
+        android:name="nikeno.Tenki.TenkiApp"
+        android:icon="@drawable/icon"
+        android:label="@string/app_name"
+        android:theme="@style/MyTheme" >
+        <activity
+            android:name=".MainActivity"
+            android:label="@string/app_name" >
+            <intent-filter>
+                <action android:name="android.intent.action.MAIN" />
 
-		<!-- Widget Provider -->
-		<receiver
-			android:name="TenkiWidgetProvider">
-			<intent-filter>
-				<action
-					android:name="android.appwidget.action.APPWIDGET_UPDATE" />
-			</intent-filter>
-			<meta-data
-				android:name="android.appwidget.provider"
-				android:resource="@xml/widget_info" />
-		</receiver>
+                <category android:name="android.intent.category.LAUNCHER" />
+            </intent-filter>
+        </activity>
+        <activity
+            android:name="AreaSelectActivity"
+            android:configChanges="orientation|keyboardHidden"
+            android:label="@string/area_select_title" >
+            <intent-filter>
+                <action android:name="android.intent.action.MAIN" />
+            </intent-filter>
+        </activity>
+        <activity
+            android:name="HelpActivity"
+            android:label="@string/help_title" >
+            <intent-filter>
+                <action android:name="android.intent.action.MAIN" />
+            </intent-filter>
+        </activity>
 
-		<!-- Widgetを更新するサービス -->
-		<service
-			android:name=".service.WidgetUpdateService" />
+        <!-- Widget Provider -->
+        <receiver android:name="TenkiWidgetProvider" >
+            <intent-filter>
+                <action android:name="android.appwidget.action.APPWIDGET_UPDATE" />
+            </intent-filter>
 
-		<activity
-			android:name=".activity.TenkiWidgetConfigure">
-			<intent-filter>
-				<action
-					android:name="android.appwidget.action.APPWIDGET_CONFIGURE" />
-			</intent-filter>
-		</activity>
+            <meta-data
+                android:name="android.appwidget.provider"
+                android:resource="@xml/widget_info" />
+        </receiver>
 
-	</application>
-	<uses-sdk
-		android:minSdkVersion="4" />
+        <!-- Widgetを更新するサービス -->
+        <service android:name=".service.WidgetUpdateService" />
 
+        <activity android:name=".activity.TenkiWidgetConfigure" >
+            <intent-filter>
+                <action android:name="android.appwidget.action.APPWIDGET_CONFIGURE" />
+            </intent-filter>
+        </activity>
+    </application>
 
-	<uses-permission
-		android:name="android.permission.INTERNET"></uses-permission>
-
-	<!--
+    <!--
 		<uses-permission
-		android:name="android.permission.WRITE_EXTERNAL_STORAGE"></uses-permission>
-	-->
+		android:name="android.permission.WRITE_EXTERNAL_STORAGE"></uses-permission>
+    -->
 
-</manifest> 
+</manifest>

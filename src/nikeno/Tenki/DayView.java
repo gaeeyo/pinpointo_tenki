@@ -63,8 +63,8 @@ public class DayView extends LinearLayout {
 			table.addView(row);
 		}
 
-		float tableTextSize = res.getDimension(R.dimen.tableTextSize);
-		float windTextSize = res.getDimension(R.dimen.tableWindTextSize);
+		float tableTextSize = res.getDimension(R.dimen.textSizeMedium);
+		float windTextSize = res.getDimension(R.dimen.textSizeXSmall);
 
 		TextView tv;
 
@@ -172,6 +172,7 @@ public class DayView extends LinearLayout {
 				//((ImageView)ll.getChildAt(0)).set .setScaleType(ImageView.ScaleType.CENTER_INSIDE );
 			}
 			catch (Exception e) {
+				e.printStackTrace();
 				;
 			}
 

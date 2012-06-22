@@ -2,21 +2,24 @@
 <ScrollView xmlns:android="http://schemas.android.com/apk/res/android"
     android:layout_width="fill_parent"
     android:layout_height="fill_parent"
+    android:paddingLeft="4dip"
+    android:paddingRight="4dip"
     android:fadingEdge="none" >
 
     <LinearLayout
         android:id="@+id/body"
         android:layout_width="fill_parent"
         android:layout_height="wrap_content"
-        android:orientation="vertical"
-        android:padding="3sp" >
+        android:orientation="vertical" >
 
         <!-- 今日の天気 -->
 
         <TextView
             android:id="@+id/todayHeader"
+            style="@style/sectionHeader"
             android:layout_width="fill_parent"
             android:layout_height="wrap_content"
+            android:layout_margin="4dip"
             android:text="@string/today_text" />
 
         <nikeno.Tenki.DayView
@@ -31,6 +34,7 @@
             android:id="@+id/tomorrowHeader"
             android:layout_width="fill_parent"
             android:layout_height="wrap_content"
+            android:layout_margin="4dip"
             android:text="@string/tomorrow_text" />
 
         <nikeno.Tenki.DayView
@@ -44,6 +48,7 @@
             android:id="@+id/weekHeader"
             android:layout_width="fill_parent"
             android:layout_height="wrap_content"
+            android:layout_margin="4dip"
             android:text="@string/weekly_text" />
 
         <nikeno.Tenki.WeekView
@@ -77,5 +82,5 @@
 		<LinearLayout android:id="@+id/LinearLayout01"
 		android:layout_width="fill_parent" android:layout_height="fill_parent"
 		xmlns:android="http://schemas.android.com/apk/res/android">
-		<WebView></WebView> </LinearLayout>
+		<WebView></WebView> </LinearLayout>
 -->
