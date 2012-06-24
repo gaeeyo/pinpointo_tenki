@@ -59,6 +59,9 @@ public class WidgetUpdateService extends Service {
 		am.setInexactRepeating(AlarmManager.ELAPSED_REALTIME,
 				SystemClock.elapsedRealtime(),
 				AlarmManager.INTERVAL_HALF_HOUR, pi);
+//		am.setInexactRepeating(AlarmManager.ELAPSED_REALTIME,
+//				SystemClock.elapsedRealtime(),
+//				1 * DateUtils.MINUTE_IN_MILLIS, pi);
 	}
 
 	@Override
@@ -125,7 +128,7 @@ public class WidgetUpdateService extends Service {
 
 				try {
 					byte [] html = Downloader.download(config.url, Const.HTML_SIZE_MAX,
-							10*DateUtils.SECOND_IN_MILLIS, true);
+							System.currentTimeMillis() - 1*DateUtils.HOUR_IN_MILLIS, true);
 					YahooWeather data = YahooWeather.parse(html);
 
 					RemoteViews views = buildUpdate(context, id, data, theme);
