@@ -81,9 +81,12 @@ public class YahooWeather {
 					hour.text = text;
 					Matcher mUrl = pUrl.matcher(cm.group(1));
 					if (!mUrl.find()) {
-						throw new YahooWeatherParseException(12);
+						hour.setImageUrl(null);
+//						throw new YahooWeatherParseException(12);
 					}
-					hour.setImageUrl(mUrl.group(1));
+					else {
+						hour.setImageUrl(mUrl.group(1));
+					}
 					break;
 				case 2:	// 気温
 					hour.temp = text;
@@ -228,7 +231,11 @@ public class YahooWeather {
 		private String imageUrl;
 
 		public void setImageUrl(String url) {
-			imageUrl = url.replace("_g.gif", ".gif");
+			if (url != null) {
+				imageUrl = url.replace("_g.gif", ".gif");
+			} else {
+				imageUrl = null;
+			}
 		}
 		public String getImageUrl(boolean enabled) {
 			if (imageUrl == null) {
