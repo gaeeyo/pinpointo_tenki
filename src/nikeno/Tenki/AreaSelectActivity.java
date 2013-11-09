@@ -63,6 +63,7 @@ public class AreaSelectActivity extends ListActivity implements OnItemLongClickL
 
 		// 検索Button
 		mSearchBtn.setOnClickListener(new OnClickListener() {
+			@Override
 			public void onClick(View v) {
 				doSearch();
 			}
@@ -71,6 +72,7 @@ public class AreaSelectActivity extends ListActivity implements OnItemLongClickL
 		// 検索EditText
 		mSearchText.setSingleLine(true);
 		mSearchText.setOnEditorActionListener(new OnEditorActionListener() {
+			@Override
 			public boolean onEditorAction(TextView v, int actionId, KeyEvent event) {
 				if (event == null || event.getAction() == KeyEvent.ACTION_UP) {
 					doSearch();
@@ -174,6 +176,7 @@ public class AreaSelectActivity extends ListActivity implements OnItemLongClickL
 	}
 
 	// クリックされた履歴を消す
+	@Override
 	public boolean onItemLongClick(AdapterView<?> parent, View view, int position,
 			long id) {
 		if (isRecentShowing) {
@@ -182,6 +185,7 @@ public class AreaSelectActivity extends ListActivity implements OnItemLongClickL
 				.setTitle(R.string.dlg_recent_remove_title)
 				.setMessage(String.format(getString(R.string.dlg_recent_remove_message), selected.address2))
 				.setPositiveButton(android.R.string.yes, new DialogInterface.OnClickListener() {
+					@Override
 					public void onClick(DialogInterface dialog, int which) {
 						mRecent.remove(selected);
 						saveRecent();
@@ -190,6 +194,7 @@ public class AreaSelectActivity extends ListActivity implements OnItemLongClickL
 					}
 				})
 				.setNegativeButton(android.R.string.no, new DialogInterface.OnClickListener() {
+					@Override
 					public void onClick(DialogInterface dialog, int which) {
 						dialog.cancel();
 					}
@@ -237,15 +242,15 @@ public class AreaSelectActivity extends ListActivity implements OnItemLongClickL
 			html = html.replace("\n", "");
 
 			// ざっくりとした祝
-			Pattern p = Pattern.compile("class=\"yjw_table3 serch-table\"(.*?)</tbody>",
+			Pattern p = Pattern.compile("<thead.*?郵便番号.*?</thead(.*?)</tbody",
 					Pattern.CASE_INSENSITIVE);
 			Matcher m = p.matcher(html);
 			if (m.find()) {
 
 				html = m.group(1);
-				// <tr>ごとのループ
+				// <tr><td>zip</td><td>県名</td><td><a href="">住所</a></td>
 				m = Pattern.compile(
-						"<tr.*?<td.*?>(.*?)</td><td.*?>(.*?)</td><td.*?(http://[a-zA-Z0-9./_]*).*?>(.*?)</a>"
+						"<tr.*?<td.*?>(.*?)</td>.*?<td.*?>(.*?)</td>.*?<td.*?>.*?(http://[a-zA-Z0-9./_]*?)\".*?>(.*?)</a>.*?</tr"
 						).matcher(html);
 				while (m.find()) {
 					AreaData d = new AreaData();
@@ -275,8 +280,8 @@ public class AreaSelectActivity extends ListActivity implements OnItemLongClickL
 	// 地域データの検索タスク
 	private class SearchTask extends AsyncTask<String, Integer, AreaDataList> {
 		private final String TAG = "SearchTask";
-		private String mSearchText;
-		private Context mContext;
+		private final String mSearchText;
+		private final Context mContext;
 		private String mErrorMessage;
 
 		public SearchTask(Context context, String text) {
@@ -290,7 +295,7 @@ public class AreaSelectActivity extends ListActivity implements OnItemLongClickL
 			publishProgress(0);
 			AreaDataList result = null;
     		try {
-    			String url = "http://search.weather.yahoo.co.jp/bin/search"
+    			String url = "http://weather.yahoo.co.jp/weather/search/"
     				+ "?p=" + URLEncoder.encode(mSearchText, SERVER_ENCODING)
     				+ "&t=z";
 
