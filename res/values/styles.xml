@@ -87,7 +87,7 @@
 	
 	<!-- 風の色 -->
 	<style name="dayTableDataWind" parent="@style/dayTableData">
-		<item name="android:textSize">12sp</item>
+		<item name="android:textSize">@dimen/textSizeXSmall</item>
 	</style>
 	
 	<color name="pastHourBackgroundColor">#EEE</color>

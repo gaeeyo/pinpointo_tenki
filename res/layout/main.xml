@@ -2,9 +2,11 @@
 <ScrollView xmlns:android="http://schemas.android.com/apk/res/android"
     android:layout_width="fill_parent"
     android:layout_height="fill_parent"
-    android:paddingLeft="4dip"
-    android:paddingRight="4dip"
-    android:fadingEdge="none" >
+    android:fadingEdge="none"
+    android:paddingBottom="@dimen/marginHeight"
+    android:paddingLeft="@dimen/marginWidth"
+    android:paddingRight="@dimen/marginWidth"
+    android:paddingTop="@dimen/marginHeight" >
 
     <LinearLayout
         android:id="@+id/body"
@@ -32,9 +34,11 @@
 
         <TextView
             android:id="@+id/tomorrowHeader"
+            style="@style/sectionHeader"
             android:layout_width="fill_parent"
             android:layout_height="wrap_content"
             android:layout_margin="4dip"
+            android:layout_marginTop="@dimen/marginHeight"
             android:text="@string/tomorrow_text" />
 
         <nikeno.Tenki.DayView
@@ -46,9 +50,11 @@
 
         <TextView
             android:id="@+id/weekHeader"
+            style="@style/sectionHeader"
             android:layout_width="fill_parent"
             android:layout_height="wrap_content"
             android:layout_margin="4dip"
+            android:layout_marginTop="@dimen/marginHeight"
             android:text="@string/weekly_text" />
 
         <nikeno.Tenki.WeekView
@@ -78,9 +84,4 @@
         </LinearLayout>
     </LinearLayout>
 
-</ScrollView><!--
-		<LinearLayout android:id="@+id/LinearLayout01"
-		android:layout_width="fill_parent" android:layout_height="fill_parent"
-		xmlns:android="http://schemas.android.com/apk/res/android">
-		<WebView></WebView> </LinearLayout>
--->
+</ScrollView>
