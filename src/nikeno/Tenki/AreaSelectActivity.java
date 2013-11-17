@@ -63,7 +63,6 @@ public class AreaSelectActivity extends ListActivity implements OnItemLongClickL
 
 		// 検索Button
 		mSearchBtn.setOnClickListener(new OnClickListener() {
-			@Override
 			public void onClick(View v) {
 				doSearch();
 			}
@@ -72,7 +71,6 @@ public class AreaSelectActivity extends ListActivity implements OnItemLongClickL
 		// 検索EditText
 		mSearchText.setSingleLine(true);
 		mSearchText.setOnEditorActionListener(new OnEditorActionListener() {
-			@Override
 			public boolean onEditorAction(TextView v, int actionId, KeyEvent event) {
 				if (event == null || event.getAction() == KeyEvent.ACTION_UP) {
 					doSearch();
@@ -176,7 +174,6 @@ public class AreaSelectActivity extends ListActivity implements OnItemLongClickL
 	}
 
 	// クリックされた履歴を消す
-	@Override
 	public boolean onItemLongClick(AdapterView<?> parent, View view, int position,
 			long id) {
 		if (isRecentShowing) {
@@ -185,7 +182,6 @@ public class AreaSelectActivity extends ListActivity implements OnItemLongClickL
 				.setTitle(R.string.dlg_recent_remove_title)
 				.setMessage(String.format(getString(R.string.dlg_recent_remove_message), selected.address2))
 				.setPositiveButton(android.R.string.yes, new DialogInterface.OnClickListener() {
-					@Override
 					public void onClick(DialogInterface dialog, int which) {
 						mRecent.remove(selected);
 						saveRecent();
@@ -194,7 +190,6 @@ public class AreaSelectActivity extends ListActivity implements OnItemLongClickL
 					}
 				})
 				.setNegativeButton(android.R.string.no, new DialogInterface.OnClickListener() {
-					@Override
 					public void onClick(DialogInterface dialog, int which) {
 						dialog.cancel();
 					}
