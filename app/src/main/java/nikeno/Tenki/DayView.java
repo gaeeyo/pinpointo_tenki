@@ -165,11 +165,7 @@ public class DayView extends LinearLayout {
 			try {
 				Bitmap bmp = null;
 				String imageUrl = h.getImageUrl(enabled);
-				if (imageUrl != null) {
-					bmp = Downloader.downloadImage(imageUrl, 16*1024, 0);
-				}
-				((ImageView)ll.getChildAt(0)).setImageBitmap(bmp);
-				//((ImageView)ll.getChildAt(0)).set .setScaleType(ImageView.ScaleType.CENTER_INSIDE );
+				ImageDownloader.getInstance().setImage(imageUrl, ((ImageView)ll.getChildAt(0)));
 			}
 			catch (Exception e) {
 				e.printStackTrace();

@@ -16,6 +16,7 @@ import android.text.SpannableString;
 import android.text.format.DateUtils;
 import android.text.style.ForegroundColorSpan;
 import android.util.Log;
+import android.widget.ImageView;
 import android.widget.RemoteViews;
 
 import java.util.Calendar;
@@ -251,9 +252,11 @@ public class WidgetUpdateService extends Service {
 	};
 
 	public static int getBitmap(Context c, String url) {
-		for (int j=0; j<bmpNames.length; j++) {
-			if (url.indexOf(bmpNames[j]) != -1) {
-				return bmpIds[j];
+		if (url != null) {
+			for (int j = 0; j < bmpNames.length; j++) {
+				if (url.indexOf(bmpNames[j]) != -1) {
+					return bmpIds[j];
+				}
 			}
 		}
 		return -1;

@@ -3,7 +3,6 @@ package nikeno.Tenki;
 import android.content.Context;
 import android.content.res.Configuration;
 import android.content.res.Resources;
-import android.graphics.Bitmap;
 import android.text.Spannable;
 import android.text.SpannableString;
 import android.text.style.ForegroundColorSpan;
@@ -53,12 +52,9 @@ public class WeekView extends LinearLayout {
 
 			LinearLayout ll = (LinearLayout) mRows[1].getChildAt(x);
 			try {
-				Bitmap bmp = Downloader.downloadImage(i.imageUrl, Const.IMAGE_SIZE_MAX, 0);
-				if (bmp != null) {
-					((ImageView) ll.getChildAt(0)).setImageBitmap(bmp);
-				}
+				ImageDownloader.getInstance().setImage(i.imageUrl, ((ImageView) ll.getChildAt(0)));
 			} catch (Exception e) {
-				;
+				e.printStackTrace();
 			}
 
 			((TextView) ll.getChildAt(1)).setText(i.text);

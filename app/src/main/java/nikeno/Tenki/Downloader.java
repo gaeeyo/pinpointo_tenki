@@ -117,4 +117,8 @@ public class Downloader {
 		return bmp;
 	}
 
+	static public Bitmap getImageFromMemCache(String url)  {
+		return mBitmapCache.get(url);
+	}
+
 }
