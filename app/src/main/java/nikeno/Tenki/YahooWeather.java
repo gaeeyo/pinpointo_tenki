@@ -26,7 +26,7 @@ public class YahooWeather {
 		yw.areaName = m.group(1).replace(" ", "");
 
 		// 今日と明日の天気を処理
-		Pattern p = Pattern.compile("<!---Point--->(.*?)<!---/Point--->",
+		Pattern p = Pattern.compile("<!-- Point -->(.*?)<!-- /Point -->",
 				Pattern.CASE_INSENSITIVE);
 		m = p.matcher(html);
 		if (!m.find()) throw new YahooWeatherParseException(1);
