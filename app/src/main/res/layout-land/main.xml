@@ -1,0 +1,103 @@
+<?xml version="1.0" encoding="utf-8"?>
+<ScrollView xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="fill_parent"
+    android:layout_height="fill_parent"
+    android:fadingEdge="none"
+    android:paddingBottom="@dimen/marginHeight"
+    android:paddingLeft="@dimen/marginWidth"
+    android:paddingRight="@dimen/marginWidth"
+    android:paddingTop="@dimen/marginHeight" >
+
+    <LinearLayout
+        android:id="@+id/body"
+        android:layout_width="fill_parent"
+        android:layout_height="wrap_content"
+        android:orientation="vertical"
+        android:paddingLeft="6sp"
+        android:paddingRight="6sp"
+        android:paddingTop="3sp" >
+
+        <TableLayout
+            android:layout_width="fill_parent"
+            android:layout_height="wrap_content"
+            android:visibility="visible"
+            android:weightSum="2" >
+
+            <TableRow>
+
+                <LinearLayout
+                    android:layout_width="fill_parent"
+                    android:layout_height="wrap_content"
+                    android:layout_weight="1"
+                    android:orientation="vertical" >
+
+                    <!-- 今日の天気 -->
+
+                    <TextView
+                        android:id="@+id/todayHeader"
+                        style="@style/sectionHeader"
+                        android:layout_width="fill_parent"
+                        android:layout_height="wrap_content"
+                        android:text="@string/today_text" />
+
+                    <nikeno.Tenki.DayView
+                        android:id="@+id/todayTable"
+                        android:layout_width="fill_parent"
+                        android:layout_height="wrap_content" />
+                </LinearLayout>
+
+                <LinearLayout
+                    android:layout_width="fill_parent"
+                    android:layout_height="wrap_content"
+                    android:layout_marginLeft="@dimen/marginHeight"
+                    android:layout_weight="1"
+                    android:orientation="vertical" >
+
+                    <!-- 明日の天気 -->
+
+                    <TextView
+                        android:id="@+id/tomorrowHeader"
+                        style="@style/sectionHeader"
+                        android:layout_width="fill_parent"
+                        android:layout_height="wrap_content"
+                        android:text="@string/tomorrow_text" />
+
+                    <nikeno.Tenki.DayView
+                        android:id="@+id/tomorrowTable"
+                        android:layout_width="fill_parent"
+                        android:layout_height="wrap_content" />
+                </LinearLayout>
+            </TableRow>
+        </TableLayout>
+
+        <nikeno.Tenki.WeekView
+            android:id="@+id/weekTable"
+            android:layout_width="fill_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="@dimen/marginHeight" />
+
+        <!-- ボタン -->
+
+        <LinearLayout
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_gravity="center"
+            android:layout_margin="4dip"
+            android:orientation="horizontal" >
+
+            <Button
+                android:id="@+id/open_browser"
+                android:layout_width="wrap_content"
+                android:layout_height="fill_parent"
+                android:layout_gravity="center_horizontal"
+                android:text="@string/main_open_browser" />
+
+            <Button
+                android:id="@+id/area_select"
+                android:layout_width="wrap_content"
+                android:layout_height="fill_parent"
+                android:text="@string/main_pref" />
+        </LinearLayout>
+    </LinearLayout>
+
+</ScrollView>
