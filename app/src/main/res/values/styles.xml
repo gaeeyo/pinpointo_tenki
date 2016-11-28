@@ -103,16 +103,17 @@
 
 	<!-- Widget -->
 	<style name="wTextBase">
-		<item name="android:textSize">10sp</item>
+		<item name="android:textSize">11dip</item>
 		<item name="android:textStyle">bold</item>
 		<item name="android:shadowColor">#000</item>
 		<item name="android:shadowRadius">1</item>
 		<item name="android:shadowDx">1</item>
 		<item name="android:shadowDy">1</item>
+		<item name="android:includeFontPadding">false</item>
 	</style>
 	
 	<style name="wTitle" parent="@style/wTextBase">
-		<item name="android:textColor">#bbb</item>
+		<item name="android:textColor">#fff</item>
 		<item name="android:layout_width">wrap_content</item>
 		<item name="android:layout_height">wrap_content</item>
 	</style>
@@ -123,10 +124,11 @@
 		<item name="android:gravity">center_vertical</item>
 		<item name="android:layout_width">0dip</item>
 		<item name="android:layout_height">fill_parent</item>
+		<item name="android:includeFontPadding">false</item>
 	</style>
 	
 	<style name="wHour" parent="@style/wTextBase">
-		<item name="android:textColor">#eee</item>
+		<item name="android:textColor">#fff</item>
 		<item name="android:gravity">center</item>
 		<item name="android:layout_width">fill_parent</item>
 		<item name="android:layout_height">wrap_content</item>
@@ -135,7 +137,8 @@
 	<style name="wImg">
 		<item name="android:layout_gravity">center</item>
 		<item name="android:layout_width">wrap_content</item>
-		<item name="android:layout_height">wrap_content</item>
+		<item name="android:layout_height">26dip</item>
+		<item name="android:scaleType">center</item>
 	</style>
 	
 	<style name="sectionHeader">

@@ -48,7 +48,7 @@ public class YahooWeather {
 		Day result = new Day();
 		Pattern pRow = Pattern.compile("<tr.*?>(.*?)</tr>", Pattern.CASE_INSENSITIVE);
 		Pattern pColumn = Pattern.compile("<td.*?>(.*?)</td>", Pattern.CASE_INSENSITIVE);
-		Pattern pUrl = Pattern.compile("(http://[a-zA-Z0-9./_]*)", Pattern.CASE_INSENSITIVE);
+		Pattern pUrl = Pattern.compile("(https?://[a-zA-Z0-9./_]*)", Pattern.CASE_INSENSITIVE);
 
 		Pattern pDate = Pattern.compile("yjSt.*?([\\d]+)月[ ]*?([\\d]+)日");
 		Matcher dm = pDate.matcher(html);
