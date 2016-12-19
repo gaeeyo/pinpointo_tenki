@@ -11,8 +11,8 @@ android {
         applicationId "nikeno.Tenki"
         minSdkVersion 4
         targetSdkVersion 24
-        versionCode 20
-        versionName "0.1.14"
+        versionCode 21
+        versionName "0.1.15"
 
 
         archivesBaseName = "pinpoint_tenki-$versionName"
