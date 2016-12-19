@@ -131,7 +131,7 @@ public class YahooWeather {
 		}
 		Pattern pRow = Pattern.compile("<tr.*?>(.*?)</tr>", Pattern.CASE_INSENSITIVE);
 		Pattern pColumn = Pattern.compile("<td.*?>(.*?)(<br>.*?)?</td>", Pattern.CASE_INSENSITIVE);
-		Pattern pUrl = Pattern.compile("(http://[a-zA-Z0-9./_]*)", Pattern.CASE_INSENSITIVE);
+		Pattern pUrl = Pattern.compile("(https?://[a-zA-Z0-9./_]*)", Pattern.CASE_INSENSITIVE);
 
 
 		Matcher rm = pRow.matcher(html);
