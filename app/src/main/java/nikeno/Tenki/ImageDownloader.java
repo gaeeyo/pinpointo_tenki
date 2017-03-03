@@ -1,5 +1,6 @@
 package nikeno.Tenki;
 
+import android.content.Context;
 import android.graphics.Bitmap;
 import android.os.Handler;
 import android.os.Looper;
@@ -16,13 +17,16 @@ public class ImageDownloader {
 
     static ImageDownloader sInstance;
 
-    public static synchronized  ImageDownloader getInstance() {
+    public static synchronized  ImageDownloader getInstance(Context context) {
         if (sInstance == null) {
             sInstance = new ImageDownloader();
         }
         return sInstance;
     }
 
+
+    Thread mCurrentTask;
+    ArrayList<Task> mTasks = new ArrayList<Task>();
 
     Handler mHandler = new Handler(Looper.getMainLooper()) {
         @Override
@@ -42,9 +46,6 @@ public class ImageDownloader {
         }
     };
 
-    Thread mCurrentTask;
-    ArrayList<Task> mTasks = new ArrayList<Task>();
-
     public void setImage(String url, ImageView view) {
         if (setImageNow(url, view)) {
             return;
@@ -57,7 +58,7 @@ public class ImageDownloader {
     }
 
     boolean setImageNow(String url, ImageView view) {
-        Bitmap bmp = Downloader.getImageFromMemCache(url);
+        Bitmap bmp = Downloader.getInstance(view.getContext()).getImageFromMemCache(url);
         if (bmp == null) {
             return false;
         } else {
@@ -89,7 +90,8 @@ public class ImageDownloader {
 
     void execute(Task task) {
         try {
-            task.bmp = Downloader.downloadImage(task.url, Const.IMAGE_SIZE_MAX, 0);
+            task.bmp = Downloader.getInstance(task.view.getContext()).downloadImage(
+                    task.url, Const.IMAGE_SIZE_MAX, 0);
         } catch (Exception e) {
             e.printStackTrace();
             task.error = e;

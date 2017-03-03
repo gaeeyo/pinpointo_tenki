@@ -8,7 +8,5 @@ public class TenkiApp extends Application {
 		super.onCreate();
 
 		Const.init(this);
-        // ダウンローダーの初期化
-        Downloader.initialize(getApplicationContext());
 	}
 }

@@ -115,7 +115,7 @@ public class MainActivity extends Activity {
 
     // キャッシュを表示する
     private void showCache() {
-    	byte [] data = Downloader.getCache(mPrefUrl, System.currentTimeMillis() - 24 * DateUtils.HOUR_IN_MILLIS);
+    	byte [] data = Downloader.getInstance(this).getCache(mPrefUrl, System.currentTimeMillis() - 24 * DateUtils.HOUR_IN_MILLIS);
     	if (data != null) {
     		try {
     			YahooWeather weatherData = YahooWeather.parse(data);
@@ -232,12 +232,13 @@ public class MainActivity extends Activity {
     			// ダウンロード
     			byte [] buff = null;
     			try {
-    				buff = Downloader.download(params[0], 50*1024, since, true);
+    				buff = Downloader.getInstance(MainActivity.this)
+							.download(params[0], 50*1024, since, true);
     			}
     			catch (Exception e) {
         			if (since != -1) {
         				// エラーが発生してもキャッシュがあれば使う
-        				buff = Downloader.getCache(params[0],
+        				buff = Downloader.getInstance(MainActivity.this).getCache(params[0],
         						System.currentTimeMillis() - 8 * DateUtils.HOUR_IN_MILLIS);
         				if (buff != null) {
         					mIsCache = true;

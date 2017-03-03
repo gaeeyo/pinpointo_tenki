@@ -94,7 +94,7 @@ public class WidgetUpdateService extends Service {
             Log.d(TAG, "updateWidgets count:" + ids.length);
             Throwable error = null;
             for (int id : ids) {
-                for (int retryCount=0; retryCount < 3; retryCount++) {
+                for (int retryCount = 0; retryCount < 3; retryCount++) {
                     try {
                         if (retryCount > 0) {
                             Thread.sleep((retryCount - 1) * 3000);
@@ -122,7 +122,7 @@ public class WidgetUpdateService extends Service {
                           int id, WidgetTheme theme) throws Exception {
             WidgetConfig config = TenkiWidgetConfigure.getWidgetConfig(context, id);
 
-            byte[] html = Downloader.download(config.url, Const.HTML_SIZE_MAX,
+            byte[] html = Downloader.getInstance(context).download(config.url, Const.HTML_SIZE_MAX,
                     System.currentTimeMillis() - 15 * DateUtils.MINUTE_IN_MILLIS, true);
             YahooWeather data = YahooWeather.parse(html);
 
@@ -147,7 +147,7 @@ public class WidgetUpdateService extends Service {
         }
 
         RemoteViews buildUpdate(Context context, int id, YahooWeather data,
-                                       WidgetTheme theme) {
+                                WidgetTheme theme) {
             RemoteViews views = new RemoteViews(context.getPackageName(),
                     R.layout.widget);
 
@@ -169,10 +169,10 @@ public class WidgetUpdateService extends Service {
                     R.id.i5, R.id.i6, R.id.i7
             };
 
-            final int HOUR = 60 * 60 * 1000;
-            Calendar nowJapan = Calendar.getInstance(Locale.JAPAN);
-            long now = nowJapan.getTime().getTime() - 3 * HOUR;
-            int col = 0;
+            final int HOUR     = 60 * 60 * 1000;
+            Calendar  nowJapan = Calendar.getInstance(Locale.JAPAN);
+            long      now      = nowJapan.getTime().getTime() - 3 * HOUR;
+            int       col      = 0;
 
             for (int y = 0; y < 2; y++) {
                 Day day = (y == 0 ? data.today : data.tomorrow);
@@ -212,7 +212,8 @@ public class WidgetUpdateService extends Service {
                             } else {
                                 Bitmap bmp = null;
                                 try {
-                                    bmp = Downloader.downloadImage(imageUrl, 8000, 0);
+                                    bmp = Downloader.getInstance(context)
+                                            .downloadImage(imageUrl, 8000, 0);
                                     views.setImageViewBitmap(imgs[col], bmp);
                                 } catch (Exception e) {
                                     e.printStackTrace();

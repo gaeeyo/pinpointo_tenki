@@ -294,7 +294,8 @@ public class AreaSelectActivity extends ListActivity implements OnItemLongClickL
     				+ "?p=" + URLEncoder.encode(mSearchText, SERVER_ENCODING)
     				+ "&t=z";
 
-    			byte [] buff = Downloader.download(url, 50*1024, -1, false);
+    			byte [] buff = Downloader.getInstance(mContext)
+                        .download(url, 50*1024, -1, false);
     			if (buff == null) {
     				throw new Exception("Download error.");
     			}

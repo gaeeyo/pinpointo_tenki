@@ -13,112 +13,93 @@ import java.net.URLConnection;
 import java.util.WeakHashMap;
 
 public class Downloader {
-	@SuppressWarnings("unused")
-	static private final String TAG = "Downloader";
+    private final String TAG                    = "Downloader";
+    static final  String DEFAULT_CACHE_FILENAME = "file_cache.db";
 
-	static private FileCache mFileCache = null;
-	static private WeakHashMap<String, Bitmap> mBitmapCache = null;
+    static Downloader sInstance;
 
-	// 初期化
-	static public void initialize(Context c) {
-		if (mFileCache == null) {
-			mFileCache = new FileCache(c);
-		}
-		if (mBitmapCache == null) {
-			mBitmapCache = new WeakHashMap<String, Bitmap>();
-		}
-	}
+    public static synchronized Downloader getInstance(Context context) {
+        if (sInstance == null) {
+            sInstance = new Downloader(context.getApplicationContext(),
+                    DEFAULT_CACHE_FILENAME);
+        }
+        return sInstance;
+    }
 
-	// ダウンロード
-	// since == -1 : キャッシュから読み込まない
-	static public byte[] download(String url, int maxSize, boolean storeCache) throws Exception {
-		if (Const.DEBUG) {
-			Log.d(TAG, "downloading " + url);
-		}
-		ByteArrayOutputStream baos = new ByteArrayOutputStream(maxSize);
+    private final FileCache mFileCache;
 
-		URL u = new URL(url);
+    private final WeakHashMap<String, Bitmap> mBitmapCache;
 
-		URLConnection uc = u.openConnection();
-		uc.setConnectTimeout(Const.CONNECT_TIMEOUT);
-		uc.getIfModifiedSince();
+    public Downloader(Context context, String filename) {
+        mFileCache = new FileCache(context, filename);
+        mBitmapCache = new WeakHashMap<>();
+    }
 
-		InputStream in = uc.getInputStream();
-		try {
-			byte [] buf = new byte [8*1024];
-			int readSize;
-			while ((readSize = in.read(buf)) > 0) {
-				baos.write(buf, 0, readSize);
-			}
-		}
-		finally {
-			in.close();
-		}
+    public byte[] download(String url, int maxSize, boolean storeCache) throws Exception {
+        if (Const.DEBUG) {
+            Log.d(TAG, "downloading " + url);
+        }
+        ByteArrayOutputStream baos = new ByteArrayOutputStream(maxSize);
 
-		byte [] data = baos.toByteArray();
-		if (data != null && storeCache) {
-			mFileCache.put(url, data, uc.getIfModifiedSince());
-		}
+        URL u = new URL(url);
 
-		return data;
-	}
+        URLConnection uc = u.openConnection();
+        uc.setConnectTimeout(Const.CONNECT_TIMEOUT);
+        uc.getIfModifiedSince();
 
-	static public byte[] download(String url, int maxSize, long since, boolean storeCache) throws Exception {
-		byte[] data = null;
-		if (since != -1) {
-			data = mFileCache.get(url, since);
-			if (data != null) {
-				return data;
-			}
-		}
-		data = download(url, maxSize, storeCache);
+        InputStream in = uc.getInputStream();
+        try {
+            byte[] buf = new byte[8 * 1024];
+            int    readSize;
+            while ((readSize = in.read(buf)) > 0) {
+                baos.write(buf, 0, readSize);
+            }
+        } finally {
+            in.close();
+        }
 
-		return data;
-	}
+        byte[] data = baos.toByteArray();
+        if (data != null && storeCache) {
+            mFileCache.put(url, data, uc.getIfModifiedSince());
+        }
 
-	static public byte[] getCache(String url, long since) {
-		return mFileCache.get(url, since);
-	}
+        return data;
+    }
 
-//	static public String downloadHtml(String url, String encoding,
-//			int maxSize, long since, boolean storeCache) throws Exception {
-//
-//		byte [] htmlData = mFileCache.get(url, since);
-//		if (htmlData != null) {
-//			return new String(htmlData);
-//		}
-//
-//		String html = null;
-//
-//		htmlData = download(url, maxSize);
-//		if (htmlData != null) {
-//			html = new String(htmlData, encoding);
-//
-//			if (storeCache) {
-//				mFileCache.put(url, html.getBytes());
-//			}
-//		}
-//		return html;
-//	}
+    public byte[] download(String url, int maxSize, long since, boolean storeCache) throws Exception {
+        byte[] data = null;
+        if (since != -1) {
+            data = mFileCache.get(url, since);
+            if (data != null) {
+                return data;
+            }
+        }
+        data = download(url, maxSize, storeCache);
 
-	static public Bitmap downloadImage(String url, int maxSize, long since) throws Exception {
-		Bitmap bmp = mBitmapCache.get(url);
-		if (bmp == null) {
-			byte[] data = download(url, maxSize, since, true);
-			if (data != null) {
-				bmp = BitmapFactory.decodeByteArray(data, 0, data.length);
-				bmp.setDensity(DisplayMetrics.DENSITY_MEDIUM);
-				mBitmapCache.put(url, bmp);
-			}
-		}
-		else {
-			//Log.d(TAG, "Found in BitmapCache");
-		}
-		return bmp;
-	}
+        return data;
+    }
 
-	static public Bitmap getImageFromMemCache(String url)  {
-		return mBitmapCache.get(url);
-	}
+    public byte[] getCache(String url, long since) {
+        return mFileCache.get(url, since);
+    }
+
+    public Bitmap downloadImage(String url, int maxSize, long since) throws Exception {
+        Bitmap bmp = mBitmapCache.get(url);
+        if (bmp == null) {
+            byte[] data = download(url, maxSize, since, true);
+            if (data != null) {
+                bmp = BitmapFactory.decodeByteArray(data, 0, data.length);
+                bmp.setDensity(DisplayMetrics.DENSITY_MEDIUM);
+                mBitmapCache.put(url, bmp);
+            }
+        } else {
+            //Log.d(TAG, "Found in BitmapCache");
+        }
+        return bmp;
+    }
+
+    public Bitmap getImageFromMemCache(String url) {
+        return mBitmapCache.get(url);
+    }
 
 }
