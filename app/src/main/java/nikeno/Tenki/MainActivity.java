@@ -129,7 +129,7 @@ public class MainActivity extends Activity {
 
     // リロードする
     private void reload(boolean force) {
-    	if (mDownloadTask != null && mDownloadTask.getStatus() != FetchWeatherTask.Status.FINISHED)
+    	if (mDownloadTask != null && mDownloadTask.getStatus() != AsyncTask.Status.FINISHED)
     		mDownloadTask.cancel(true);
 
     	mDownloadTask = new DownloadTask(force);
