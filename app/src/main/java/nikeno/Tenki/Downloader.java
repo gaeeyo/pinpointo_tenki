@@ -36,7 +36,7 @@ public class Downloader {
     }
 
     public byte[] download(String url, int maxSize, boolean storeCache) throws Exception {
-        if (Const.DEBUG) {
+        if (BuildConfig.DEBUG) {
             Log.d(TAG, "downloading " + url);
         }
         ByteArrayOutputStream baos = new ByteArrayOutputStream(maxSize);
@@ -44,7 +44,7 @@ public class Downloader {
         URL u = new URL(url);
 
         URLConnection uc = u.openConnection();
-        uc.setConnectTimeout(Const.CONNECT_TIMEOUT);
+        uc.setConnectTimeout(TenkiApp.CONNECT_TIMEOUT);
         uc.getIfModifiedSince();
 
         InputStream in = uc.getInputStream();

@@ -227,7 +227,7 @@ public class MainActivity extends Activity {
     			long since = -1; // リロード
     			if (!mForceReload) {
     				// 1時間以内に取得していたらそれを表示
-    				since = System.currentTimeMillis() - Const.PRIORITY_CACHE_TIME;
+    				since = System.currentTimeMillis() - TenkiApp.PRIORITY_CACHE_TIME;
     			}
     			// ダウンロード
     			byte [] buff = null;

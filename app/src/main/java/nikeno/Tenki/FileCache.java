@@ -55,12 +55,12 @@ public class FileCache {
                         null, null, null, "1");
             }
             if (cur.moveToFirst()) {
-                if (Const.DEBUG) {
+                if (BuildConfig.DEBUG) {
                     Log.d(TAG, "get Found (" + key + ")");
                 }
                 data = cur.getBlob(0);
             } else {
-                if (Const.DEBUG) {
+                if (BuildConfig.DEBUG) {
                     Log.d(TAG, "get NotFound (" + key + ")");
                 }
             }

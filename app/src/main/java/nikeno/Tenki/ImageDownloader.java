@@ -91,7 +91,7 @@ public class ImageDownloader {
     void execute(Task task) {
         try {
             task.bmp = Downloader.getInstance(task.view.getContext()).downloadImage(
-                    task.url, Const.IMAGE_SIZE_MAX, 0);
+                    task.url, TenkiApp.IMAGE_SIZE_MAX, 0);
         } catch (Exception e) {
             e.printStackTrace();
             task.error = e;

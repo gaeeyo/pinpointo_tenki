@@ -10,22 +10,20 @@ import android.graphics.Bitmap;
 import android.net.Uri;
 import android.os.AsyncTask;
 import android.os.IBinder;
-import android.os.PowerManager;
 import android.text.SpannableString;
 import android.text.format.DateUtils;
 import android.text.style.ForegroundColorSpan;
 import android.util.Log;
 import android.widget.RemoteViews;
 
-import java.io.IOException;
 import java.net.UnknownHostException;
 import java.util.Calendar;
 import java.util.Locale;
 
-import nikeno.Tenki.Const;
 import nikeno.Tenki.Downloader;
 import nikeno.Tenki.MainActivity;
 import nikeno.Tenki.R;
+import nikeno.Tenki.TenkiApp;
 import nikeno.Tenki.TenkiWidgetProvider;
 import nikeno.Tenki.YahooWeather;
 import nikeno.Tenki.YahooWeather.Day;
@@ -122,7 +120,7 @@ public class WidgetUpdateService extends Service {
                           int id, WidgetTheme theme) throws Exception {
             WidgetConfig config = TenkiWidgetConfigure.getWidgetConfig(context, id);
 
-            byte[] html = Downloader.getInstance(context).download(config.url, Const.HTML_SIZE_MAX,
+            byte[] html = Downloader.getInstance(context).download(config.url, TenkiApp.HTML_SIZE_MAX,
                     System.currentTimeMillis() - 15 * DateUtils.MINUTE_IN_MILLIS, true);
             YahooWeather data = YahooWeather.parse(html);
 
