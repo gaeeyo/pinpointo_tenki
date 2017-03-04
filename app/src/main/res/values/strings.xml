@@ -27,8 +27,8 @@
 	<string name="reload_error">データの取得ができませんでした。</string>
 	<string name="using_cache">データの取得が失敗したため、前回の情報を表示します。</string>
 	<string name="area_select_search_empty">郵便番号、または地域名を入力して検索してください。</string>
-	<string name="area_select_title">ピンポイント天気 - 地域設定</string>
-	<string name="area_select_result_empty">見つかりませんでした。</string>
+	<string name="area_select_title">地域設定</string>
+	<string name="area_select_result_empty">「%1$s」は見つかりませんでした。</string>
 	<string name="week_row_rain">降水\n確率(%)</string>
 	<string name="week_row_temp">気温(℃)</string>
 	<string name="main_open_browser">Yahoo!天気情報</string>

@@ -1,20 +1,21 @@
 package nikeno.Tenki;
 
+import android.app.Activity;
 import android.app.AlertDialog;
-import android.app.ListActivity;
 import android.content.Context;
 import android.content.DialogInterface;
 import android.content.Intent;
-import android.content.SharedPreferences;
-import android.content.SharedPreferences.Editor;
 import android.os.AsyncTask;
 import android.os.Bundle;
+import android.text.Editable;
+import android.text.TextUtils;
+import android.text.TextWatcher;
 import android.util.Log;
 import android.view.KeyEvent;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
-import android.view.View.OnClickListener;
+import android.view.ViewGroup;
 import android.view.Window;
 import android.view.inputmethod.InputMethodManager;
 import android.widget.AdapterView;
@@ -25,322 +26,283 @@ import android.widget.EditText;
 import android.widget.ListView;
 import android.widget.TextView;
 import android.widget.TextView.OnEditorActionListener;
-import android.widget.Toast;
 
 import java.net.URLEncoder;
-import java.util.Vector;
+import java.util.ArrayList;
+import java.util.List;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
-public class AreaSelectActivity extends ListActivity implements OnItemLongClickListener {
-	private static final String TAG = "AreaSelectActivity";
-	private static final String SERVER_ENCODING = "UTF-8";
-	private static final int RECENT_MAX = 5;
-	private Button mSearchBtn;
-	private EditText mSearchText;
-	private SearchTask mSearchTask;
-	private AreaDataList mListData;
-	private ArrayAdapter<String> mAdapter;
-	private SharedPreferences mPref;
-	private AreaDataList mRecent;
-	private boolean isRecentShowing;
+public class AreaSelectActivity extends Activity implements AdapterView.OnItemClickListener, OnItemLongClickListener {
+    private static final String TAG             = "AreaSelectActivity";
+    private static final String SERVER_ENCODING = "UTF-8";
 
-	@Override
-	protected void onCreate(Bundle savedInstanceState) {
-		super.onCreate(savedInstanceState);
-		requestWindowFeature(Window.FEATURE_PROGRESS);
-		setContentView(R.layout.area_select);
+    private Button   mSearchBtn;
+    private EditText mSearchText;
+    private View     mProgress;
+    private ListView mList;
+    private TextView mMessage;
 
-		mPref = getSharedPreferences(MainActivity.APP_PREF, MODE_PRIVATE);
+    private Prefs     mPrefs;
+    private boolean   mListIsRecent;
+    private String    mErrorMessage;
+    private AsyncTask mSearchTask;
+    private boolean   mIsLoading;
 
-		mSearchBtn = (Button)findViewById(R.id.searchButton);
-		mSearchText = (EditText)findViewById(R.id.searchText);
+    @Override
+    protected void onCreate(Bundle savedInstanceState) {
+        super.onCreate(savedInstanceState);
+        setContentView(R.layout.activity_area_select);
 
-		// リストの設定
-		mAdapter = new ArrayAdapter<String>(this, R.layout.area_select_row);
-		setListAdapter(mAdapter);
-		getListView().setOnItemLongClickListener(this);
+        mPrefs = new Prefs(getSharedPreferences(MainActivity.APP_PREF, MODE_PRIVATE));
 
-		// 検索Button
-		mSearchBtn.setOnClickListener(new OnClickListener() {
-			public void onClick(View v) {
-				doSearch();
-			}
-		});
+        mList = (ListView) findViewById(android.R.id.list);
+        mMessage = (TextView) findViewById(android.R.id.message);
+        mSearchBtn = (Button) findViewById(R.id.searchButton);
+        mSearchText = (EditText) findViewById(R.id.searchText);
+        mProgress = findViewById(android.R.id.progress);
 
-		// 検索EditText
-		mSearchText.setSingleLine(true);
-		mSearchText.setOnEditorActionListener(new OnEditorActionListener() {
-			public boolean onEditorAction(TextView v, int actionId, KeyEvent event) {
-				if (event == null || event.getAction() == KeyEvent.ACTION_UP) {
-					doSearch();
-				}
-				return true;
-			}
-		});
-		mSearchText.requestFocus();
+        mList.setOnItemLongClickListener(this);
+        mList.setOnItemClickListener(this);
 
-		loadRecent();
-	}
+        // 検索EditText
+        mSearchText.setOnEditorActionListener(new OnEditorActionListener() {
+            public boolean onEditorAction(TextView v, int actionId, KeyEvent event) {
+                onClickSearch(v);
+                return true;
+            }
+        });
 
-	// メニュー作成
-	@Override
-	public boolean onCreateOptionsMenu(Menu menu) {
-		getMenuInflater().inflate(R.menu.area_select_menu, menu);
-    	return true;
-	}
+        mSearchText.addTextChangedListener(new TextWatcher() {
+            @Override
+            public void beforeTextChanged(CharSequence charSequence, int i, int i1, int i2) {
+            }
 
-	@Override
-	public boolean onMenuItemSelected(int featureId, MenuItem item) {
-		mRecent.clear();
-		saveRecent();
-		mAdapter.clear();
-		return super.onMenuItemSelected(featureId, item);
-	}
+            @Override
+            public void onTextChanged(CharSequence charSequence, int i, int i1, int i2) {
+                updateViews();
+            }
 
-	// 最近使った地域を読み込む
-	private void loadRecent() {
-		mRecent = new AreaDataList();
+            @Override
+            public void afterTextChanged(Editable editable) {
+            }
+        });
 
-		String data;
-		for (int j=0; j<RECENT_MAX; j++) {
-			data = mPref.getString("Recent" + j, null);
-			if (data != null) {
-				AreaData areaData = AreaData.parse(data);
-				if (areaData != null) {
-					mRecent.add(areaData);
-				}
-			}
-		}
-		setNewList((AreaDataList)mRecent.clone(), true);
-	}
+        setAreaList(mPrefs.getRecentAreaList(), true);
+    }
 
-	// 最近使った地域を保存
-	private void saveRecent() {
-		Editor editor = mPref.edit();
+    @Override
+    protected void onResume() {
+        super.onResume();
+        updateViews();
+    }
 
-		String key;
-		for (int j=0; j<RECENT_MAX; j++) {
-			key = "Recent" + j;
-			if (j < mRecent.size()) {
-				editor.putString("Recent" + j, mRecent.get(j).serialize());
-			}
-			else {
-				editor.remove(key);
-			}
-		}
-		editor.commit();
-	}
+    void updateViews() {
+        boolean textIsEmpty = TextUtils.isEmpty(mSearchText.getText().toString().trim());
+        mSearchBtn.setEnabled(!textIsEmpty);
+        mProgress.setVisibility(mIsLoading ? View.VISIBLE : View.GONE);
+        mList.setLongClickable(mListIsRecent);
 
-	// 検索を実行
-	private void doSearch() {
-		Log.d(TAG, "doSearch");
-		String text = mSearchText.getText().toString();
-		if (text.length() == 0) return;
+        if (mIsLoading) {
+            mList.setVisibility(View.GONE);
+            mMessage.setVisibility(View.GONE);
+        } else {
+            String message = null;
+            if (mErrorMessage != null) {
+                message = mErrorMessage;
+            } else if (mList.getAdapter() == null || mList.getAdapter().getCount() == 0) {
+                message = getString(mListIsRecent
+                        ? R.string.area_select_search_empty
+                        : R.string.area_select_result_empty);
+            }
 
-		if (mSearchTask != null && mSearchTask.getStatus() != SearchTask.Status.FINISHED) {
-			mSearchTask.cancel(true);
-			mSearchTask = null;
-			return;
-		}
-		InputMethodManager imm = (InputMethodManager)getSystemService(INPUT_METHOD_SERVICE);
-		if (imm != null) {
-			imm.hideSoftInputFromWindow(mSearchText.getWindowToken(), 0);
-		}
+            mMessage.setText(message);
+            mMessage.setVisibility(message != null ? View.VISIBLE : View.GONE);
+            mList.setVisibility(message != null ? View.GONE : View.VISIBLE);
+        }
+    }
 
-		mSearchTask = new SearchTask(this, text);
-		mSearchTask.execute(new String[] {});
-	}
+    @Override
+    public boolean onCreateOptionsMenu(Menu menu) {
+        getMenuInflater().inflate(R.menu.area_select_menu, menu);
+        return true;
+    }
 
-	// リストがクリックされたら結果を返す
-	@Override
-	protected void onListItemClick(ListView l, View v, int position, long id) {
-		super.onListItemClick(l, v, position, id);
+    @Override
+    public boolean onMenuItemSelected(int featureId, MenuItem item) {
+        switch (featureId) {
+            case R.id.clearRecent:
+                ArrayList<Area> empty = new ArrayList<>();
+                mPrefs.putRecentAreaList(empty);
+                setAreaList(empty, true);
+                return true;
+        }
+        return super.onMenuItemSelected(featureId, item);
+    }
 
-		AreaData selected = mListData.get(position);
+    void closeSoftwareKeyboard() {
+        InputMethodManager imm = (InputMethodManager) getSystemService(INPUT_METHOD_SERVICE);
+        if (imm != null) {
+            imm.hideSoftInputFromWindow(mSearchText.getWindowToken(), 0);
+        }
+    }
 
-		mRecent.insertElementAt(selected, 0);
-		for (int j=mRecent.size()-1; j>0; j--) {
-			if (mRecent.get(j).url.compareTo(selected.url)==0) {
-				mRecent.remove(j);
-			}
-		}
-		saveRecent();
+    @SuppressWarnings("unchecked")
+    public void onClickSearch(View v) {
+        String text = mSearchText.getText().toString();
+        if (text.length() == 0) return;
 
-		Intent i = new Intent();
-		i.putExtra("url", mListData.get(position).url);
-		setResult(RESULT_OK, i);
-		finish();
-	}
+        if (mSearchTask != null) {
+            mSearchTask.cancel(true);
+        }
 
-	// クリックされた履歴を消す
-	public boolean onItemLongClick(AdapterView<?> parent, View view, int position,
-			long id) {
-		if (isRecentShowing) {
-			final AreaData selected = mRecent.get(position);
-			new AlertDialog.Builder(this)
-				.setTitle(R.string.dlg_recent_remove_title)
-				.setMessage(String.format(getString(R.string.dlg_recent_remove_message), selected.address2))
-				.setPositiveButton(android.R.string.yes, new DialogInterface.OnClickListener() {
-					public void onClick(DialogInterface dialog, int which) {
-						mRecent.remove(selected);
-						saveRecent();
-						setNewList(mRecent, true);
-						dialog.cancel();
-					}
-				})
-				.setNegativeButton(android.R.string.no, new DialogInterface.OnClickListener() {
-					public void onClick(DialogInterface dialog, int which) {
-						dialog.cancel();
-					}
-				})
-				.show();
+        closeSoftwareKeyboard();
 
-		}
-		return false;
-	}
+        mIsLoading = true;
+        mErrorMessage = null;
+        updateViews();
 
-	// 地域データ
-	public static class AreaData {
-		public String zipCode;
-		public String address1;
-		public String address2;
-		public String url;
+        mSearchTask = new AsyncTask<Object, Void, Object>() {
 
-		public static AreaData parse(String text) {
-			AreaData data = null;
-			String [] values = text.split("\n");
-			if (values.length >= 4) {
-				data = new AreaData();
-				data.zipCode = values[0];
-				data.address1 = values[1];
-				data.address2 = values[2];
-				data.url = values[3];
-			}
-			return data;
-		}
-		public String serialize() {
-			return zipCode + "\n" +
-				address1 + "\n" +
-				address2 + "\n" +
-				url;
-		}
-	}
+            protected Object doInBackground(Object... params) {
+                Log.d(TAG, "doInBackground");
+                String text = (String) params[0];
+                try {
+                    String url = "http://weather.yahoo.co.jp/weather/search/"
+                            + "?p=" + URLEncoder.encode(text, SERVER_ENCODING)
+                            + "&t=z";
 
-	// 地域データ配列
-	private static class AreaDataList extends Vector<AreaData> {
-		private static final long serialVersionUID = 6002692427075044056L;
+                    byte[] buff = Downloader.getInstance(AreaSelectActivity.this)
+                            .download(url, 50 * 1024, -1, false);
+                    if (buff == null) {
+                        throw new Exception("Download error.");
+                    }
 
-		public static AreaDataList fromHTML(String html) throws Exception {
-			AreaDataList result = new AreaDataList();
+                    String html = new String(buff, SERVER_ENCODING);
 
-			html = html.replace("\n", "");
+                    List<Area> areaList = parseAreaListHtml(html);
+                    if (areaList.size() == 0) {
+                        return getString(R.string.area_select_result_empty, text);
+                    }
+                    return areaList;
 
-			// ざっくりとした祝
-			Pattern p = Pattern.compile("<thead.*?郵便番号.*?</thead(.*?)</tbody",
-					Pattern.CASE_INSENSITIVE);
-			Matcher m = p.matcher(html);
-			if (m.find()) {
+                } catch (Exception e) {
+                    return e.getMessage();
+                }
+            }
 
-				html = m.group(1);
-				// <tr><td>zip</td><td>県名</td><td><a href="">住所</a></td>
-				m = Pattern.compile(
-						"<tr.*?<td.*?>(.*?)</td>.*?<td.*?>(.*?)</td>.*?<td.*?>.*?(http://[a-zA-Z0-9./_]*?)\".*?>(.*?)</a>.*?</tr"
-						).matcher(html);
-				while (m.find()) {
-					AreaData d = new AreaData();
-					d.address1 = m.group(2);
-					d.address2 = m.group(4);
-					d.zipCode = m.group(1);
-					d.url = m.group(3);
-					result.add(d);
-					//Log.d(TAG, m.group(1) +"," +m.group(2) + "," + m.group(4) + "," + m.group(3) );
-				}
-			}
-			return result;
-		}
-	}
+            @Override
+            protected void onPostExecute(Object result) {
+                Log.d(TAG, "onPostExecute");
+                super.onPostExecute(result);
+                if (result instanceof List) {
+                    setAreaList((List<Area>) result, false);
+                } else if (result instanceof String) {
+                    mErrorMessage = (String) result;
+                }
+                onFinish();
+            }
 
-	// AreaDataList をリストにセットする
-	private void setNewList(AreaDataList newList, boolean isRecent) {
-		isRecentShowing = isRecent;
-		mListData = newList;
-		mAdapter.clear();
-		for (int j=0; j<mListData.size(); j++) {
-			AreaData d = mListData.get(j);
-			mAdapter.add(String.format("%s %s\n%s", d.zipCode, d.address1, d.address2));
-		}
-	}
+            @Override
+            protected void onCancelled() {
+                super.onCancelled();
+                onFinish();
+            }
 
-	// 地域データの検索タスク
-	private class SearchTask extends AsyncTask<String, Integer, AreaDataList> {
-		private final String TAG = "SearchTask";
-		private final String mSearchText;
-		private final Context mContext;
-		private String mErrorMessage;
+            void onFinish() {
+                if (mSearchTask == this) {
+                    mSearchTask = null;
+                    mIsLoading = false;
+                    updateViews();
+                }
+            }
+        };
+        mSearchTask.execute(text);
+    }
 
-		public SearchTask(Context context, String text) {
-			mContext = context;
-			mSearchText = text;
-		}
+    @Override
+    public void onItemClick(AdapterView<?> adapterView, View view, int position, long id) {
+        Area selected = (Area) adapterView.getItemAtPosition(position);
 
-		@Override
-		protected AreaDataList doInBackground(String... params) {
-			Log.d(TAG, "doInBackground");
-			publishProgress(0);
-			AreaDataList result = null;
-    		try {
-    			String url = "http://weather.yahoo.co.jp/weather/search/"
-    				+ "?p=" + URLEncoder.encode(mSearchText, SERVER_ENCODING)
-    				+ "&t=z";
+        mPrefs.addRecentArea(selected);
 
-    			byte [] buff = Downloader.getInstance(mContext)
-                        .download(url, 50*1024, -1, false);
-    			if (buff == null) {
-    				throw new Exception("Download error.");
-    			}
-
-    			String html = new String(buff, SERVER_ENCODING);
-    			publishProgress(50*100);
-
-    			result = AreaDataList.fromHTML(html);
-    			publishProgress(75*100);
-    		}
-    		catch (Exception e) {
-    			mErrorMessage = e.getMessage();
-    		}
-    		publishProgress(100*100);
-			return result;
-		}
-
-		@Override
-		protected void onProgressUpdate(Integer... values) {
-			super.onProgressUpdate(values);
-			setProgress(values[0]);
-		}
-
-		@Override
-		protected void onPostExecute(AreaDataList result) {
-			super.onPostExecute(result);
-			if (result == null || result.isEmpty()) {
-				//mAdapter.add(/object)
-				mAdapter.clear();
-				if (mErrorMessage != null) {
-	    			Toast.makeText(mContext,
-	    					"ERROR:" + mErrorMessage, Toast.LENGTH_LONG).show();
-				}
-				else {
-					Toast.makeText(mContext,
-							mContext.getText(R.string.area_select_result_empty),
-							Toast.LENGTH_LONG).show();
-				}
-			}
-			else {
-				setNewList(result, false);
-			}
-			Log.d(TAG, "onPostExecute");
-		}
-	}
+        Intent i = new Intent();
+        i.putExtra("url", selected.url);
+        setResult(RESULT_OK, i);
+        finish();
+    }
 
 
+    private void setAreaList(List<Area> newList, boolean isRecent) {
+        mListIsRecent = isRecent;
+        mList.setAdapter(new AreaAdapter(this, newList));
+        updateViews();
+    }
+
+    // クリックされた履歴を消す
+    public boolean onItemLongClick(AdapterView<?> parent, View view, int position,
+                                   long id) {
+        if (mListIsRecent) {
+            final Area selected = (Area) mList.getItemAtPosition(position);
+            new AlertDialog.Builder(this)
+                    .setTitle(R.string.dlg_recent_remove_title)
+                    .setMessage(getString(R.string.dlg_recent_remove_message, selected.address2))
+                    .setPositiveButton(android.R.string.yes, new DialogInterface.OnClickListener() {
+                        public void onClick(DialogInterface dialog, int which) {
+                            setAreaList(mPrefs.removeRecentArea(selected), true);
+                            dialog.dismiss();
+                        }
+                    })
+                    .setNegativeButton(android.R.string.no, null)
+                    .show();
+            return true;
+        }
+        return false;
+    }
+
+    public static ArrayList<Area> parseAreaListHtml(String html) throws Exception {
+        ArrayList<Area> result = new ArrayList<>();
+
+        html = html.replace("\n", "");
+
+        // ざっくりとした祝
+        Pattern p = Pattern.compile("<thead.*?郵便番号.*?</thead(.*?)</tbody",
+                Pattern.CASE_INSENSITIVE);
+        Matcher m = p.matcher(html);
+        if (m.find()) {
+
+            html = m.group(1);
+            // <tr><td>zip</td><td>県名</td><td><a href="">住所</a></td>
+            m = Pattern.compile(
+                    "<tr.*?<td.*?>(.*?)</td>.*?<td.*?>(.*?)</td>.*?<td.*?>.*?(http://[a-zA-Z0-9./_]*?)\".*?>(.*?)</a>.*?</tr"
+            ).matcher(html);
+            while (m.find()) {
+                Area d = new Area();
+                d.address1 = m.group(2);
+                d.address2 = m.group(4);
+                d.zipCode = m.group(1);
+                d.url = m.group(3);
+                result.add(d);
+                //Log.d(TAG, m.group(1) +"," +m.group(2) + "," + m.group(4) + "," + m.group(3) );
+            }
+        }
+        return result;
+    }
+
+    static class AreaAdapter extends ArrayAdapter<Area> {
+
+        public AreaAdapter(Context context, List<Area> items) {
+            super(context, R.layout.area_select_row, items);
+        }
+
+        @Override
+        public View getView(int position, View convertView, ViewGroup parent) {
+            TextView tv   = (TextView) super.getView(position, convertView, parent);
+            Area     area = getItem(position);
+            if (area != null) {
+                tv.setText(String.format("%s %s\n%s", area.zipCode, area.address1, area.address2));
+            }
+            return tv;
+        }
+    }
 }
