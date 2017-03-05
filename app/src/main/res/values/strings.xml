@@ -4,23 +4,12 @@
 	<string name="dlg_recent_remove_message">"%s" を削除しますか?</string>
     <string name="menu_recent_clear">履歴をクリア</string>
     <string name="main_pref">地域変更</string>
-    <string name="RecentAreas">最近表示したエリア</string>
     <string name="menu_help">ヘルプ</string>
     <string name="area_select_search">検索</string>
     <string name="area_select_search_label">郵便番号または地名</string>
-    <string name="hello">Hello World, MainActivity!</string>
     <string name="app_name">ピンポイント天気</string>
     <string name="mainTitleFormat">%1$s の天気</string>
    	<string name="weekly_text">週間天気</string>
-	<string name="today_text">今日の天気</string>
-	<string name="tomorrow_text">明日の天気</string>
-	<string name="reload_complete">情報を更新しました</string>
-	<string name="day_row_hour">時間</string>
-	<string name="day_row_weather">天気</string>
-	<string name="day_row_temp">気温</string>
-	<string name="day_row_humid">湿度</string>
-	<string name="day_row_rain">降水量\nmm/h</string>
-	<string name="day_row_wind">風\nm/s</string>
 	<string name="menu_reload">最新の情報に更新</string>
 	<string name="menu_pref">地域を変更</string>
 	
@@ -29,8 +18,6 @@
 	<string name="area_select_search_empty">郵便番号、または地域名を入力して検索してください。</string>
 	<string name="area_select_title">地域設定</string>
 	<string name="area_select_result_empty">「%1$s」は見つかりませんでした。</string>
-	<string name="week_row_rain">降水\n確率(%)</string>
-	<string name="week_row_temp">気温(℃)</string>
 	<string name="main_open_browser">Yahoo!天気情報</string>
 	<string name="help_title">ピンポイント天気 - ヘルプ</string>
 </resources>

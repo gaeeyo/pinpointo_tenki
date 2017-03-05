@@ -204,7 +204,6 @@ public class WidgetUpdateService extends Service {
                         Log.d(TAG, "imagerUrl:" + imageUrl);
                         if (imageUrl != null) {
                             int bmpId = getBitmap(context, imageUrl);
-                            ;
                             if (bmpId != -1) {
                                 views.setImageViewResource(imgs[col], bmpId);
                             } else {

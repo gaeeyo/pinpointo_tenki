@@ -2,10 +2,7 @@
 <resources>
     <dimen name="marginWidth">4dip</dimen>
     <dimen name="marginHeight">4dip</dimen>
-    
-    <dimen name="dayTableImageSize">30dip</dimen>
-    <dimen name="textSizeXSmall">10sp</dimen>
-    <dimen name="textSizeSmall">12sp</dimen>
-    <dimen name="textSizeMedium">13.5sp</dimen>
-    <dimen name="textSizeLarge">15sp</dimen>
+
+    <dimen name="tableBorderWidth">1dip</dimen>
+    <dimen name="tableCellPadding">1.5dip</dimen>
 </resources>

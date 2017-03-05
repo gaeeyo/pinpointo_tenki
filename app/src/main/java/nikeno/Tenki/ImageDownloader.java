@@ -5,7 +5,6 @@ import android.graphics.Bitmap;
 import android.os.Handler;
 import android.os.Looper;
 import android.os.Message;
-import android.widget.ImageView;
 
 import java.util.ArrayList;
 
@@ -19,14 +18,16 @@ public class ImageDownloader {
 
     public static synchronized  ImageDownloader getInstance(Context context) {
         if (sInstance == null) {
-            sInstance = new ImageDownloader();
+            sInstance = new ImageDownloader(context);
         }
         return sInstance;
     }
 
 
+    final Downloader mDownloader;
+
     Thread mCurrentTask;
-    ArrayList<Task> mTasks = new ArrayList<Task>();
+    ArrayList<Task> mTasks = new ArrayList<>();
 
     Handler mHandler = new Handler(Looper.getMainLooper()) {
         @Override
@@ -46,7 +47,11 @@ public class ImageDownloader {
         }
     };
 
-    public void setImage(String url, ImageView view) {
+    public ImageDownloader(Context context) {
+        mDownloader = Downloader.getInstance(context);
+    }
+
+    public void setImage(String url, Downloader.ImageHandler view) {
         if (setImageNow(url, view)) {
             return;
         }
@@ -57,12 +62,12 @@ public class ImageDownloader {
         mHandler.sendEmptyMessage(MSG_CHECK_TASK);
     }
 
-    boolean setImageNow(String url, ImageView view) {
-        Bitmap bmp = Downloader.getInstance(view.getContext()).getImageFromMemCache(url);
+    boolean setImageNow(String url, Downloader.ImageHandler view) {
+        Bitmap bmp = mDownloader.getImageFromMemCache(url);
         if (bmp == null) {
             return false;
         } else {
-            view.setImageBitmap(bmp);
+            view.setBitmap(bmp);
             return true;
         }
     }
@@ -71,7 +76,7 @@ public class ImageDownloader {
         if (mCurrentTask == null) {
             while (mTasks.size() > 0) {
                 final Task task = mTasks.remove(0);
-                if (setImageNow(task.url, task.view)) {
+                if (setImageNow(task.url, task.handler)) {
                     continue;
                 }
 
@@ -90,8 +95,7 @@ public class ImageDownloader {
 
     void execute(Task task) {
         try {
-            task.bmp = Downloader.getInstance(task.view.getContext()).downloadImage(
-                    task.url, TenkiApp.IMAGE_SIZE_MAX, 0);
+            task.bmp = mDownloader.downloadImage(task.url, TenkiApp.IMAGE_SIZE_MAX, 0);
         } catch (Exception e) {
             e.printStackTrace();
             task.error = e;
@@ -105,18 +109,18 @@ public class ImageDownloader {
 
     void onPostExecute(Task task) {
         if (task.bmp != null) {
-            task.view.setImageBitmap(task.bmp);
+            task.handler.setBitmap(task.bmp);
         }
     }
 
     static class Task {
-        public String url;
-        public ImageView view;
-        public Bitmap bmp;
-        public Throwable error;
-        public Task(String url, ImageView view) {
+        public String                  url;
+        public Downloader.ImageHandler handler;
+        public Bitmap                  bmp;
+        public Throwable               error;
+        public Task(String url, Downloader.ImageHandler handler) {
             this.url = url;
-            this.view = view;
+            this.handler = handler;
         }
     }
 }

@@ -9,6 +9,7 @@ public class Prefs {
     private static final int    RECENT_MAX      = 5;
 
     static final String RECENT_PREFIX = "Recent";
+    static final String URL = "url";
 
     final SharedPreferences mPrefs;
 
@@ -58,5 +59,14 @@ public class Prefs {
         list.remove(area);
         putRecentAreaList(list);
         return list;
+    }
+
+
+    public String getCurrentAreaUrl() {
+        return mPrefs.getString(URL, "http://weather.yahoo.co.jp/weather/jp/13/4410/13101.html");
+    }
+
+    public void setCurrentAreaUrl(String url) {
+        mPrefs.edit().putString(URL, url).commit();
     }
 }

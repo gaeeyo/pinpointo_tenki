@@ -5,6 +5,7 @@ import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
 import android.util.DisplayMetrics;
 import android.util.Log;
+import android.widget.ImageView;
 
 import java.io.ByteArrayOutputStream;
 import java.io.InputStream;
@@ -102,4 +103,19 @@ public class Downloader {
         return mBitmapCache.get(url);
     }
 
+    public interface ImageHandler {
+        void setBitmap(Bitmap bmp);
+    }
+
+    public static class ImageViewSetter implements ImageHandler {
+        ImageView mView;
+        public ImageViewSetter(ImageView iv) {
+            mView = iv;
+        }
+
+        @Override
+        public void setBitmap(Bitmap bmp) {
+            mView.setImageBitmap(bmp);
+        }
+    }
 }

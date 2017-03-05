@@ -1,11 +1,8 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
     <dimen name="marginWidth">16dip</dimen>
-    <dimen name="marginHeight">8dip</dimen>
-    
-    <dimen name="dayTableImageSize">30dip</dimen>
-    <dimen name="textSizeXSmall">20sp</dimen>
-    <dimen name="textSizeSmall">20sp</dimen>
-    <dimen name="textSizeMedium">20sp</dimen>
-    <dimen name="textSizeLarge">20sp</dimen>
+    <dimen name="marginHeight">16dip</dimen>
+
+    <dimen name="tableBorderWidth">2dip</dimen>
+    <dimen name="tableCellPadding">2dip</dimen>
 </resources>

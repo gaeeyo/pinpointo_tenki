@@ -1,148 +1,77 @@
-<?xml version="1.0" encoding="utf-8"?>
-<resources>
-	<style name="MyTheme">
-		<item name="android:windowBackground">@drawable/background_white</item>
-		<item name="android:textColorPrimary">#000000</item>
-		<item name="android:textColorSecondary">#000000</item>
-	</style>
+<?xml version="1.0" encoding="utf-8" ?>
+<resources xmlns:tools="http://schemas.android.com/tools">
 
-	<drawable name="background_white">#ffffff</drawable>
-	<drawable name="background_gray">#dddddd</drawable>
+    <style name="BaseTheme" parent="@android:style/Theme.Light">
 
-<!--	<style name="tableText">-->
-<!--		<item name="android:textSize">14sp</item>-->
-<!--		<item name="android:textColor">#ff0000</item>-->
-<!--	</style>-->
-	
-	<style name="tableHeader">
-		<item name="android:background">#f70</item>
-		<item name="android:textColor">#77f</item>
-	</style>
-	
-	<color name="tableTextColor">#000</color>
-	<color name="tableBorderColor">#C6C7C6</color>
-	<color name="tableBackground">#fff</color>
-	<color name="tableDateBackground">#E9EEFD</color>
-	
-	<!-- DayView -->
-	<color name="tableTempColor">#F60</color>
-	<color name="tableRainColor">#08F</color>
-	<color name="tableHumidColor">#090</color>
-	
-	<style name="dayTable">
-		<item name="android:background">#C6C6C6</item>
-		<item name="android:paddingLeft">1px</item>
-	</style>
-	
-	<style name="dayTableCell">
-		<item name="android:textColor">#000</item>
-        <item name="android:textSize">@dimen/textSizeMedium</item>
-		<item name="android:layout_height">fill_parent</item>
-		<item name="android:layout_width">0px</item>
-		<item name="android:gravity">center</item>
-		<item name="android:layout_weight">1</item>
-		<item name="android:includeFontPadding">false</item>
-	</style>
-	
-	<!-- テーブルの最初の行 -->
-	<style name="dayTableTop" parent="@style/dayTableCell">
-		<item name="android:background">#E9EEFD</item>
-		<item name="android:layout_marginTop">1px</item>
-		<item name="android:layout_marginRight">1px</item>
-		<item name="android:layout_marginBottom">1px</item>
-	</style>
+    </style>
 
-	<style name="dayTableTopLeft" parent="@style/dayTableCell">
-		<item name="android:background">#EEE</item>
-		<item name="android:layout_marginTop">1px</item>
-		<item name="android:layout_marginRight">1px</item>
-		<item name="android:layout_marginBottom">1px</item>
-	</style>
+    <style name="MyTheme" parent="@style/BaseTheme">
+        <item name="android:windowBackground">@color/windowBackgroundColor</item>
+        <item name="android:textColorPrimary">#ff000000</item>
+        <item name="android:textColorSecondary">#ff000000</item>
+    </style>
 
-	<style name="dayTableData" parent="@style/dayTableCell">
-		<item name="android:background">#fff</item>
-		<item name="android:layout_marginRight">1px</item>
-		<item name="android:layout_marginBottom">1px</item>
-	</style>
-	
-	<!-- 「晴れ・曇り」の文字 -->
-	<style name="dayTableDataWeather">
-		<item name="android:layout_height">wrap_content</item>
-		<item name="android:layout_width">fill_parent</item>
-		<item name="android:textSize">@dimen/textSizeSmall</item>
-		<item name="android:gravity">center</item>
-	</style>
+    <color name="windowBackgroundColor">#f7f7f7</color>
+    <color name="tableTextColorDisabled">#999</color>
+    <color name="tableBorderColor">#AAA</color>
+    <color name="tableBackgroundColor">#fff</color>
+    <color name="tableDateBackgroundColor">#E9EEFD</color>
+    <color name="tableDateBackgroundColorDisabled">#EEE</color>
+    <color name="tempTextColor">#F60</color>
+    <color name="maxTempTextColor">#F30</color>
+    <color name="minTempTextColor">#06F</color>
+    <color name="humidityTextColor">#090</color>
 
-	<!-- 温度の文字色 -->
-	<style name="dayTableDataTemp" parent="@style/dayTableData">
-		<item name="android:textColor">#F60</item>
-		<item name="android:textSize">@dimen/textSizeLarge</item>
-	</style>
-	
-	<!-- 湿度の文字色 -->
-	<style name="dayTableDataHumid" parent="@style/dayTableData">
-		<item name="android:textColor">#090</item>
-		<item name="android:textSize">@dimen/textSizeLarge</item>
-	</style>
-	
-	<!-- 風の色 -->
-	<style name="dayTableDataWind" parent="@style/dayTableData">
-		<item name="android:textSize">@dimen/textSizeXSmall</item>
-	</style>
-	
-	<color name="pastHourBackgroundColor">#EEE</color>
-	<color name="pastHourColor">#999</color>
-	<color name="maxTempColor">#F30</color>
-	<color name="minTempColor">#06F</color>
-	
-	
-	<style name="dayTableDataText">
-		<item name="android:textColor">#090</item>
-	</style>
-	<drawable name="dayTableDataBackground">#fff</drawable>
+    <style name="weatherTable">
+        <item name="android:background">@color/tableBackgroundColor</item>
+        <item name="borderColor">@color/tableBorderColor</item>
+        <item name="borderWidth">@dimen/tableBorderWidth</item>
+        <item name="cellPadding">@dimen/tableCellPadding</item>
+        <item name="android:textColor">#ff000000</item>
+    </style>
 
-	<!-- Widget -->
-	<style name="wTextBase">
-		<item name="android:textSize">11dip</item>
-		<item name="android:textStyle">bold</item>
-		<item name="android:shadowColor">#000</item>
-		<item name="android:shadowRadius">1</item>
-		<item name="android:shadowDx">1</item>
-		<item name="android:shadowDy">1</item>
-		<item name="android:includeFontPadding">false</item>
-	</style>
-	
-	<style name="wTitle" parent="@style/wTextBase">
-		<item name="android:textColor">#fff</item>
-		<item name="android:layout_width">wrap_content</item>
-		<item name="android:layout_height">wrap_content</item>
-	</style>
-	
-	<style name="wColumn" parent="@style/wTextBase">
-		<item name="android:orientation">vertical</item>
-		<item name="android:layout_weight">1</item>
-		<item name="android:gravity">center_vertical</item>
-		<item name="android:layout_width">0dip</item>
-		<item name="android:layout_height">fill_parent</item>
-		<item name="android:includeFontPadding">false</item>
-	</style>
-	
-	<style name="wHour" parent="@style/wTextBase">
-		<item name="android:textColor">#fff</item>
-		<item name="android:gravity">center</item>
-		<item name="android:layout_width">fill_parent</item>
-		<item name="android:layout_height">wrap_content</item>
-	</style>
-	
-	<style name="wImg">
-		<item name="android:layout_gravity">center</item>
-		<item name="android:layout_width">wrap_content</item>
-		<item name="android:layout_height">26dip</item>
-		<item name="android:scaleType">center</item>
-	</style>
-	
-	<style name="sectionHeader">
-	    <item name="android:textSize">@dimen/textSizeLarge</item>
-	</style>
-            
+    <!-- Widget -->
+    <style name="wTextBase">
+        <item name="android:textSize" tools:ignore="SpUsage">11dip</item>
+        <item name="android:textStyle">bold</item>
+        <item name="android:shadowColor">#000</item>
+        <item name="android:shadowRadius">1</item>
+        <item name="android:shadowDx">1</item>
+        <item name="android:shadowDy">1</item>
+        <item name="android:includeFontPadding">false</item>
+    </style>
+
+    <style name="wTitle" parent="@style/wTextBase">
+        <item name="android:textColor">#fff</item>
+        <item name="android:layout_width">wrap_content</item>
+        <item name="android:layout_height">wrap_content</item>
+    </style>
+
+    <style name="wColumn" parent="@style/wTextBase">
+        <item name="android:orientation">vertical</item>
+        <item name="android:layout_weight">1</item>
+        <item name="android:gravity">center_vertical</item>
+        <item name="android:layout_width">0dip</item>
+        <item name="android:layout_height">fill_parent</item>
+        <item name="android:includeFontPadding">false</item>
+    </style>
+
+    <style name="wHour" parent="@style/wTextBase">
+        <item name="android:textColor">#fff</item>
+        <item name="android:gravity">center</item>
+        <item name="android:layout_width">fill_parent</item>
+        <item name="android:layout_height">wrap_content</item>
+    </style>
+
+    <style name="wImg">
+        <item name="android:layout_gravity">center</item>
+        <item name="android:layout_width">wrap_content</item>
+        <item name="android:layout_height">26dip</item>
+        <item name="android:scaleType">center</item>
+    </style>
+
+    <style name="sectionHeader">
+        <item name="android:textAppearance">?android:attr/textAppearanceMedium</item>
+    </style>
+
 </resources>

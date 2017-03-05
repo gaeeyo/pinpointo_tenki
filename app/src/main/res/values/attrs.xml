@@ -1,4 +1,18 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
-	
+    <attr name="borderWidth" format="dimension"/>
+    <attr name="borderColor" format="reference"/>
+    <attr name="iconMargin" format="dimension"/>
+
+    <declare-styleable name="MyTableLayout">
+        <attr name="borderWidth"/>
+        <attr name="borderColor"/>
+    </declare-styleable>
+    <declare-styleable name="TextTableView">
+        <attr name="borderWidth"/>
+        <attr name="borderColor"/>
+        <attr name="iconMargin"/>
+        <attr name="android:textColor"/>
+        <attr name="cellPadding" format="dimension"/>
+    </declare-styleable>
 </resources>

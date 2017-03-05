@@ -19,3 +19,7 @@
 
 
 # https://github.com/frankiesardo/icepick#proguard
+
+-assumenosideeffects class android.util.Log {
+    public static int d(...);
+}
