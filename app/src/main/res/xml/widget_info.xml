@@ -3,7 +3,7 @@
     android:configure="nikeno.Tenki.activity.TenkiWidgetConfigure"
     android:initialLayout="@layout/widget"
     android:minHeight="40dp"
-    android:minWidth="294dp"
+    android:minWidth="290dp"
     android:updatePeriodMillis="0" >
 
 </appwidget-provider>

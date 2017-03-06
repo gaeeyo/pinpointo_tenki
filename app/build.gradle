@@ -1,3 +1,5 @@
+import java.text.SimpleDateFormat
+
 apply plugin: 'com.android.application'
 
 android {
@@ -5,22 +7,22 @@ android {
         config {
         }
     }
-    compileSdkVersion 24
+    compileSdkVersion 25
     buildToolsVersion '25.0.0'
     defaultConfig {
         applicationId "nikeno.Tenki"
         minSdkVersion 4
-        targetSdkVersion 24
+        targetSdkVersion 25
         versionCode 21
-        versionName "0.1.15"
+        versionName "0.2.0"
 
 
-        archivesBaseName = "pinpoint_tenki-$versionName"
+        archivesBaseName = "pinpoint_tenki-$versionName-" + new SimpleDateFormat("yyyyMMdd").format(new Date())
     }
     buildTypes {
         release {
             minifyEnabled true
-            proguardFiles getDefaultProguardFile('proguard-android.txt'), 'proguard-rules.pro'
+            proguardFiles getDefaultProguardFile('proguard-android-optimize.txt'), 'proguard-rules.pro'
         }
     }
     compileOptions {

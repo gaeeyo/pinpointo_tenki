@@ -77,7 +77,7 @@ public class WidgetUpdateService extends Service {
         stopSelf();
     }
 
-    private static class UpdateTask extends AsyncTask<Object, Integer, Object> {
+    public static class UpdateTask extends AsyncTask<Object, Integer, Object> {
 
         @Override
         protected Object doInBackground(Object... params) {
