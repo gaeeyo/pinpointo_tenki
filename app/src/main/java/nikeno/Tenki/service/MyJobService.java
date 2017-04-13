@@ -11,37 +11,33 @@ public class MyJobService extends JobService {
 
     static final String TAG = "MyJobService";
 
-    WidgetUpdateService.UpdateTask mTask;
+    Thread mThread;
 
     @Override
     public boolean onStartJob(final JobParameters jobParameters) {
         Log.d(TAG, "onStartJob");
-        mTask = new WidgetUpdateService.UpdateTask() {
+        mThread = new Thread() {
             @Override
-            protected void onProgressUpdate(Integer... values) {
-                super.onProgressUpdate(values);
-                if (mTask == this) {
-                    jobFinished(jobParameters, false);
-                    mTask = null;
-                }
-            }
-
-            @Override
-            protected void onCancelled() {
-                super.onCancelled();
-                if (mTask == this) {
-                    mTask = null;
+            public void run() {
+                super.run();
+                new WidgetUpdateService.UpdateTask().doInBackground(MyJobService.this);
+                jobFinished(jobParameters, false);
+                synchronized (this) {
+                    mThread = null;
                 }
             }
         };
-        mTask.execute(this);
+        mThread.start();
         return true;
     }
 
     @Override
     public boolean onStopJob(JobParameters jobParameters) {
-        if (mTask != null) {
-            mTask.cancel(true);
+        synchronized (this) {
+            if (mThread != null) {
+                mThread.interrupt();
+                mThread = null;
+            }
         }
         return true;
     }

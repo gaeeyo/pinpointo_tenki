@@ -5,7 +5,6 @@ import android.content.Context;
 import android.database.Cursor;
 import android.database.sqlite.SQLiteDatabase;
 import android.database.sqlite.SQLiteOpenHelper;
-import android.text.format.DateUtils;
 import android.util.Log;
 
 import java.text.SimpleDateFormat;
@@ -34,13 +33,13 @@ public class FileCache {
         mDB.replace(CacheTable.TABLE_NAME, null, values);
     }
 
-    public byte[] get(String key, long since) {
-        Cursor cur  = null;
-        byte[] data = null;
+    public Entry get(String key, long since) {
+        Cursor cur   = null;
+        Entry  entry = null;
         try {
             if (since != 0) {
                 cur = mDB.query(CacheTable.TABLE_NAME,
-                        new String[]{CacheTable.VALUE},
+                        new String[]{CacheTable.VALUE, CacheTable.TIME},
                         CacheTable.KEY + "=?"
                                 + " AND " + CacheTable.TIME + ">?",
                         new String[]{
@@ -49,7 +48,7 @@ public class FileCache {
                         null, null, null, "1");
             } else {
                 cur = mDB.query(CacheTable.TABLE_NAME,
-                        new String[]{CacheTable.VALUE},
+                        new String[]{CacheTable.VALUE, CacheTable.TIME},
                         CacheTable.KEY + "=?",
                         new String[]{key},
                         null, null, null, "1");
@@ -58,7 +57,9 @@ public class FileCache {
                 if (BuildConfig.DEBUG) {
                     Log.d(TAG, "get Found (" + key + ")");
                 }
-                data = cur.getBlob(0);
+                entry = new Entry();
+                entry.data = cur.getBlob(0);
+                entry.time = cur.getLong(1);
             } else {
                 if (BuildConfig.DEBUG) {
                     Log.d(TAG, "get NotFound (" + key + ")");
@@ -69,7 +70,7 @@ public class FileCache {
                 cur.close();
             }
         }
-        return data;
+        return entry;
     }
 
     private static class DBHelper extends SQLiteOpenHelper {
@@ -108,4 +109,9 @@ public class FileCache {
                         + ")";
     }
 
+    public static class Entry {
+        public long   time;
+        public byte[] data;
+
+    }
 }

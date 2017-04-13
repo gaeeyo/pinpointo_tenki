@@ -167,7 +167,7 @@ public class AreaSelectActivity extends Activity implements AdapterView.OnItemCl
                 Log.d(TAG, "doInBackground");
                 String text = (String) params[0];
                 try {
-                    String url = "http://weather.yahoo.co.jp/weather/search/"
+                    String url = "https://weather.yahoo.co.jp/weather/search/"
                             + "?p=" + URLEncoder.encode(text, SERVER_ENCODING)
                             + "&t=z";
 
@@ -273,7 +273,7 @@ public class AreaSelectActivity extends Activity implements AdapterView.OnItemCl
             html = m.group(1);
             // <tr><td>zip</td><td>県名</td><td><a href="">住所</a></td>
             m = Pattern.compile(
-                    "<tr.*?<td.*?>(.*?)</td>.*?<td.*?>(.*?)</td>.*?<td.*?>.*?(http://[a-zA-Z0-9./_]*?)\".*?>(.*?)</a>.*?</tr"
+                    "<tr.*?<td.*?>(.*?)</td>.*?<td.*?>(.*?)</td>.*?<td.*?>.*?(https://[a-zA-Z0-9./_]*?)\".*?>(.*?)</a>.*?</tr"
             ).matcher(html);
             while (m.find()) {
                 Area d = new Area();

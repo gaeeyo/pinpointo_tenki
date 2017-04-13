@@ -1,7 +1,5 @@
 package nikeno.Tenki.activity;
 
-import nikeno.Tenki.AreaSelectActivity;
-import nikeno.Tenki.service.WidgetUpdateService;
 import android.app.Activity;
 import android.appwidget.AppWidgetManager;
 import android.content.Context;
@@ -11,6 +9,10 @@ import android.content.SharedPreferences.Editor;
 import android.os.Bundle;
 import android.preference.PreferenceManager;
 import android.util.Log;
+
+import nikeno.Tenki.AreaSelectActivity;
+import nikeno.Tenki.Utils;
+import nikeno.Tenki.service.WidgetUpdateService;
 
 public class TenkiWidgetConfigure extends Activity {
 
@@ -81,8 +83,8 @@ public class TenkiWidgetConfigure extends Activity {
 		SharedPreferences pref = PreferenceManager.getDefaultSharedPreferences(context);
 
 		WidgetConfig config = new WidgetConfig();
-		config.url = pref.getString(prefKey(id, "url"), "");
-		
+		config.url = Utils.httpsUrl(pref.getString(prefKey(id, "url"), ""));
+
 		return config;
 	}
 	

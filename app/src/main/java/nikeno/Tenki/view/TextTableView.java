@@ -186,9 +186,13 @@ public class TextTableView extends View {
             mCells = new CellImpl[mRows * mColumns];
             for (int j = 0; j < mCells.length; j++) {
                 mCells[j] = new CellImpl(mTextColor);
-
             }
             mRowHeights = new int[mRows];
+        }
+        else {
+            for (int j = 0, count = mCells.length; j < count; j++) {
+                mCells[j].reset(mTextColor);
+            }
         }
     }
 
@@ -309,6 +313,13 @@ public class TextTableView extends View {
             paint.setColor(color);
             iconWidth = -1;
             iconHeight = -1;
+        }
+
+        public void reset(int color) {
+            paint.setColor(color);
+            backgroundColor = 0;
+            icon = null;
+            layout = null;
         }
 
         @Override

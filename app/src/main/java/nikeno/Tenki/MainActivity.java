@@ -17,7 +17,7 @@ import android.util.TypedValue;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
-import android.view.Window;
+import android.view.animation.AnimationUtils;
 import android.widget.TextView;
 import android.widget.Toast;
 
@@ -42,17 +42,20 @@ public class MainActivity extends Activity {
     private TextTableView mTodayTable2;
     private TextTableView mTomorrowTable2;
     private TextTableView mWeekTable2;
+    private TextView      mTime;
+    private View          mProgress;
+    private View          mErrorGroup;
 
-    private DownloadTask mDownloadTask;
-    private Prefs        mPrefs;
-    private String       mPrefUrl;
+    private AsyncTask<Void, Void, Object> mDownloadTask;
+    private Prefs                         mPrefs;
+    private String                        mPrefUrl;
+    YahooWeather mData;
+    long         mDataTime;
+
 
     @Override
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-
-        requestWindowFeature(Window.FEATURE_PROGRESS);
-        requestWindowFeature(Window.FEATURE_INDETERMINATE_PROGRESS);
 
         setContentView(R.layout.activity_main);
 
@@ -62,19 +65,19 @@ public class MainActivity extends Activity {
         mTodayTable2 = (TextTableView) findViewById(R.id.today2);
         mTomorrowTable2 = (TextTableView) findViewById(R.id.tomorrow2);
         mWeekTable2 = (TextTableView) findViewById(R.id.week2);
+        mTime = (TextView) findViewById(R.id.time);
+        mProgress = findViewById(android.R.id.progress);
+        mErrorGroup = findViewById(R.id.errorGroup);
 
         mPrefs = new Prefs(getSharedPreferences(APP_PREF, MODE_PRIVATE));
 
         if (getIntent().getDataString() != null) {
-            mPrefUrl = getIntent().getDataString();
+            mPrefUrl = Utils.httpsUrl(getIntent().getDataString());
         } else {
-            mPrefUrl = mPrefs.getCurrentAreaUrl();
+            mPrefUrl = Utils.httpsUrl(mPrefs.getCurrentAreaUrl());
         }
-        reload(false);
 
-
-        // キャッシュを表示
-        showCache();
+        loadCache(mPrefUrl);
     }
 
     // ダウンロード
@@ -88,7 +91,7 @@ public class MainActivity extends Activity {
     public boolean onOptionsItemSelected(MenuItem item) {
         switch (item.getItemId()) {
             case R.id.menu_reload:    // リロード
-                reload(true);
+                reload();
                 break;
             case R.id.menu_pref:    // 地域変更
                 onClickChangeArea(null);
@@ -111,11 +114,26 @@ public class MainActivity extends Activity {
             case REQUEST_AREA:
                 switch (resultCode) {
                     case RESULT_OK:
-                        mPrefUrl = data.getStringExtra("url");
+                        mPrefUrl = Utils.httpsUrl(data.getStringExtra("url"));
                         mPrefs.setCurrentAreaUrl(mPrefUrl);
-                        reload(false);
+                        reload();
                         break;
                 }
+        }
+    }
+
+    @Override
+    protected void onStart() {
+        super.onStart();
+
+        if (mData != null) {
+            setData(mData, mDataTime);
+            long ellapsed = System.currentTimeMillis() - mDataTime;
+            if (ellapsed < 0 || ellapsed > 5 * DateUtils.MINUTE_IN_MILLIS) {
+                reload();
+            }
+        } else {
+            reload();
         }
     }
 
@@ -139,13 +157,14 @@ public class MainActivity extends Activity {
         }
     }
 
-    private void showCache() {
-        byte[] data = Downloader.getInstance(this).getCache(mPrefUrl,
+    void loadCache(String url) {
+        YahooWeather result = null;
+        FileCache.Entry entry = Downloader.getInstance(this).getCache(url,
                 System.currentTimeMillis() - 24 * DateUtils.HOUR_IN_MILLIS);
-        if (data != null) {
+        if (entry != null) {
             try {
-                YahooWeather weatherData = YahooWeather.parse(data);
-                setData(weatherData);
+                mData = YahooWeather.parse(entry.data);
+                mDataTime = entry.time;
             } catch (Exception e) {
                 e.printStackTrace();
                 Log.d(TAG, String.valueOf(e.getMessage()));
@@ -154,38 +173,64 @@ public class MainActivity extends Activity {
     }
 
     // リロードする
-    private void reload(boolean force) {
-        if (mDownloadTask != null && mDownloadTask.getStatus() != AsyncTask.Status.FINISHED)
-            mDownloadTask.cancel(true);
+    private void reload() {
+        if (mDownloadTask != null) {
+            return;
+        }
 
-        mDownloadTask = new DownloadTask(force);
-        mDownloadTask.execute(mPrefUrl);
-    }
-
-    // リロード完了
-    private void reloadComplete(DownloadTask task) {
-//    	initViews();
-        if (task.mResultMessage != null) {
-            // エラー表示
-            Toast.makeText(getApplicationContext(), task.mResultMessage, Toast.LENGTH_LONG).show();
-        } else {
-            // エラーなし
-            setProgress(75 * 100);
-            if (task.isCache()) {
-                Toast.makeText(getApplicationContext(),
-                        getText(R.string.using_cache), Toast.LENGTH_LONG).show();
+        mErrorGroup.setVisibility(View.GONE);
+        mProgress.setVisibility(View.VISIBLE);
+        mDownloadTask = new AsyncTask<Void, Void, Object>() {
+            @Override
+            protected Object doInBackground(Void... params) {
+                try {
+                    byte[] buff = Downloader.getInstance(MainActivity.this)
+                            .download(mPrefUrl, 50 * 1024, true);
+                    if (buff != null) {
+                        return YahooWeather.parse(buff);
+                    }
+                } catch (Exception e) {
+                    e.printStackTrace();
+                    return e;
+                }
+                return null;
             }
 
-            setData(task.mWeatherData);
-        }
-        setProgress(100 * 100);
-        setProgressBarIndeterminateVisibility(false);
+            @Override
+            protected void onPostExecute(Object o) {
+                super.onPostExecute(o);
+                if (o instanceof YahooWeather) {
+                    mData = (YahooWeather) o;
+                    mDataTime = System.currentTimeMillis();
+                    setData(mData, mDataTime);
+                } else if (o instanceof Exception) {
+                    mErrorGroup.setVisibility(View.VISIBLE);
+                    mErrorGroup.startAnimation(AnimationUtils.loadAnimation(MainActivity.this, android.R.anim.fade_in));
+                }
+                onFinish();
+            }
+
+            @Override
+            protected void onCancelled() {
+                super.onCancelled();
+                onFinish();
+            }
+
+            void onFinish() {
+                if (this == mDownloadTask) {
+                    mProgress.setVisibility(View.GONE);
+                    mDownloadTask = null;
+                }
+            }
+
+        };
+        mDownloadTask.execute();
     }
 
     @SuppressWarnings("deprecation")
     public void setDayData(TextTableView v, YahooWeather.Day data, float textSize) {
-        Calendar nowJapan = Calendar.getInstance(Locale.JAPAN);
 
+        Calendar nowJapan = Calendar.getInstance(Locale.JAPAN);
         long      now      = nowJapan.getTime().getTime() - 3 * DateUtils.HOUR_IN_MILLIS;
         long      baseTime = data.date.getTime();
         Resources res      = getResources();
@@ -193,7 +238,7 @@ public class MainActivity extends Activity {
         int columns = data.hours.length;
         v.setSize(columns, 6);
 
-        v.getAll().setTextSize(textSize);
+//        v.getAll().setTextSize(textSize).setTextColor(res.getColor(R.color.tex))
 //        v.getRow(1).setIconWidth(res.getDimensionPixelSize(R.dimen.dayWeatherIconWidth));
         v.getRow(2).setTextColor(res.getColor(R.color.tempTextColor));
         v.getRow(3).setTextColor(res.getColor(R.color.humidityTextColor));
@@ -229,9 +274,10 @@ public class MainActivity extends Activity {
             if (!enabled) {
                 v.getColumn(x).setTextColor(textColorDisabled);
             }
-
         }
+        v.invalidate();
     }
+
 
     public void setWeekData(TextTableView v, YahooWeather.WeeklyDay[] data, float textSize) {
         Resources res          = getResources();
@@ -270,8 +316,9 @@ public class MainActivity extends Activity {
             v.getCell(x, 3).setText(i.rain);
         }
     }
+    private void setData(YahooWeather data, long time) {
 
-    private void setData(YahooWeather data) {
+
         setTitle(getString(R.string.mainTitleFormat, data.areaName));
 
 
@@ -292,6 +339,8 @@ public class MainActivity extends Activity {
         setDayData(mTodayTable2, data.today, textSize);
         setDayData(mTomorrowTable2, data.tomorrow, textSize);
         setWeekData(mWeekTable2, data.days, textSize);
+        mTime.setText(DateUtils.formatDateTime(this, time,
+                DateUtils.FORMAT_SHOW_DATE | DateUtils.FORMAT_SHOW_TIME));
     }
 
     private String getDateText(Date d) {
@@ -304,78 +353,7 @@ public class MainActivity extends Activity {
                 WeekStr.substring(day, day + 1));
     }
 
-    private class DownloadTask extends AsyncTask<String, Integer, String> {
-        private boolean mForceReload;
-        private boolean mIsCache       = false;
-        public  String  mResultMessage = null;
-
-        public YahooWeather mWeatherData = null;
-
-        public DownloadTask(Boolean force) {
-            mForceReload = force;
-        }
-
-        public boolean isCache() {
-            return mIsCache;
-        }
-
-        @Override
-        protected void onPreExecute() {
-            setProgressBarIndeterminateVisibility(true);
-            super.onPreExecute();
-        }
-
-        @Override
-        protected String doInBackground(String... params) {
-            String result = null;
-            try {
-                publishProgress(25 * 100);
-                long since = -1; // リロード
-                if (!mForceReload) {
-                    // 1時間以内に取得していたらそれを表示
-                    since = System.currentTimeMillis() - TenkiApp.PRIORITY_CACHE_TIME;
-                }
-                // ダウンロード
-                byte[] buff = null;
-                try {
-                    buff = Downloader.getInstance(MainActivity.this)
-                            .download(params[0], 50 * 1024, since, true);
-                } catch (Exception e) {
-                    if (since != -1) {
-                        // エラーが発生してもキャッシュがあれば使う
-                        buff = Downloader.getInstance(MainActivity.this).getCache(params[0],
-                                System.currentTimeMillis() - 8 * DateUtils.HOUR_IN_MILLIS);
-                        if (buff != null) {
-                            mIsCache = true;
-                        }
-                    } else {
-                        throw e;
-                    }
-                }
-                if (buff == null) {
-                    throw new Exception("Download error.");
-                }
-                mWeatherData = YahooWeather.parse(buff);
-                publishProgress(50 * 100);
-            } catch (Exception e) {
-                mResultMessage = getText(R.string.reload_error) +
-                        "\n" + e.getMessage();
-                e.printStackTrace();
-            }
-            return result;
-        }
-
-        @Override
-        protected void onPostExecute(String result) {
-            super.onPostExecute(result);
-            reloadComplete(this);
-        }
-
-        @Override
-        protected void onProgressUpdate(Integer... values) {
-            super.onProgressUpdate(values);
-            setProgress(values[0]);
-        }
-
+    public void onClickErrorMessage(View v) {
+        reload();
     }
 }

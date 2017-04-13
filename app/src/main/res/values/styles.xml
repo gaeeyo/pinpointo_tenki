@@ -21,6 +21,9 @@
     <color name="maxTempTextColor">#F30</color>
     <color name="minTempTextColor">#06F</color>
     <color name="humidityTextColor">#090</color>
+    <color name="errorMessageBackgroundColor">#aa000000</color>
+    <color name="errorMessageTextColor">#ffffffff</color>
+    <color name="accentColor">#40C4FF</color>
 
     <style name="weatherTable">
         <item name="android:background">@color/tableBackgroundColor</item>

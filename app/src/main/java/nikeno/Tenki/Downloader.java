@@ -40,6 +40,7 @@ public class Downloader {
         if (BuildConfig.DEBUG) {
             Log.d(TAG, "downloading " + url);
         }
+
         ByteArrayOutputStream baos = new ByteArrayOutputStream(maxSize);
 
         URL u = new URL(url);
@@ -70,9 +71,9 @@ public class Downloader {
     public byte[] download(String url, int maxSize, long since, boolean storeCache) throws Exception {
         byte[] data = null;
         if (since != -1) {
-            data = mFileCache.get(url, since);
-            if (data != null) {
-                return data;
+            FileCache.Entry entry = mFileCache.get(url, since);
+            if (entry != null) {
+                return entry.data;
             }
         }
         data = download(url, maxSize, storeCache);
@@ -80,7 +81,7 @@ public class Downloader {
         return data;
     }
 
-    public byte[] getCache(String url, long since) {
+    public FileCache.Entry getCache(String url, long since) {
         return mFileCache.get(url, since);
     }
 

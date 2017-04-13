@@ -12,6 +12,7 @@
    	<string name="weekly_text">週間天気</string>
 	<string name="menu_reload">最新の情報に更新</string>
 	<string name="menu_pref">地域を変更</string>
+	<string name="retry">再試行</string>
 	
 	<string name="reload_error">データの取得ができませんでした。</string>
 	<string name="using_cache">データの取得が失敗したため、前回の情報を表示します。</string>
