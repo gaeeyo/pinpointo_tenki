@@ -1,7 +1,5 @@
 package nikeno.Tenki;
 
-import android.os.Build;
-
 import java.io.UnsupportedEncodingException;
 import java.util.Calendar;
 import java.util.Date;
@@ -262,9 +260,6 @@ public class YahooWeather {
     }
 
     static String supportOldAndroid(String url) {
-        if (Build.VERSION.SDK_INT < Build.VERSION_CODES.GINGERBREAD) {
-            return url.replace("https://", "http://");
-        }
         return url;
     }
 

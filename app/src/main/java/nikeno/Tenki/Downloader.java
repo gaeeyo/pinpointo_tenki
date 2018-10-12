@@ -3,6 +3,7 @@ package nikeno.Tenki;
 import android.content.Context;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
+import android.os.Build;
 import android.util.DisplayMetrics;
 import android.util.Log;
 import android.widget.ImageView;
@@ -13,11 +14,19 @@ import java.net.URL;
 import java.net.URLConnection;
 import java.util.WeakHashMap;
 
-public class Downloader {
-    private final String TAG                    = "Downloader";
-    static final  String DEFAULT_CACHE_FILENAME = "file_cache.db";
+import javax.net.ssl.HttpsURLConnection;
 
+public class Downloader {
+    static final  String DEFAULT_CACHE_FILENAME = "file_cache.db";
     static Downloader sInstance;
+    private final String TAG                    = "Downloader";
+    private final FileCache mFileCache;
+    private final WeakHashMap<String, Bitmap> mBitmapCache;
+
+    public Downloader(Context context, String filename) {
+        mFileCache = new FileCache(context, filename);
+        mBitmapCache = new WeakHashMap<>();
+    }
 
     public static synchronized Downloader getInstance(Context context) {
         if (sInstance == null) {
@@ -25,15 +34,6 @@ public class Downloader {
                     DEFAULT_CACHE_FILENAME);
         }
         return sInstance;
-    }
-
-    private final FileCache mFileCache;
-
-    private final WeakHashMap<String, Bitmap> mBitmapCache;
-
-    public Downloader(Context context, String filename) {
-        mFileCache = new FileCache(context, filename);
-        mBitmapCache = new WeakHashMap<>();
     }
 
     public byte[] download(String url, int maxSize, boolean storeCache) throws Exception {
@@ -46,6 +46,10 @@ public class Downloader {
         URL u = new URL(url);
 
         URLConnection uc = u.openConnection();
+        if (Build.VERSION.SDK_INT <= Build.VERSION_CODES.KITKAT && uc instanceof HttpsURLConnection) {
+            // Android 4.4未満でTLS1.2を有効化する
+            ((HttpsURLConnection) uc).setSSLSocketFactory(new TLSSocketFactory());
+        }
         uc.setConnectTimeout(TenkiApp.CONNECT_TIMEOUT);
         uc.getIfModifiedSince();
 
@@ -110,6 +114,7 @@ public class Downloader {
 
     public static class ImageViewSetter implements ImageHandler {
         ImageView mView;
+
         public ImageViewSetter(ImageView iv) {
             mView = iv;
         }
