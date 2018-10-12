@@ -7,21 +7,21 @@ android {
         config {
         }
     }
-    compileSdkVersion 25
-    buildToolsVersion '25.0.0'
+    compileSdkVersion 28
     defaultConfig {
         applicationId "nikeno.Tenki"
         minSdkVersion 4
-        targetSdkVersion 25
+        targetSdkVersion 28
         versionCode 22
         versionName "0.2.1"
 
+        testInstrumentationRunner "android.support.test.runner.AndroidJUnitRunner"
 
         archivesBaseName = "pinpoint_tenki-$versionName-" + new SimpleDateFormat("yyyyMMdd").format(new Date())
     }
     buildTypes {
         release {
-            minifyEnabled true
+            minifyEnabled false
             proguardFiles getDefaultProguardFile('proguard-android-optimize.txt'), 'proguard-rules.pro'
         }
     }
@@ -32,5 +32,7 @@ android {
 }
 
 dependencies {
-    testCompile 'junit:junit:4.12'
+    testImplementation 'junit:junit:4.12'
+    androidTestImplementation 'com.android.support.test:runner:1.0.2'
+    androidTestImplementation 'com.android.support.test.espresso:espresso-core:3.0.2'
 }
