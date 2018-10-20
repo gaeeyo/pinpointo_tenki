@@ -10,8 +10,8 @@ import android.widget.ImageView;
 
 import java.io.ByteArrayOutputStream;
 import java.io.InputStream;
+import java.net.HttpURLConnection;
 import java.net.URL;
-import java.net.URLConnection;
 import java.util.WeakHashMap;
 
 import javax.net.ssl.HttpsURLConnection;
@@ -45,7 +45,8 @@ public class Downloader {
 
         URL u = new URL(url);
 
-        URLConnection uc = u.openConnection();
+        HttpURLConnection uc = (HttpURLConnection) u.openConnection();
+        uc.setRequestProperty("User-Agent", "pinpoint_tenki/" + BuildConfig.VERSION_NAME);
         if (Build.VERSION.SDK_INT <= Build.VERSION_CODES.KITKAT && uc instanceof HttpsURLConnection) {
             // Android 4.4未満でTLS1.2を有効化する
             ((HttpsURLConnection) uc).setSSLSocketFactory(new TLSSocketFactory());
