@@ -44,7 +44,8 @@ public class TextTableView extends View {
             mCellPadding = ta.getDimensionPixelOffset(R.styleable.TextTableView_cellPadding, mCellPadding);
             ta.recycle();
         }
-        mPaint = new Paint();
+        mPaint.setFilterBitmap(true);
+        mPaint.setAntiAlias(true);
     }
 
     @SuppressLint("DrawAllocation")
@@ -106,8 +107,6 @@ public class TextTableView extends View {
         int   border = mBorderWidth;
         Paint paint  = mPaint;
 
-        paint.setColor(mBorderColor);
-
         int   col       = 0;
         int   row       = 0;
         int   y         = 0;
@@ -139,7 +138,7 @@ public class TextTableView extends View {
                         offsetY + scaledIconHeight);
                 offsetY += rectF.height();
 //                canvas.translate(x, y);
-                canvas.drawBitmap(cell.icon, rect, rectF, null);
+                canvas.drawBitmap(cell.icon, rect, rectF, paint);
 //                canvas.translate(-x, -y);
 //                textY = y + rowHeight - cell.layout.getHeight();
             }
