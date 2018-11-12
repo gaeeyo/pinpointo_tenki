@@ -70,14 +70,8 @@ public class TextTableView extends View {
 
                 cell.height = 0;
                 if (cell.icon != null) {
-                    int iconWidth = cell.icon.getWidth();
-                    if (cell.iconWidth != -1) {
-                        if (cell.iconWidth > iconWidth) {
-                            iconWidth = cell.iconWidth;
-                        }
-                    }
-                    cell.scale = (float) iconWidth / cell.icon.getWidth();
-                    cell.height += (int) (cell.icon.getHeight() * cell.scale);
+                    cell.scale = (float) cell.iconWidth / cell.icon.getWidth();
+                    cell.height = (int) (cell.icon.getHeight() * cell.scale);
                 }
 
                 if (cell.layout != null) {
@@ -135,11 +129,14 @@ public class TextTableView extends View {
             int    offsetY = y + (rowHeight / 2) - (cell.height / 2);
             Bitmap icon    = cell.icon;
             if (icon != null && icon.getWidth() > 0) {
-                int iconLeft = (int) (x + cellWidth / 2 - (icon.getWidth() * cell.scale) / 2);
-                rect.set(0, 0, cell.icon.getWidth(), cell.icon.getHeight());
+                int scaledIconWidth = (int) (icon.getWidth() * cell.scale);
+                int scaledIconHeight = (int) (icon.getHeight() * cell.scale);
+
+                int iconLeft = (int) (x + cellWidth / 2 - scaledIconWidth / 2);
+                rect.set(0, 0, icon.getWidth(), icon.getHeight());
                 rectF.set(iconLeft, offsetY,
-                        iconLeft + icon.getWidth() * cell.scale,
-                        offsetY + icon.getHeight() * cell.scale);
+                        iconLeft + scaledIconWidth,
+                        offsetY + scaledIconHeight);
                 offsetY += rectF.height();
 //                canvas.translate(x, y);
                 canvas.drawBitmap(cell.icon, rect, rectF, null);
