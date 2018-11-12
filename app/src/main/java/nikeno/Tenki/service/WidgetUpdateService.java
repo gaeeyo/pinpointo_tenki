@@ -1,14 +1,19 @@
 package nikeno.Tenki.service;
 
+import android.app.IntentService;
+import android.app.Notification;
 import android.app.PendingIntent;
-import android.app.Service;
 import android.appwidget.AppWidgetManager;
 import android.content.ComponentName;
 import android.content.Context;
 import android.content.Intent;
 import android.graphics.Bitmap;
+import android.graphics.Canvas;
+import android.graphics.Matrix;
+import android.graphics.Paint;
 import android.net.Uri;
 import android.os.AsyncTask;
+import android.os.Build;
 import android.os.IBinder;
 import android.text.SpannableString;
 import android.text.format.DateUtils;
@@ -18,6 +23,7 @@ import android.widget.RemoteViews;
 
 import java.net.UnknownHostException;
 import java.util.Calendar;
+import java.util.HashMap;
 import java.util.Locale;
 
 import nikeno.Tenki.Downloader;
@@ -30,12 +36,17 @@ import nikeno.Tenki.YahooWeather.Day;
 import nikeno.Tenki.activity.TenkiWidgetConfigure;
 import nikeno.Tenki.activity.TenkiWidgetConfigure.WidgetConfig;
 
-public class WidgetUpdateService extends Service {
+import static nikeno.Tenki.TenkiApp.N_ID_WIDGET_UPDATE_SERVICE;
+
+public class WidgetUpdateService extends IntentService {
 
     static final String TAG = WidgetUpdateService.class.getSimpleName();
 
     UpdateTask mUpdateTask;
-//    PowerManager.WakeLock mWakeLock;
+
+    public WidgetUpdateService() {
+        super("WidgetUpdateService");
+    }
 
     @Override
     public IBinder onBind(Intent intent) {
@@ -43,9 +54,16 @@ public class WidgetUpdateService extends Service {
     }
 
     @Override
-    public void onStart(Intent intent, int startId) {
-        super.onStart(intent, startId);
-        Log.d(TAG, "onStart " + intent);
+    protected void onHandleIntent(Intent intent) {
+        Log.d(TAG, "onHandleIntent " + intent);
+
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
+            Log.d(TAG, "startForeground");
+            Notification n = new Notification.Builder(this, TenkiApp.N_CH_WIDGET_UPDATE_SERVICE)
+                    .setOngoing(true)
+                    .build();
+            startForeground(N_ID_WIDGET_UPDATE_SERVICE, n);
+        }
 
         if (mUpdateTask != null) return;
 
@@ -73,7 +91,6 @@ public class WidgetUpdateService extends Service {
 
     void onFinishUpdateTask() {
         mUpdateTask = null;
-//        mWakeLock.release();
         stopSelf();
     }
 
@@ -203,18 +220,12 @@ public class WidgetUpdateService extends Service {
                         String imageUrl = h.getImageUrl(true);
                         Log.d(TAG, "imagerUrl:" + imageUrl);
                         if (imageUrl != null) {
-                            int bmpId = getBitmap(context, imageUrl);
+                            int bmpId = getBitmapIndexFromUrl(context, imageUrl);
                             if (bmpId != -1) {
                                 views.setImageViewResource(imgs[col], bmpId);
                             } else {
-                                Bitmap bmp = null;
-                                try {
-                                    bmp = Downloader.getInstance(context)
-                                            .downloadImage(imageUrl, 8000, 0);
-                                    views.setImageViewBitmap(imgs[col], bmp);
-                                } catch (Exception e) {
-                                    e.printStackTrace();
-                                }
+                                Bitmap bmp = getIconManager(context).getIcon(imageUrl);
+                                views.setImageViewBitmap(imgs[col], bmp);
                             }
                         }
 
@@ -233,8 +244,77 @@ public class WidgetUpdateService extends Service {
                     }
                 }
             }
-
             return views;
+        }
+
+        WeatherIconManager mIconManager;
+
+        WeatherIconManager getIconManager(Context context) {
+            if (mIconManager == null) {
+                mIconManager = new WeatherIconManager(context);
+            }
+            return mIconManager;
+        }
+    }
+
+
+
+    static class WeatherIconManager {
+
+        private final Context                mContext;
+        private       HashMap<String,Bitmap> mCache = new HashMap<>();
+        int mIconSize;
+        int mShadowOffset;
+
+        public WeatherIconManager(Context context) {
+            mContext = context;
+            float density = context.getResources().getDisplayMetrics().density;
+            mShadowOffset = Math.round(1 * density);
+            mIconSize = (int) (38 * density) + mShadowOffset * 2;
+        }
+
+        public Bitmap getIcon(String url) {
+            try {
+                Bitmap bmp = mCache.get(url);
+                if (bmp != null) return bmp;
+
+                bmp = Downloader.getInstance(mContext).downloadImage(url, 8000, 0);
+                if (bmp != null) {
+                    Bitmap newBitmap= convertBitmap(bmp);
+                    if (newBitmap != null) {
+                        bmp = newBitmap;
+                    }
+                    mCache.put(url, bmp);
+                }
+                return bmp;
+            } catch (Exception e) {
+                e.printStackTrace();
+                return null;
+            }
+        }
+
+        public Bitmap convertBitmap(Bitmap bmp) {
+            Bitmap newBmp = Bitmap.createBitmap(mIconSize, mIconSize, Bitmap.Config.ARGB_8888);
+            Bitmap alpha = bmp.extractAlpha();
+            try {
+                Canvas c     = new Canvas(newBmp);
+                Paint  p     = new Paint();
+                p.setFilterBitmap(true);
+                p.setColor(0x88000000);
+                Matrix m      = new Matrix();
+                float  scaleX = (float)(mIconSize - mShadowOffset*2) / bmp.getWidth();
+                float  scaleY = (float)(mIconSize - mShadowOffset*2) / bmp.getHeight();
+                float  scale  = Math.max(scaleX, scaleY);
+                m.preScale(scale, scale);
+                m.postTranslate(mShadowOffset*2, mShadowOffset*2);
+                c.drawBitmap(alpha, m, p);
+                m.postTranslate(-mShadowOffset, -mShadowOffset);
+                c.drawBitmap(bmp, m, null);
+            } finally {
+                alpha.recycle();
+            }
+
+            return newBmp;
         }
 
     }
@@ -245,17 +325,20 @@ public class WidgetUpdateService extends Service {
             "prain", "pmoon", "pclouds"
     };
 
-
     private static final int[] bmpIds = new int[]{
             R.drawable.psun, R.drawable.psnow, R.drawable.psleet,
             R.drawable.prain, R.drawable.prain_gusty,
             R.drawable.prain, R.drawable.pmoon, R.drawable.pclouds
     };
 
-    public static int getBitmap(Context c, String url) {
+    public static int getBitmapIndexFromUrl(Context c, String url) {
+        return getBitmapIndexFromUrl_old(c, url);
+    }
+
+    public static int getBitmapIndexFromUrl_old(Context c, String url) {
         if (url != null) {
             for (int j = 0; j < bmpNames.length; j++) {
-                if (url.indexOf(bmpNames[j]) != -1) {
+                if (url.contains(bmpNames[j])) {
                     return bmpIds[j];
                 }
             }

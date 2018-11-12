@@ -21,4 +21,6 @@
 	<string name="area_select_result_empty">「%1$s」は見つかりませんでした。</string>
 	<string name="main_open_browser">Yahoo!天気情報</string>
 	<string name="help_title">ピンポイント天気 - ヘルプ</string>
+
+	<string name="widgetUpdateService">ウィジェット更新サービス</string>
 </resources>

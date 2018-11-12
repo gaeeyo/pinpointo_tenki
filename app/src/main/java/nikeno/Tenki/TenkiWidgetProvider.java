@@ -37,7 +37,11 @@ public class TenkiWidgetProvider extends AppWidgetProvider {
 		if (intent != null && intent.getAction() != null) {
 			switch (intent.getAction()) {
 				case Intent.ACTION_MY_PACKAGE_REPLACED:
-					context.startService(new Intent(context, WidgetUpdateService.class));
+					if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
+						context.startForegroundService(new Intent(context, WidgetUpdateService.class));
+					} else {
+						context.startService(new Intent(context, WidgetUpdateService.class));
+					}
 					break;
 			}
 		}
