@@ -260,6 +260,43 @@ public class AreaSelectActivity extends Activity implements AdapterView.OnItemCl
     }
 
     public static ArrayList<Area> parseAreaListHtml(String html) throws Exception {
+        return parseAreaListHtml_20181112(html);
+    }
+
+    public static ArrayList<Area> parseAreaListHtml_20181112(String html) throws Exception {
+        ArrayList<Area> result = new ArrayList<>();
+
+        html = html.replace("\n", "");
+
+        // ざっくりとした
+        Pattern p = Pattern.compile("<thead(.*?)<tfoot",
+                Pattern.CASE_INSENSITIVE);
+        Matcher m = p.matcher(html);
+        if (m.find()) {
+
+            html = m.group(1);
+            // <tr><td>zip</td><td>県名</td><td><a href="">住所</a></td>
+            m = Pattern.compile(
+                    "<tr.*?href=\"(.*?)\".*?>(.*?)</a>"
+            ).matcher(html);
+            while (m.find()) {
+                Area d = new Area();
+                d.address1 = m.group(2);
+                d.address2 = "";
+                d.zipCode = "";
+                if (m.group(1).startsWith("//")) {
+                    d.url = "https:" + m.group(1);
+                } else {
+                    d.url = m.group(1);
+                }
+                result.add(d);
+                //Log.d(TAG, m.group(1) +"," +m.group(2) + "," + m.group(4) + "," + m.group(3) );
+            }
+        }
+        return result;
+    }
+
+    public static ArrayList<Area> parseAreaListHtml_old(String html) throws Exception {
         ArrayList<Area> result = new ArrayList<>();
 
         html = html.replace("\n", "");
@@ -287,6 +324,7 @@ public class AreaSelectActivity extends Activity implements AdapterView.OnItemCl
         }
         return result;
     }
+
 
     static class AreaAdapter extends ArrayAdapter<Area> {
 
