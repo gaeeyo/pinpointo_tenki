@@ -168,8 +168,7 @@ public class AreaSelectActivity extends Activity implements AdapterView.OnItemCl
                 String text = (String) params[0];
                 try {
                     String url = "https://weather.yahoo.co.jp/weather/search/"
-                            + "?p=" + URLEncoder.encode(text, SERVER_ENCODING)
-                            + "&t=z";
+                            + "?p=" + URLEncoder.encode(text, SERVER_ENCODING);
 
                     byte[] buff = Downloader.getInstance(AreaSelectActivity.this)
                             .download(url, 50 * 1024, -1, false);
