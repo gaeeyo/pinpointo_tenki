@@ -1,6 +1,6 @@
 package nikeno.Tenki;
 
-import android.support.test.InstrumentationRegistry;
+import androidx.test.InstrumentationRegistry;
 
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;

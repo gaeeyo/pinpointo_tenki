@@ -6,15 +6,36 @@ import java.util.ArrayList;
 import java.util.List;
 
 public class Prefs {
-    private static final int    RECENT_MAX      = 5;
-
     static final String RECENT_PREFIX = "Recent";
-    static final String URL = "url";
-
+    static final String URL           = "url";
+    static final String THEME    = "theme";
+    private static final int RECENT_MAX = 5;
     final SharedPreferences mPrefs;
+
+    public enum ThemeNames {
+        DEFAULT("default"), DARK("dark");
+
+        String value;
+        ThemeNames(String value) {
+            this.value = value;
+        }
+    }
 
     public Prefs(SharedPreferences prefs) {
         mPrefs = prefs;
+    }
+
+    public ThemeNames getTheme() {
+        String value = mPrefs.getString(THEME, ThemeNames.DEFAULT.value);
+        if (ThemeNames.DARK.value.equals(value)) {
+            return ThemeNames.DARK;
+        } else {
+            return ThemeNames.DEFAULT;
+        }
+    }
+
+    public void setTheme(ThemeNames theme) {
+        mPrefs.edit().putString(THEME, theme.value).apply();
     }
 
     public List<Area> getRecentAreaList() {

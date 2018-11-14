@@ -35,14 +35,14 @@
 
         <nikeno.Tenki.view.TextTableView
             android:id="@+id/today2"
-            style="@style/weatherTable"
+            style="?attr/weatherTableStyle"
             android:layout_width="0dip"
             android:layout_height="wrap_content"
             android:layout_weight="1"/>
 
         <nikeno.Tenki.view.TextTableView
             android:id="@+id/tomorrow2"
-            style="@style/weatherTable"
+            style="?attr/weatherTableStyle"
             android:layout_width="0dip"
             android:layout_height="wrap_content"
             android:layout_marginLeft="@dimen/marginWidth"
@@ -53,7 +53,7 @@
 
     <nikeno.Tenki.view.TextTableView
         android:id="@+id/week2"
-        style="@style/weatherTable"
+        style="?attr/weatherTableStyle"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:layout_marginTop="@dimen/marginHeight"/>

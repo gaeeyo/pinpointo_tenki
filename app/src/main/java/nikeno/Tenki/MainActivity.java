@@ -4,6 +4,7 @@ import android.app.Activity;
 import android.content.Intent;
 import android.content.res.Configuration;
 import android.content.res.Resources;
+import android.content.res.TypedArray;
 import android.net.Uri;
 import android.os.AsyncTask;
 import android.os.Bundle;
@@ -29,47 +30,48 @@ import java.util.TimeZone;
 import nikeno.Tenki.view.TextTableView;
 
 public class MainActivity extends Activity {
-    public static final String APP_PREF = "AF.Tenki";
-
-    private static final String TAG     = "Tenki_MainActivity";
-    private static final String WeekStr = "日月火水木金土";
-
-    static final int REQUEST_AREA = 1;
-
-    private TextView      mTodayHeader;
-    private TextView      mTomorrowHeader;
-    private TextView      mWeekHeader;
-    private TextTableView mTodayTable2;
-    private TextTableView mTomorrowTable2;
-    private TextTableView mWeekTable2;
-    private TextView      mTime;
-    private View          mProgress;
-    private View          mErrorGroup;
-
+    static final         int    REQUEST_AREA = 1;
+    private static final String TAG          = "Tenki_MainActivity";
+    private static final String WeekStr      = "日月火水木金土";
+    YahooWeather mData;
+    long         mDataTime;
+    int          mColorTempText;
+    int          mColorHumidityText;
+    int          mColorDateBg;
+    int          mColorDateBgDisabled;
+    int          mColorTextDisabled;
+    int          mColorMaxTempText;
+    int          mColorMinTempText;
+    private TextView                      mTodayHeader;
+    private TextView                      mTomorrowHeader;
+    private TextView                      mWeekHeader;
+    private TextTableView                 mTodayTable2;
+    private TextTableView                 mTomorrowTable2;
+    private TextTableView                 mWeekTable2;
+    private TextView                      mTime;
+    private View                          mProgress;
+    private View                          mErrorGroup;
     private AsyncTask<Void, Void, Object> mDownloadTask;
     private Prefs                         mPrefs;
     private String                        mPrefUrl;
-    YahooWeather mData;
-    long         mDataTime;
-
 
     @Override
     public void onCreate(Bundle savedInstanceState) {
+        TenkiApp.applyActivityTheme(this);
         super.onCreate(savedInstanceState);
 
         setContentView(R.layout.activity_main);
 
-        mTodayHeader = (TextView) findViewById(R.id.todayHeader);
-        mTomorrowHeader = (TextView) findViewById(R.id.tomorrowHeader);
-        mWeekHeader = (TextView) findViewById(R.id.weekHeader);
-        mTodayTable2 = (TextTableView) findViewById(R.id.today2);
-        mTomorrowTable2 = (TextTableView) findViewById(R.id.tomorrow2);
-        mWeekTable2 = (TextTableView) findViewById(R.id.week2);
-        mTime = (TextView) findViewById(R.id.time);
+        mTodayHeader = findViewById(R.id.todayHeader);
+        mTomorrowHeader = findViewById(R.id.tomorrowHeader);
+        mWeekHeader = findViewById(R.id.weekHeader);
+        mTodayTable2 = findViewById(R.id.today2);
+        mTomorrowTable2 = findViewById(R.id.tomorrow2);
+        mWeekTable2 = findViewById(R.id.week2);
+        mTime = findViewById(R.id.time);
         mProgress = findViewById(android.R.id.progress);
         mErrorGroup = findViewById(R.id.errorGroup);
-
-        mPrefs = new Prefs(getSharedPreferences(APP_PREF, MODE_PRIVATE));
+        mPrefs = ((TenkiApp) getApplication()).getPrefs();
 
         if (getIntent().getDataString() != null) {
             mPrefUrl = Utils.httpsUrl(getIntent().getDataString());
@@ -77,14 +79,30 @@ public class MainActivity extends Activity {
             mPrefUrl = Utils.httpsUrl(mPrefs.getCurrentAreaUrl());
         }
 
+        TypedArray ta = getTheme().obtainStyledAttributes(R.styleable.WeatherTable);
+        mColorTempText = ta.getColor(R.styleable.WeatherTable_colorTempText, 0);
+        mColorHumidityText = ta.getColor(R.styleable.WeatherTable_colorHumidityText, 0);
+        mColorDateBg = ta.getColor(R.styleable.WeatherTable_colorTableDateBackground, 0);
+        mColorDateBgDisabled = ta.getColor(R.styleable.WeatherTable_colorTableDateBackgroundDisabled, 0);
+        mColorTextDisabled = ta.getColor(R.styleable.WeatherTable_colorTableTextDisabled, 0);
+        mColorMaxTempText = ta.getColor(R.styleable.WeatherTable_colorMaxTempText, 0);
+        mColorMinTempText = ta.getColor(R.styleable.WeatherTable_colorMinTempText, 0);
+        ta.recycle();
+
         loadCache(mPrefUrl);
     }
 
-    // ダウンロード
     @Override
     public boolean onCreateOptionsMenu(Menu menu) {
         getMenuInflater().inflate(R.menu.main_menu, menu);
         return true;
+    }
+
+    @Override
+    public boolean onPrepareOptionsMenu(Menu menu) {
+        MenuItem mi = menu.findItem(R.id.darkTheme);
+        if (mi != null) mi.setChecked(mPrefs.getTheme() == Prefs.ThemeNames.DARK);
+        return super.onPrepareOptionsMenu(menu);
     }
 
     @Override
@@ -102,6 +120,10 @@ public class MainActivity extends Activity {
                 startActivity(i);
             }
             break;
+            case R.id.darkTheme:
+                mPrefs.setTheme(item.isChecked() ? Prefs.ThemeNames.DEFAULT : Prefs.ThemeNames.DARK);
+                recreate();
+                break;
         }
         return true;
     }
@@ -230,28 +252,25 @@ public class MainActivity extends Activity {
     @SuppressWarnings("deprecation")
     public void setDayData(TextTableView v, YahooWeather.Day data, float textSize) {
 
-        Calendar nowJapan = Calendar.getInstance(Locale.JAPAN);
+        Calendar  nowJapan = Calendar.getInstance(Locale.JAPAN);
         long      now      = nowJapan.getTime().getTime() - 3 * DateUtils.HOUR_IN_MILLIS;
         long      baseTime = data.date.getTime();
         Resources res      = getResources();
 
+//        int colorTempTextColor =
+
         int columns = data.hours.length;
         v.setSize(columns, 6);
 
-//        v.getAll().setTextSize(textSize).setTextColor(res.getColor(R.color.tex))
-//        v.getRow(1).setIconWidth(res.getDimensionPixelSize(R.dimen.dayWeatherIconWidth));
-        v.getRow(2).setTextColor(res.getColor(R.color.tempTextColor));
-        v.getRow(3).setTextColor(res.getColor(R.color.humidityTextColor));
+        v.getRow(2).setTextColor(mColorTempText);
+        v.getRow(3).setTextColor(mColorHumidityText);
 
         for (int j = 0; j < 6; j++) {
             v.getRow(j).setTextSize(textSize);
         }
         v.getRow(1).setIconWidth((int) (textSize * 2f));
 
-        ImageDownloader downloader          = ImageDownloader.getInstance(this);
-        int             dateBgColor         = res.getColor(R.color.tableDateBackgroundColor);
-        int             dateBgColorDisabled = res.getColor(R.color.tableDateBackgroundColorDisabled);
-        int             textColorDisabled   = res.getColor(R.color.tableTextColorDisabled);
+        ImageDownloader downloader = ImageDownloader.getInstance(this);
 
         for (int x = 0; x < columns; x++) {
             YahooWeather.Hour h = data.hours[x];
@@ -270,9 +289,9 @@ public class MainActivity extends Activity {
                     h.wind :
                     h.wind.substring(0, 2) + "\n" + h.wind.substring(2));
 
-            v.getCell(x, 0).setBackgroundColor(enabled ? dateBgColor : dateBgColorDisabled);
+            v.getCell(x, 0).setBackgroundColor(enabled ? mColorDateBg : mColorDateBgDisabled);
             if (!enabled) {
-                v.getColumn(x).setTextColor(textColorDisabled);
+                v.getColumn(x).setTextColor(mColorTextDisabled);
             }
         }
         v.invalidate();
@@ -280,14 +299,12 @@ public class MainActivity extends Activity {
 
 
     public void setWeekData(TextTableView v, YahooWeather.WeeklyDay[] data, float textSize) {
-        Resources res          = getResources();
-        int       maxTempColor = res.getColor(R.color.maxTempTextColor);
-        int       minTempColor = res.getColor(R.color.minTempTextColor);
-        boolean   isLandscape  = res.getConfiguration().orientation == Configuration.ORIENTATION_LANDSCAPE;
+        Resources res         = getResources();
+        boolean   isLandscape = res.getConfiguration().orientation == Configuration.ORIENTATION_LANDSCAPE;
 
         ImageDownloader downloader = ImageDownloader.getInstance(this);
         v.setSize(data.length, 4);
-        v.getRow(0).setBackgroundColor(res.getColor(R.color.tableDateBackgroundColor));
+        v.getRow(0).setBackgroundColor(mColorDateBg);
 //        v.getRow(1).setIconWidth(res.getDimensionPixelSize(R.dimen.weekWeatherIconWidth));
         v.getAll().setTextSize(textSize);
         v.getRow(1).setIconWidth((int) (textSize * 2.5f));
@@ -306,9 +323,9 @@ public class MainActivity extends Activity {
             v.getCell(x, 1).setText(i.text);
 
             SpannableString ss = new SpannableString(i.tempMax + "/" + i.tempMin);
-            ss.setSpan(new ForegroundColorSpan(maxTempColor),
+            ss.setSpan(new ForegroundColorSpan(mColorMaxTempText),
                     0, i.tempMax.length(), Spannable.SPAN_EXCLUSIVE_EXCLUSIVE);
-            ss.setSpan(new ForegroundColorSpan(minTempColor),
+            ss.setSpan(new ForegroundColorSpan(mColorMinTempText),
                     ss.length() - i.tempMin.length(), ss.length(),
                     Spannable.SPAN_EXCLUSIVE_EXCLUSIVE);
 
@@ -316,6 +333,7 @@ public class MainActivity extends Activity {
             v.getCell(x, 3).setText(i.rain);
         }
     }
+
     private void setData(YahooWeather data, long time) {
 
 

@@ -1,21 +1,21 @@
 <?xml version="1.0" encoding="utf-8"?>
-<menu xmlns:android="http://schemas.android.com/apk/res/android" >
+<menu xmlns:android="http://schemas.android.com/apk/res/android">
 
     <item
-        android:showAsAction="ifRoom"
         android:id="@+id/menu_reload"
-        android:icon="@drawable/ic_menu_refresh"
-        android:title="@string/menu_reload">
-    </item>
+        android:icon="@drawable/ic_refresh_light_24dp"
+        android:showAsAction="ifRoom"
+        android:title="@string/menu_reload"/>
     <item
         android:id="@+id/menu_pref"
         android:icon="@android:drawable/ic_menu_preferences"
-        android:title="@string/menu_pref">
-    </item>
+        android:title="@string/menu_pref"/>
+    <item
+        android:id="@+id/darkTheme"
+        android:checkable="true"
+        android:title="@string/dark_theme"/>
     <item
         android:id="@+id/menu_help"
-        android:icon="@android:drawable/ic_menu_help"
-        android:title="@string/menu_help">
-    </item>
+        android:title="@string/menu_help"/>
 
 </menu>

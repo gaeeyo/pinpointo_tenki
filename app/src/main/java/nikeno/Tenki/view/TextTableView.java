@@ -32,6 +32,7 @@ public class TextTableView extends View {
     int   mCellPadding = 0;
     Rect  mTmpRect     = new Rect();
     RectF mTmpRectF    = new RectF();
+    int mIconAlpha = 255;
 
     public TextTableView(Context context, AttributeSet attrs) {
         super(context, attrs);
@@ -42,6 +43,7 @@ public class TextTableView extends View {
             mBorderWidth = ta.getDimensionPixelOffset(R.styleable.TextTableView_borderWidth, mBorderWidth);
             mTextColor = ta.getColor(R.styleable.TextTableView_android_textColor, mTextColor);
             mCellPadding = ta.getDimensionPixelOffset(R.styleable.TextTableView_cellPadding, mCellPadding);
+            mIconAlpha = ta.getInt(R.styleable.TextTableView_iconAlpha, mIconAlpha);
             ta.recycle();
         }
         mPaint.setFilterBitmap(true);
@@ -138,6 +140,7 @@ public class TextTableView extends View {
                         offsetY + scaledIconHeight);
                 offsetY += rectF.height();
 //                canvas.translate(x, y);
+                paint.setAlpha(mIconAlpha);
                 canvas.drawBitmap(cell.icon, rect, rectF, paint);
 //                canvas.translate(-x, -y);
 //                textY = y + rowHeight - cell.layout.getHeight();

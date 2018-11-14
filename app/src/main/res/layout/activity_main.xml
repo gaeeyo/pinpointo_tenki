@@ -1,6 +1,5 @@
 <?xml version="1.0" encoding="utf-8"?>
 <merge xmlns:android="http://schemas.android.com/apk/res/android"
-       xmlns:app="http://schemas.android.com/apk/res-auto"
        xmlns:tools="http://schemas.android.com/tools">
 
 
@@ -9,8 +8,8 @@
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:gravity="right"
-        android:paddingRight="@dimen/marginWidth"
         android:paddingTop="@dimen/marginHeight"
+        android:paddingRight="@dimen/marginWidth"
         android:textSize="12sp"/>
 
     <ScrollView
@@ -24,10 +23,10 @@
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:orientation="vertical"
-            android:paddingBottom="@dimen/marginHeight"
             android:paddingLeft="@dimen/marginWidth"
+            android:paddingTop="@dimen/marginHeight"
             android:paddingRight="@dimen/marginWidth"
-            android:paddingTop="@dimen/marginHeight">
+            android:paddingBottom="@dimen/marginHeight">
 
             <include layout="@layout/main_table"/>
 

@@ -3,4 +3,7 @@
 	<style name="BaseTheme" parent="@android:style/Theme.Holo.Light">
 	</style>
 
+	<style name="BaseTheme.Dark" parent="@android:style/Theme.Holo">
+	</style>
+
 </resources>

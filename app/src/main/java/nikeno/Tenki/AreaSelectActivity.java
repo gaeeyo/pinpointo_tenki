@@ -48,17 +48,84 @@ public class AreaSelectActivity extends Activity implements AdapterView.OnItemCl
     private AsyncTask mSearchTask;
     private boolean   mIsLoading;
 
+    public static ArrayList<Area> parseAreaListHtml(String html) throws Exception {
+        return parseAreaListHtml_20181112(html);
+    }
+
+    public static ArrayList<Area> parseAreaListHtml_20181112(String html) throws Exception {
+        ArrayList<Area> result = new ArrayList<>();
+
+        html = html.replace("\n", "");
+
+        // ざっくりとした
+        Pattern p = Pattern.compile("<thead(.*?)<tfoot",
+                Pattern.CASE_INSENSITIVE);
+        Matcher m = p.matcher(html);
+        if (m.find()) {
+
+            html = m.group(1);
+            // <tr><td>zip</td><td>県名</td><td><a href="">住所</a></td>
+            m = Pattern.compile(
+                    "<tr.*?href=\"(.*?)\".*?>(.*?)</a>"
+            ).matcher(html);
+            while (m.find()) {
+                Area d = new Area();
+                d.address1 = m.group(2);
+                d.address2 = "";
+                d.zipCode = "";
+                if (m.group(1).startsWith("//")) {
+                    d.url = "https:" + m.group(1);
+                } else {
+                    d.url = m.group(1);
+                }
+                result.add(d);
+                //Log.d(TAG, m.group(1) +"," +m.group(2) + "," + m.group(4) + "," + m.group(3) );
+            }
+        }
+        return result;
+    }
+
+    public static ArrayList<Area> parseAreaListHtml_old(String html) throws Exception {
+        ArrayList<Area> result = new ArrayList<>();
+
+        html = html.replace("\n", "");
+
+        // ざっくりとした祝
+        Pattern p = Pattern.compile("<thead.*?郵便番号.*?</thead(.*?)</tbody",
+                Pattern.CASE_INSENSITIVE);
+        Matcher m = p.matcher(html);
+        if (m.find()) {
+
+            html = m.group(1);
+            // <tr><td>zip</td><td>県名</td><td><a href="">住所</a></td>
+            m = Pattern.compile(
+                    "<tr.*?<td.*?>(.*?)</td>.*?<td.*?>(.*?)</td>.*?<td.*?>.*?(https://[a-zA-Z0-9./_]*?)\".*?>(.*?)</a>.*?</tr"
+            ).matcher(html);
+            while (m.find()) {
+                Area d = new Area();
+                d.address1 = m.group(2);
+                d.address2 = m.group(4);
+                d.zipCode = m.group(1);
+                d.url = m.group(3);
+                result.add(d);
+                //Log.d(TAG, m.group(1) +"," +m.group(2) + "," + m.group(4) + "," + m.group(3) );
+            }
+        }
+        return result;
+    }
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
+        TenkiApp.applyActivityTheme(this);
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_area_select);
 
-        mPrefs = new Prefs(getSharedPreferences(MainActivity.APP_PREF, MODE_PRIVATE));
+        mPrefs = ((TenkiApp) getApplication()).getPrefs();
 
-        mList = (ListView) findViewById(android.R.id.list);
-        mMessage = (TextView) findViewById(android.R.id.message);
-        mSearchBtn = (Button) findViewById(R.id.searchButton);
-        mSearchText = (EditText) findViewById(R.id.searchText);
+        mList = findViewById(android.R.id.list);
+        mMessage = findViewById(android.R.id.message);
+        mSearchBtn = findViewById(R.id.searchButton);
+        mSearchText = findViewById(R.id.searchText);
         mProgress = findViewById(android.R.id.progress);
 
         mList.setOnItemLongClickListener(this);
@@ -230,7 +297,6 @@ public class AreaSelectActivity extends Activity implements AdapterView.OnItemCl
         finish();
     }
 
-
     private void setAreaList(List<Area> newList, boolean isRecent) {
         mListIsRecent = isRecent;
         mList.setAdapter(new AreaAdapter(this, newList));
@@ -257,73 +323,6 @@ public class AreaSelectActivity extends Activity implements AdapterView.OnItemCl
         }
         return false;
     }
-
-    public static ArrayList<Area> parseAreaListHtml(String html) throws Exception {
-        return parseAreaListHtml_20181112(html);
-    }
-
-    public static ArrayList<Area> parseAreaListHtml_20181112(String html) throws Exception {
-        ArrayList<Area> result = new ArrayList<>();
-
-        html = html.replace("\n", "");
-
-        // ざっくりとした
-        Pattern p = Pattern.compile("<thead(.*?)<tfoot",
-                Pattern.CASE_INSENSITIVE);
-        Matcher m = p.matcher(html);
-        if (m.find()) {
-
-            html = m.group(1);
-            // <tr><td>zip</td><td>県名</td><td><a href="">住所</a></td>
-            m = Pattern.compile(
-                    "<tr.*?href=\"(.*?)\".*?>(.*?)</a>"
-            ).matcher(html);
-            while (m.find()) {
-                Area d = new Area();
-                d.address1 = m.group(2);
-                d.address2 = "";
-                d.zipCode = "";
-                if (m.group(1).startsWith("//")) {
-                    d.url = "https:" + m.group(1);
-                } else {
-                    d.url = m.group(1);
-                }
-                result.add(d);
-                //Log.d(TAG, m.group(1) +"," +m.group(2) + "," + m.group(4) + "," + m.group(3) );
-            }
-        }
-        return result;
-    }
-
-    public static ArrayList<Area> parseAreaListHtml_old(String html) throws Exception {
-        ArrayList<Area> result = new ArrayList<>();
-
-        html = html.replace("\n", "");
-
-        // ざっくりとした祝
-        Pattern p = Pattern.compile("<thead.*?郵便番号.*?</thead(.*?)</tbody",
-                Pattern.CASE_INSENSITIVE);
-        Matcher m = p.matcher(html);
-        if (m.find()) {
-
-            html = m.group(1);
-            // <tr><td>zip</td><td>県名</td><td><a href="">住所</a></td>
-            m = Pattern.compile(
-                    "<tr.*?<td.*?>(.*?)</td>.*?<td.*?>(.*?)</td>.*?<td.*?>.*?(https://[a-zA-Z0-9./_]*?)\".*?>(.*?)</a>.*?</tr"
-            ).matcher(html);
-            while (m.find()) {
-                Area d = new Area();
-                d.address1 = m.group(2);
-                d.address2 = m.group(4);
-                d.zipCode = m.group(1);
-                d.url = m.group(3);
-                result.add(d);
-                //Log.d(TAG, m.group(1) +"," +m.group(2) + "," + m.group(4) + "," + m.group(3) );
-            }
-        }
-        return result;
-    }
-
 
     static class AreaAdapter extends ArrayAdapter<Area> {
 
