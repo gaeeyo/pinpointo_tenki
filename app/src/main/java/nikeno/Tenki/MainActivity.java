@@ -265,9 +265,15 @@ public class MainActivity extends Activity {
         v.getRow(2).setTextColor(mColorTempText);
         v.getRow(3).setTextColor(mColorHumidityText);
 
-        for (int j = 0; j < 6; j++) {
-            v.getRow(j).setTextSize(textSize);
+        for (int j = 0; j < 5; j++) {
         }
+        v.getRow(0).setTextSize(textSize);  // 時間
+        v.getRow(1).setTextSize(textSize * 0.75f);  // 天気
+        v.getRow(2).setTextSize(textSize);  // 温度
+        v.getRow(3).setTextSize(textSize);  // 湿度
+        v.getRow(4).setTextSize(textSize);  // 雨量
+        v.getRow(5).setTextSize(textSize * 0.75f);  // 風
+
         v.getRow(1).setIconWidth((int) (textSize * 2f));
 
         ImageDownloader downloader = ImageDownloader.getInstance(this);
