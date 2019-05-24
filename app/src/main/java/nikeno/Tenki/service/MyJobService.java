@@ -20,7 +20,7 @@ public class MyJobService extends JobService {
             @Override
             public void run() {
                 super.run();
-                new WidgetUpdateService.UpdateTask().doInBackground(MyJobService.this);
+                new WidgetUpdateService.UpdateTask().updateWidgets(MyJobService.this);
                 jobFinished(jobParameters, false);
                 synchronized (this) {
                     mThread = null;

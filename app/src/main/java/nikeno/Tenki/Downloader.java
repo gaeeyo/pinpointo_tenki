@@ -9,6 +9,7 @@ import android.util.Log;
 import android.widget.ImageView;
 
 import java.io.ByteArrayOutputStream;
+import java.io.IOException;
 import java.io.InputStream;
 import java.net.HttpURLConnection;
 import java.net.URL;
@@ -73,7 +74,14 @@ public class Downloader {
         return data;
     }
 
+    static int sFakeError = BuildConfig.DEBUG ? 5 : 0;
+
     public byte[] download(String url, int maxSize, long since, boolean storeCache) throws Exception {
+        if (sFakeError > 0 && url.endsWith(".html")) {
+            sFakeError--;
+            Log.w(TAG, "Fake Error");
+            throw new IOException("Fake Error");
+        }
         byte[] data = null;
         if (since != -1) {
             FileCache.Entry entry = mFileCache.get(url, since);

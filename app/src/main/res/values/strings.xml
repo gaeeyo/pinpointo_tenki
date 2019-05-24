@@ -22,6 +22,8 @@
 	<string name="main_open_browser">Yahoo!天気情報</string>
 	<string name="help_title">ピンポイント天気 - ヘルプ</string>
 	<string name="dark_theme">ダークテーマ</string>
+	<string name="updateTimeFmt">%s 更新</string>
+	<string name="updateErrorTimeFmt">%s 更新失敗</string>
 
 	<string name="widgetUpdateService">ウィジェット更新サービス</string>
 </resources>

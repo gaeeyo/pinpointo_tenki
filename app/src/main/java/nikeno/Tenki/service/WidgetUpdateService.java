@@ -21,12 +21,14 @@ import android.text.style.ForegroundColorSpan;
 import android.util.Log;
 import android.widget.RemoteViews;
 
+import java.io.IOException;
 import java.net.UnknownHostException;
 import java.util.Calendar;
 import java.util.HashMap;
 import java.util.Locale;
 
 import nikeno.Tenki.Downloader;
+import nikeno.Tenki.FileCache;
 import nikeno.Tenki.MainActivity;
 import nikeno.Tenki.R;
 import nikeno.Tenki.TenkiApp;
@@ -41,8 +43,6 @@ import static nikeno.Tenki.TenkiApp.N_ID_WIDGET_UPDATE_SERVICE;
 public class WidgetUpdateService extends IntentService {
 
     static final String TAG = WidgetUpdateService.class.getSimpleName();
-
-    UpdateTask mUpdateTask;
 
     public WidgetUpdateService() {
         super("WidgetUpdateService");
@@ -65,41 +65,14 @@ public class WidgetUpdateService extends IntentService {
             startForeground(N_ID_WIDGET_UPDATE_SERVICE, n);
         }
 
-        if (mUpdateTask != null) return;
-
-//        PowerManager pm = (PowerManager) getSystemService(Context.POWER_SERVICE);
-//        mWakeLock = pm.newWakeLock(PowerManager.PARTIAL_WAKE_LOCK,
-//                getPackageName() + ":" + getClass().getName());
-//        mWakeLock.setReferenceCounted(false);
-//        mWakeLock.acquire(60*1000);
-
-        mUpdateTask = new UpdateTask() {
-            @Override
-            protected void onPostExecute(Object result) {
-                super.onPostExecute(result);
-                onFinishUpdateTask();
-            }
-
-            @Override
-            protected void onCancelled() {
-                super.onCancelled();
-                onFinishUpdateTask();
-            }
-        };
-        mUpdateTask.execute(this);
+        Log.d(TAG, "ウィジェット更新中");
+        new UpdateTask().updateWidgets(this);
+        Log.d(TAG, "ウィジェット更新完了");
     }
 
-    void onFinishUpdateTask() {
-        mUpdateTask = null;
-        stopSelf();
-    }
+    static class UpdateTask {
 
-    public static class UpdateTask extends AsyncTask<Object, Integer, Object> {
-
-        @Override
-        protected Object doInBackground(Object... params) {
-            Context context = (Context) params[0];
-
+        void updateWidgets(Context context) {
             AppWidgetManager manager = AppWidgetManager.getInstance(context);
             int[] ids = manager.getAppWidgetIds(
                     new ComponentName(context, TenkiWidgetProvider.class));
@@ -109,12 +82,12 @@ public class WidgetUpdateService extends IntentService {
             Log.d(TAG, "updateWidgets count:" + ids.length);
             Throwable error = null;
             for (int id : ids) {
-                for (int retryCount = 0; retryCount < 3; retryCount++) {
+                for (int retryCount = 0; retryCount < 1; retryCount++) {
                     try {
-                        if (retryCount > 0) {
-                            Thread.sleep((retryCount - 1) * 3000);
-                        }
-                        updateWidget(context, manager, id, theme);
+//                        if (retryCount > 0) {
+//                            Thread.sleep((retryCount - 1) * 3000);
+//                        }
+                        updateWidget(context, manager, id, theme, false);
                         error = null;
                         break;
                     } catch (UnknownHostException e) {
@@ -127,21 +100,34 @@ public class WidgetUpdateService extends IntentService {
                     }
                 }
                 if (error != null) {
-//                    manager.updateAppWidget(id, createErrorView(context, error));
+                    try {
+                        Log.d(TAG, "キッシュで更新");
+                        updateWidget(context, manager, id, theme, true);
+                    } catch (Exception e) {
+                        manager.updateAppWidget(id, createErrorView(context, error));
+                    }
                 }
             }
-            return null;
         }
 
         void updateWidget(Context context, AppWidgetManager manager,
-                          int id, WidgetTheme theme) throws Exception {
+                          int id, WidgetTheme theme, boolean forceCache) throws Exception {
             WidgetConfig config = TenkiWidgetConfigure.getWidgetConfig(context, id);
 
-            byte[] html = Downloader.getInstance(context).download(config.url, TenkiApp.HTML_SIZE_MAX,
-                    System.currentTimeMillis() - 15 * DateUtils.MINUTE_IN_MILLIS, true);
+            byte[] html;
+            if (forceCache) {
+                FileCache.Entry entry = Downloader.getInstance(context).getCache(config.url, 0);
+                if (entry == null) {
+                    throw new IOException("データの取得エラー。タップして再読み込み");
+                }
+                html = entry.data;
+            } else {
+                html = Downloader.getInstance(context).download(config.url, TenkiApp.HTML_SIZE_MAX,
+                        System.currentTimeMillis() - 15 * DateUtils.MINUTE_IN_MILLIS, true);
+            }
             YahooWeather data = YahooWeather.parse(html);
 
-            RemoteViews views = buildUpdate(context, id, data, theme);
+            RemoteViews views = buildUpdate(context, id, data, theme, forceCache);
 
             Intent i = new Intent(context, MainActivity.class);
             i.setData(Uri.parse(config.url));
@@ -151,6 +137,11 @@ public class WidgetUpdateService extends IntentService {
             manager.updateAppWidget(id, views);
         }
 
+        PendingIntent getReloadPendingIntent(Context context) {
+            return PendingIntent.getService(context, 0,
+                    new Intent(context, WidgetUpdateService.class),
+                    PendingIntent.FLAG_UPDATE_CURRENT);
+        }
 
         RemoteViews createErrorView(Context context, Throwable e) {
             RemoteViews views = new RemoteViews(context.getPackageName(),
@@ -158,18 +149,24 @@ public class WidgetUpdateService extends IntentService {
             String time = DateUtils.formatDateTime(context, System.currentTimeMillis(),
                     DateUtils.FORMAT_SHOW_TIME | DateUtils.FORMAT_SHOW_DATE);
             views.setTextViewText(R.id.errorMessage, time + ":" + e.getMessage());
+            views.setOnClickPendingIntent(R.id.errorMessage, getReloadPendingIntent(context));
             return views;
         }
 
         RemoteViews buildUpdate(Context context, int id, YahooWeather data,
-                                WidgetTheme theme) {
+                                WidgetTheme theme, boolean forceCache) {
             RemoteViews views = new RemoteViews(context.getPackageName(),
                     R.layout.widget);
 
             String time = DateUtils.formatDateTime(context, System.currentTimeMillis(),
                     DateUtils.FORMAT_SHOW_TIME | DateUtils.FORMAT_SHOW_DATE);
             views.setTextViewText(R.id.title, data.areaName);
-            views.setTextViewText(R.id.time, time + " 更新");
+            if (forceCache) {
+                views.setTextViewText(R.id.time, context.getString(R.string.updateErrorTimeFmt, time));
+            } else {
+                views.setTextViewText(R.id.time, context.getString(R.string.updateTimeFmt, time));
+            }
+            views.setOnClickPendingIntent(R.id.time, getReloadPendingIntent(context));
 
             int[] heads = new int[]{
                     R.id.h0, R.id.h1, R.id.h2, R.id.h3, R.id.h4,
@@ -184,10 +181,10 @@ public class WidgetUpdateService extends IntentService {
                     R.id.i5, R.id.i6, R.id.i7
             };
 
-            final int HOUR     = 60 * 60 * 1000;
-            Calendar  nowJapan = Calendar.getInstance(Locale.JAPAN);
-            long      now      = nowJapan.getTime().getTime() - 3 * HOUR;
-            int       col      = 0;
+            final int HOUR = 60 * 60 * 1000;
+            Calendar nowJapan = Calendar.getInstance(Locale.JAPAN);
+            long now = nowJapan.getTime().getTime() - 3 * HOUR;
+            int col = 0;
 
             for (int y = 0; y < 2; y++) {
                 Day day = (y == 0 ? data.today : data.tomorrow);
@@ -258,11 +255,10 @@ public class WidgetUpdateService extends IntentService {
     }
 
 
-
     static class WeatherIconManager {
 
-        private final Context                mContext;
-        private       HashMap<String,Bitmap> mCache = new HashMap<>();
+        private final Context mContext;
+        private HashMap<String, Bitmap> mCache = new HashMap<>();
         int mIconSize;
         int mShadowOffset;
 
@@ -280,7 +276,7 @@ public class WidgetUpdateService extends IntentService {
 
                 bmp = Downloader.getInstance(mContext).downloadImage(url, 8000, 0);
                 if (bmp != null) {
-                    Bitmap newBitmap= convertBitmap(bmp);
+                    Bitmap newBitmap = convertBitmap(bmp);
                     if (newBitmap != null) {
                         bmp = newBitmap;
                     }
@@ -297,16 +293,16 @@ public class WidgetUpdateService extends IntentService {
             Bitmap newBmp = Bitmap.createBitmap(mIconSize, mIconSize, Bitmap.Config.ARGB_8888);
             Bitmap alpha = bmp.extractAlpha();
             try {
-                Canvas c     = new Canvas(newBmp);
-                Paint  p     = new Paint();
+                Canvas c = new Canvas(newBmp);
+                Paint p = new Paint();
                 p.setFilterBitmap(true);
                 p.setColor(0x88000000);
-                Matrix m      = new Matrix();
-                float  scaleX = (float)(mIconSize - mShadowOffset*2) / bmp.getWidth();
-                float  scaleY = (float)(mIconSize - mShadowOffset*2) / bmp.getHeight();
-                float  scale  = Math.max(scaleX, scaleY);
+                Matrix m = new Matrix();
+                float scaleX = (float) (mIconSize - mShadowOffset * 2) / bmp.getWidth();
+                float scaleY = (float) (mIconSize - mShadowOffset * 2) / bmp.getHeight();
+                float scale = Math.max(scaleX, scaleY);
                 m.preScale(scale, scale);
-                m.postTranslate(mShadowOffset*2, mShadowOffset*2);
+                m.postTranslate(mShadowOffset * 2, mShadowOffset * 2);
                 c.drawBitmap(alpha, m, p);
                 m.postTranslate(-mShadowOffset, -mShadowOffset);
                 c.drawBitmap(bmp, m, null);

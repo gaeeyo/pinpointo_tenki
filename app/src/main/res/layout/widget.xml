@@ -1,12 +1,12 @@
 <?xml version="1.0" encoding="utf-8"?>
 <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
-              xmlns:tools="http://schemas.android.com/tools"
-              android:id="@+id/container"
-              android:layout_width="fill_parent"
-              android:layout_height="fill_parent"
-              android:gravity="center"
-              android:orientation="vertical"
-              tools:ignore="ContentDescription">
+    xmlns:tools="http://schemas.android.com/tools"
+    android:id="@+id/container"
+    android:layout_width="fill_parent"
+    android:layout_height="fill_parent"
+    android:gravity="center"
+    android:orientation="vertical"
+    tools:ignore="ContentDescription">
 
     <!-- タイトルバー -->
 
@@ -21,14 +21,14 @@
             android:layout_height="wrap_content"
             android:layout_marginLeft="4dip"
             android:layout_weight="1"
-            android:text="@string/app_name"/>
+            android:text="@string/app_name" />
 
         <TextView
             android:id="@+id/time"
             style="@style/wTitle"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:layout_marginRight="4dip"/>
+            android:layout_marginRight="4dip" />
     </LinearLayout>
 
     <!-- テーブル -->
@@ -44,121 +44,120 @@
 
             <TextView
                 android:id="@+id/h0"
-                style="@style/wHour"/>
+                style="@style/wHour" />
 
             <ImageView
                 android:id="@+id/i0"
-                style="@style/wImg"
-                />
+                style="@style/wImg" />
 
             <TextView
                 android:id="@+id/t0"
-                style="@style/wHour"/>
+                style="@style/wHour" />
         </LinearLayout>
 
         <LinearLayout style="@style/wColumn">
 
             <TextView
                 android:id="@+id/h1"
-                style="@style/wHour"/>
+                style="@style/wHour" />
 
             <ImageView
                 android:id="@+id/i1"
-                style="@style/wImg"/>
+                style="@style/wImg" />
 
             <TextView
                 android:id="@+id/t1"
-                style="@style/wHour"/>
+                style="@style/wHour" />
         </LinearLayout>
 
         <LinearLayout style="@style/wColumn">
 
             <TextView
                 android:id="@+id/h2"
-                style="@style/wHour"/>
+                style="@style/wHour" />
 
             <ImageView
                 android:id="@+id/i2"
-                style="@style/wImg"/>
+                style="@style/wImg" />
 
             <TextView
                 android:id="@+id/t2"
-                style="@style/wHour"/>
+                style="@style/wHour" />
         </LinearLayout>
 
         <LinearLayout style="@style/wColumn">
 
             <TextView
                 android:id="@+id/h3"
-                style="@style/wHour"/>
+                style="@style/wHour" />
 
             <ImageView
                 android:id="@+id/i3"
-                style="@style/wImg"/>
+                style="@style/wImg" />
 
             <TextView
                 android:id="@+id/t3"
-                style="@style/wHour"/>
+                style="@style/wHour" />
         </LinearLayout>
 
         <LinearLayout style="@style/wColumn">
 
             <TextView
                 android:id="@+id/h4"
-                style="@style/wHour"/>
+                style="@style/wHour" />
 
             <ImageView
                 android:id="@+id/i4"
-                style="@style/wImg"/>
+                style="@style/wImg" />
 
             <TextView
                 android:id="@+id/t4"
-                style="@style/wHour"/>
+                style="@style/wHour" />
         </LinearLayout>
 
         <LinearLayout style="@style/wColumn">
 
             <TextView
                 android:id="@+id/h5"
-                style="@style/wHour"/>
+                style="@style/wHour" />
 
             <ImageView
                 android:id="@+id/i5"
-                style="@style/wImg"/>
+                style="@style/wImg" />
 
             <TextView
                 android:id="@+id/t5"
-                style="@style/wHour"/>
+                style="@style/wHour" />
         </LinearLayout>
 
         <LinearLayout style="@style/wColumn">
 
             <TextView
                 android:id="@+id/h6"
-                style="@style/wHour"/>
+                style="@style/wHour" />
 
             <ImageView
                 android:id="@+id/i6"
-                style="@style/wImg"/>
+                style="@style/wImg" />
 
             <TextView
                 android:id="@+id/t6"
-                style="@style/wHour"/>
+                style="@style/wHour" />
         </LinearLayout>
 
         <LinearLayout style="@style/wColumn">
 
             <TextView
                 android:id="@+id/h7"
-                style="@style/wHour"/>
+                style="@style/wHour" />
 
             <ImageView
                 android:id="@+id/i7"
-                style="@style/wImg"/>
+                style="@style/wImg" />
 
             <TextView
                 android:id="@+id/t7"
-                style="@style/wHour"/>
+                style="@style/wHour" />
         </LinearLayout>
     </LinearLayout>
 
