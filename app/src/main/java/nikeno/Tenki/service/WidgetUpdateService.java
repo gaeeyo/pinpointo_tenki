@@ -12,7 +12,6 @@ import android.graphics.Canvas;
 import android.graphics.Matrix;
 import android.graphics.Paint;
 import android.net.Uri;
-import android.os.AsyncTask;
 import android.os.Build;
 import android.os.IBinder;
 import android.text.SpannableString;
@@ -43,6 +42,7 @@ import static nikeno.Tenki.TenkiApp.N_ID_WIDGET_UPDATE_SERVICE;
 public class WidgetUpdateService extends IntentService {
 
     static final String TAG = WidgetUpdateService.class.getSimpleName();
+    static final String ACTION_MANUAL_UPDATE = "manualUpdate";
 
     public WidgetUpdateService() {
         super("WidgetUpdateService");
@@ -66,18 +66,25 @@ public class WidgetUpdateService extends IntentService {
         }
 
         Log.d(TAG, "ウィジェット更新中");
-        new UpdateTask().updateWidgets(this);
+        boolean isManualUpdate = (intent != null && ACTION_MANUAL_UPDATE.equals(intent.getAction()));
+        new UpdateTask().updateWidgets(this, isManualUpdate);
         Log.d(TAG, "ウィジェット更新完了");
     }
 
     static class UpdateTask {
 
-        void updateWidgets(Context context) {
+        void updateWidgets(Context context, boolean isManualUpdate) {
             AppWidgetManager manager = AppWidgetManager.getInstance(context);
             int[] ids = manager.getAppWidgetIds(
                     new ComponentName(context, TenkiWidgetProvider.class));
 
             WidgetTheme theme = new WidgetTheme(context);
+
+            if (isManualUpdate) {
+                for (int id : ids) {
+                    manager.updateAppWidget(id, createProgressView(context));
+                }
+            }
 
             Log.d(TAG, "updateWidgets count:" + ids.length);
             Throwable error = null;
@@ -137,9 +144,11 @@ public class WidgetUpdateService extends IntentService {
             manager.updateAppWidget(id, views);
         }
 
-        PendingIntent getReloadPendingIntent(Context context) {
+        PendingIntent getManualReloadPendingIntent(Context context) {
+            Intent i = new Intent(context, WidgetUpdateService.class);
+            i.setAction(ACTION_MANUAL_UPDATE);
             return PendingIntent.getService(context, 0,
-                    new Intent(context, WidgetUpdateService.class),
+                    i,
                     PendingIntent.FLAG_UPDATE_CURRENT);
         }
 
@@ -149,7 +158,14 @@ public class WidgetUpdateService extends IntentService {
             String time = DateUtils.formatDateTime(context, System.currentTimeMillis(),
                     DateUtils.FORMAT_SHOW_TIME | DateUtils.FORMAT_SHOW_DATE);
             views.setTextViewText(R.id.errorMessage, time + ":" + e.getMessage());
-            views.setOnClickPendingIntent(R.id.errorMessage, getReloadPendingIntent(context));
+            views.setOnClickPendingIntent(R.id.errorMessage, getManualReloadPendingIntent(context));
+            return views;
+        }
+
+        RemoteViews createProgressView(Context context) {
+            RemoteViews views = new RemoteViews(context.getPackageName(),
+                    R.layout.widget_progress);
+            views.setOnClickPendingIntent(R.id.progress, getManualReloadPendingIntent(context));
             return views;
         }
 
@@ -166,7 +182,9 @@ public class WidgetUpdateService extends IntentService {
             } else {
                 views.setTextViewText(R.id.time, context.getString(R.string.updateTimeFmt, time));
             }
-            views.setOnClickPendingIntent(R.id.time, getReloadPendingIntent(context));
+            views.setOnClickPendingIntent(R.id.time, getManualReloadPendingIntent(context));
+            views.setOnClickPendingIntent(R.id.h6, getManualReloadPendingIntent(context));
+            views.setOnClickPendingIntent(R.id.h7, getManualReloadPendingIntent(context));
 
             int[] heads = new int[]{
                     R.id.h0, R.id.h1, R.id.h2, R.id.h3, R.id.h4,
