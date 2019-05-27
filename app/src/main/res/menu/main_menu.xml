@@ -8,7 +8,6 @@
         android:title="@string/menu_reload"/>
     <item
         android:id="@+id/menu_pref"
-        android:icon="@android:drawable/ic_menu_preferences"
         android:title="@string/menu_pref"/>
     <item
         android:id="@+id/darkTheme"
