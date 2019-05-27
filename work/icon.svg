@@ -14,9 +14,9 @@
    height="620"
    id="svg2"
    version="1.1"
-   inkscape:version="0.48.0 r9654"
+   inkscape:version="0.92.4 (5da689c313, 2019-01-14)"
    sodipodi:docname="icon.svg"
-   inkscape:export-filename="C:\Users\naofumi\Documents\projects\eclipse_workspace\pinpointo_tenki\work\icon.512.png"
+   inkscape:export-filename="C:\Users\naofumi\AndroidStudioProjects\pinpointo_tenki\work\icon-n.512.png"
    inkscape:export-xdpi="74.322578"
    inkscape:export-ydpi="74.322578">
   <defs
@@ -199,15 +199,15 @@
      inkscape:pageopacity="0.0"
      inkscape:pageshadow="2"
      inkscape:zoom="0.60713896"
-     inkscape:cx="427.33132"
+     inkscape:cx="152.27073"
      inkscape:cy="263.9368"
      inkscape:document-units="px"
      inkscape:current-layer="layer1"
      showgrid="false"
-     inkscape:window-width="1280"
-     inkscape:window-height="748"
-     inkscape:window-x="-6"
-     inkscape:window-y="-6"
+     inkscape:window-width="1920"
+     inkscape:window-height="1147"
+     inkscape:window-x="-8"
+     inkscape:window-y="-8"
      inkscape:window-maximized="1" />
   <metadata
      id="metadata7">
@@ -217,7 +217,7 @@
         <dc:format>image/svg+xml</dc:format>
         <dc:type
            rdf:resource="http://purl.org/dc/dcmitype/StillImage" />
-        <dc:title></dc:title>
+        <dc:title />
       </cc:Work>
     </rdf:RDF>
   </metadata>
@@ -242,7 +242,7 @@
        inkscape:connector-curvature="0" />
     <path
        inkscape:connector-curvature="0"
-       style="fill:#ff7f2a;fill-opacity:1;stroke:#ef4e07;stroke-width:8.10000038;stroke-miterlimit:4;stroke-opacity:1;stroke-dasharray:none"
+       style="fill:#ff7f2a;fill-opacity:1;stroke:#ef4e07;stroke-width:8.10000038;stroke-miterlimit:4;stroke-dasharray:none;stroke-opacity:1"
        d="m -749.97369,443.31411 c -1.66946,0.0592 -3.39263,0.34858 -5.09375,0.875 l -0.65625,0.1875 c -9.07266,2.80757 -14.42539,11.46762 -11.96875,19.40625 l 31.1875,100.78125 c -56.52382,22.82939 -98.72682,74.50332 -109.125,137.1875 l -108.53125,-11.625 c -8.26289,-0.88403 -15.70843,6.0255 -16.71875,15.46875 l -0.0937,0.71875 c -1.01032,9.44325 4.83086,17.74097 13.09375,18.625 l 109.84375,11.75 c 2.46729,97.22051 80.6084,175.28125 176.65625,175.28125 97.60378,0 176.71875,-80.58874 176.71875,-180 0,-99.41126 -79.11497,-180 -176.71875,-180 -10.75148,0 -21.27806,0.97058 -31.5,2.84375 l -31.375,-101.375 c -1.99602,-6.45014 -8.48444,-10.38155 -15.71875,-10.125 z"
        id="path2985" />
     <path
@@ -424,42 +424,34 @@
        sodipodi:nodetypes="ccsscsscc" />
     <path
        style="fill:#ff7f2a;fill-opacity:1;stroke:none"
-       d="m 353.94092,579.48188 c -1.66771,-0.0967 -3.41035,0.0309 -5.15312,0.39652 l -0.67087,0.12553 c -9.29481,1.94989 -15.43126,10.07344 -13.7251,18.20646 l 21.66018,103.249 C 297.64673,718.9221 250.81198,766.43835 234.61763,827.88078 L 127.64196,806.19255 c -8.14455,-1.65019 -16.20157,4.53545 -18.0875,13.84345 l -0.16027,0.70689 c -1.88592,9.30801 3.1566,18.11395 11.30115,19.76414 l 108.27081,21.93499 c -3.78112,55.55939 17.7423,107.16692 54.77303,142.81948 l 214.65028,9.9887 c 23.34792,-15.29938 45.14008,-25.79051 59.34323,-50.44439 L 571.89436,813.49835 C 549.61542,749.70938 492.70312,701.6005 422.06721,694.98931 411.36252,693.9874 400.7913,693.97277 390.43928,694.88526 L 368.64775,591.02762 c -1.38626,-6.60807 -7.48009,-11.12702 -14.70683,-11.54574 z"
+       d="m 383.94092,575.48188 c -1.66771,-0.0967 -3.41035,0.0309 -5.15312,0.39652 l -0.67087,0.12553 c -9.29481,1.94989 -15.43126,10.07344 -13.7251,18.20646 l 21.66018,103.249 C 327.64673,714.9221 280.81198,762.43835 264.61763,823.88078 L 157.64196,802.19255 c -8.14455,-1.65019 -16.20157,4.53545 -18.0875,13.84345 l -0.16027,0.70689 c -1.88592,9.30801 3.1566,18.11395 11.30115,19.76414 l 108.27081,21.93499 c -3.78112,55.55939 17.7423,107.16692 54.77303,142.81948 l 214.65028,9.9887 c 23.34792,-15.29938 20.43404,-25.79051 34.63719,-50.44439 L 577.18832,809.49835 C 554.90938,745.70938 522.70312,697.6005 452.06721,690.98931 441.36252,689.9874 430.7913,689.97277 420.43928,690.88526 L 398.64775,587.02762 c -1.38626,-6.60807 -7.48009,-11.12702 -14.70683,-11.54574 z"
        id="path2985-2"
        inkscape:export-filename="C:\Users\naofumi\Desktop\tenki.512.png"
        inkscape:export-xdpi="55.594868"
        inkscape:export-ydpi="55.594868"
        inkscape:connector-curvature="0"
        sodipodi:nodetypes="cccscccccccccccsccc" />
-    <path
-       sodipodi:type="arc"
+    <circle
        style="fill:#ffffff;fill-opacity:1;stroke:none"
        id="path3759-6"
-       sodipodi:cx="-140"
-       sodipodi:cy="432.36218"
-       sodipodi:rx="20"
-       sodipodi:ry="20"
-       d="m -120,432.36218 a 20,20 0 1 1 -40,0 20,20 0 1 1 40,0 z"
-       transform="translate(440.72202,425.72378)"
        inkscape:export-filename="C:\Users\naofumi\Desktop\tenki.72.png"
        inkscape:export-xdpi="9.1210337"
-       inkscape:export-ydpi="9.1210337" />
-    <path
-       sodipodi:type="arc"
+       inkscape:export-ydpi="9.1210337"
+       cx="330.72202"
+       cy="854.08594"
+       r="20" />
+    <circle
        style="fill:#ffffff;fill-opacity:1;stroke:none"
        id="path3761-5"
-       sodipodi:cx="-60"
-       sodipodi:cy="312.36218"
-       sodipodi:rx="20"
-       sodipodi:ry="20"
-       d="m -40,312.36218 a 20,20 0 1 1 -40,0 20,20 0 1 1 40,0 z"
-       transform="translate(444.01616,447.37085)"
        inkscape:export-filename="C:\Users\naofumi\Desktop\tenki.72.png"
        inkscape:export-xdpi="9.1210337"
-       inkscape:export-ydpi="9.1210337" />
+       inkscape:export-ydpi="9.1210337"
+       cx="414.01617"
+       cy="755.73303"
+       r="20" />
     <path
-       style="fill:#ffffff;fill-opacity:1;stroke:#b4e2ff;stroke-width:16.00200081;stroke-miterlimit:4;stroke-opacity:1;stroke-dasharray:none"
-       d="m 566.1493,707.66114 c -33.9385,6.49085 -71.17705,25.98193 -84.32539,63.74082 -6.23857,17.91569 -7.07822,50.78195 -0.91905,67.66737 -10.38578,-1.77959 -26.56838,-3.82118 -49.84569,-0.9375 -52.35669,6.48614 -73.5881,31.45766 -81.82345,75.05879 -0.74121,3.92427 -1.99868,16.10992 -1.12685,19.8291 -61.54774,6.75218 -109.71582,34.78224 -119.53125,70.06248 l 339.21875,0 z"
+       style="fill:#ffffff;fill-opacity:1;stroke:#b4e2ff;stroke-width:16.00200081;stroke-miterlimit:4;stroke-dasharray:none;stroke-opacity:1"
+       d="m 566.1493,707.66114 c -33.9385,6.49085 -71.17705,25.98193 -84.32539,63.74082 -6.23857,17.91569 -7.07822,50.78195 -0.91905,67.66737 -10.38578,-1.77959 -26.56838,-3.82118 -49.84569,-0.9375 -52.35669,6.48614 -73.5881,31.45766 -81.82345,75.05879 -0.74121,3.92427 -1.99868,16.10992 -1.12685,19.8291 -61.54774,6.75218 -109.71582,34.78224 -119.53125,70.06248 h 339.21875 z"
        id="path3781-7"
        inkscape:export-filename="C:\Users\naofumi\Desktop\tenki.512.png"
        inkscape:export-xdpi="55.594868"
@@ -489,8 +481,8 @@
        id="rect3971-1-8"
        width="160.70741"
        height="22.602489"
-       x="452.99908"
-       y="-523.71179"
+       x="451.54004"
+       y="-537.63745"
        rx="97.782211"
        ry="14.999984"
        transform="matrix(-0.10279937,0.99470211,-0.99455494,-0.1042136,0,0)"
@@ -502,11 +494,11 @@
        id="rect3971-7-3"
        width="237.74016"
        height="26.346777"
-       x="503.022"
-       y="174.3063"
+       x="487.61792"
+       y="179.91"
        rx="122.44531"
        ry="12.624723"
-       transform="matrix(0.5904973,0.80703961,-0.82237715,0.56894273,0,0)"
+       transform="matrix(0.62418747,0.7812746,-0.79751233,0.60330264,0,0)"
        inkscape:export-filename="C:\Users\naofumi\Desktop\tenki.72.png"
        inkscape:export-xdpi="9.1210337"
        inkscape:export-ydpi="9.1210337" />
@@ -515,11 +507,11 @@
        id="rect3971-773-2"
        width="180"
        height="30"
-       x="-236.28671"
-       y="940.78302"
+       x="-231.013"
+       y="923.57294"
        rx="90"
        ry="15"
-       transform="matrix(0.95611821,-0.29298117,0.29298117,0.95611821,0,0)"
+       transform="rotate(-17.036519)"
        inkscape:export-filename="C:\Users\naofumi\Desktop\tenki.72.png"
        inkscape:export-xdpi="9.1210337"
        inkscape:export-ydpi="9.1210337" />
@@ -528,11 +520,11 @@
        id="rect3971-4"
        width="180"
        height="30"
-       x="293.28"
-       y="637.0069"
+       x="321.20612"
+       y="603.00763"
        rx="77.573555"
        ry="15"
-       transform="matrix(0.94562872,0.3252481,-0.3252481,0.94562872,0,0)"
+       transform="rotate(21.319629)"
        inkscape:export-filename="C:\Users\naofumi\Desktop\tenki.72.png"
        inkscape:export-xdpi="9.1210337"
        inkscape:export-ydpi="9.1210337" />
