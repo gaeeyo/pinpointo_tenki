@@ -27,6 +27,7 @@ import java.util.Date;
 import java.util.Locale;
 import java.util.TimeZone;
 
+import nikeno.Tenki.db.entity.ResourceCacheEntity;
 import nikeno.Tenki.view.TextTableView;
 
 public class MainActivity extends Activity {
@@ -181,7 +182,7 @@ public class MainActivity extends Activity {
 
     void loadCache(String url) {
         YahooWeather result = null;
-        FileCache.Entry entry = Downloader.getInstance(this).getCache(url,
+        ResourceCacheEntity entry = TenkiApp.from(this).getDownloader().getCache(url,
                 System.currentTimeMillis() - 24 * DateUtils.HOUR_IN_MILLIS);
         if (entry != null) {
             try {
@@ -206,7 +207,7 @@ public class MainActivity extends Activity {
             @Override
             protected Object doInBackground(Void... params) {
                 try {
-                    byte[] buff = Downloader.getInstance(MainActivity.this)
+                    byte[] buff = TenkiApp.from(MainActivity.this).getDownloader()
                             .download(mPrefUrl, 50 * 1024, true);
                     if (buff != null) {
                         return YahooWeather.parse(buff);
@@ -265,8 +266,6 @@ public class MainActivity extends Activity {
         v.getRow(2).setTextColor(mColorTempText);
         v.getRow(3).setTextColor(mColorHumidityText);
 
-        for (int j = 0; j < 5; j++) {
-        }
         v.getRow(0).setTextSize(textSize);  // 時間
         v.getRow(1).setTextSize(textSize * 0.75f);  // 天気
         v.getRow(2).setTextSize(textSize);  // 温度

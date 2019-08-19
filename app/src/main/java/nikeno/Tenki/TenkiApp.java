@@ -11,6 +11,8 @@ import android.text.format.DateUtils;
 import androidx.annotation.NonNull;
 
 public class TenkiApp extends Application {
+    private static final String                      DEFAULT_CACHE_FILENAME = "file_cache.db";
+
     public static final int  IMAGE_SIZE_MAX      = 16 * 1024;
     public static final int  HTML_SIZE_MAX       = 50 * 1024;
     /**
@@ -24,6 +26,7 @@ public class TenkiApp extends Application {
     public static final String N_CH_WIDGET_UPDATE_SERVICE = "widgetUpdateService";
 
     private Prefs mPrefs;
+    private Downloader mDownloader;
 
     @Override
     public void onCreate() {
@@ -49,8 +52,21 @@ public class TenkiApp extends Application {
             case DARK:
                 activity.setTheme(R.style.MyTheme_Dark);
                 break;
+            case DEFAULT:
             default:
                 break;
         }
+    }
+
+    @NonNull
+    public synchronized Downloader getDownloader() {
+        if (mDownloader == null) {
+            mDownloader = new Downloader(this, DEFAULT_CACHE_FILENAME);
+        }
+        return mDownloader;
+    }
+
+    public static TenkiApp from(@NonNull Context context) {
+        return (TenkiApp) context.getApplicationContext();
     }
 }

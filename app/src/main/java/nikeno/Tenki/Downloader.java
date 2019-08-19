@@ -6,7 +6,6 @@ import android.graphics.BitmapFactory;
 import android.os.Build;
 import android.util.DisplayMetrics;
 import android.util.Log;
-import android.widget.ImageView;
 
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
@@ -17,27 +16,20 @@ import java.util.WeakHashMap;
 
 import javax.net.ssl.HttpsURLConnection;
 
+import nikeno.Tenki.db.ResourceCache;
+import nikeno.Tenki.db.entity.ResourceCacheEntity;
+
 public class Downloader {
-    static final  String DEFAULT_CACHE_FILENAME = "file_cache.db";
-    static Downloader sInstance;
-    private final String TAG                    = "Downloader";
-    private final FileCache mFileCache;
-    private final WeakHashMap<String, Bitmap> mBitmapCache;
+    private final        String                      TAG                    = "Downloader";
+    private final        ResourceCache               mFileCache;
+    private final        WeakHashMap<String, Bitmap> mBitmapCache;
 
     public Downloader(Context context, String filename) {
-        mFileCache = new FileCache(context, filename);
+        mFileCache = new ResourceCache(context, filename);
         mBitmapCache = new WeakHashMap<>();
     }
 
-    public static synchronized Downloader getInstance(Context context) {
-        if (sInstance == null) {
-            sInstance = new Downloader(context.getApplicationContext(),
-                    DEFAULT_CACHE_FILENAME);
-        }
-        return sInstance;
-    }
-
-    public byte[] download(String url, int maxSize, boolean storeCache) throws Exception {
+    byte[] download(String url, int maxSize, boolean storeCache) throws Exception {
         if (BuildConfig.DEBUG) {
             Log.d(TAG, "downloading " + url);
         }
@@ -82,19 +74,16 @@ public class Downloader {
             Log.w(TAG, "Fake Error");
             throw new IOException("Fake Error");
         }
-        byte[] data = null;
         if (since != -1) {
-            FileCache.Entry entry = mFileCache.get(url, since);
+            ResourceCacheEntity entry = mFileCache.get(url, since);
             if (entry != null) {
                 return entry.data;
             }
         }
-        data = download(url, maxSize, storeCache);
-
-        return data;
+        return download(url, maxSize, storeCache);
     }
 
-    public FileCache.Entry getCache(String url, long since) {
+    public ResourceCacheEntity getCache(String url, long since) {
         return mFileCache.get(url, since);
     }
 
@@ -113,24 +102,11 @@ public class Downloader {
         return bmp;
     }
 
-    public Bitmap getImageFromMemCache(String url) {
+    Bitmap getImageFromMemCache(String url) {
         return mBitmapCache.get(url);
     }
 
     public interface ImageHandler {
         void setBitmap(Bitmap bmp);
-    }
-
-    public static class ImageViewSetter implements ImageHandler {
-        ImageView mView;
-
-        public ImageViewSetter(ImageView iv) {
-            mView = iv;
-        }
-
-        @Override
-        public void setBitmap(Bitmap bmp) {
-            mView.setImageBitmap(bmp);
-        }
     }
 }

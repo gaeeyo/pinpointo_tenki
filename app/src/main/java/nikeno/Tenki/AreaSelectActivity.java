@@ -237,7 +237,7 @@ public class AreaSelectActivity extends Activity implements AdapterView.OnItemCl
                     String url = "https://weather.yahoo.co.jp/weather/search/"
                             + "?p=" + URLEncoder.encode(text, SERVER_ENCODING);
 
-                    byte[] buff = Downloader.getInstance(AreaSelectActivity.this)
+                    byte[] buff = TenkiApp.from(getApplicationContext()).getDownloader()
                             .download(url, 50 * 1024, -1, false);
                     if (buff == null) {
                         throw new Exception("Download error.");

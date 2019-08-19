@@ -27,7 +27,6 @@ import java.util.HashMap;
 import java.util.Locale;
 
 import nikeno.Tenki.Downloader;
-import nikeno.Tenki.FileCache;
 import nikeno.Tenki.MainActivity;
 import nikeno.Tenki.R;
 import nikeno.Tenki.TenkiApp;
@@ -36,6 +35,7 @@ import nikeno.Tenki.YahooWeather;
 import nikeno.Tenki.YahooWeather.Day;
 import nikeno.Tenki.activity.TenkiWidgetConfigure;
 import nikeno.Tenki.activity.TenkiWidgetConfigure.WidgetConfig;
+import nikeno.Tenki.db.entity.ResourceCacheEntity;
 
 import static nikeno.Tenki.TenkiApp.N_ID_WIDGET_UPDATE_SERVICE;
 
@@ -121,15 +121,16 @@ public class WidgetUpdateService extends IntentService {
                           int id, WidgetTheme theme, boolean forceCache) throws Exception {
             WidgetConfig config = TenkiWidgetConfigure.getWidgetConfig(context, id);
 
+            final Downloader downloader = TenkiApp.from(context).getDownloader();
             byte[] html;
             if (forceCache) {
-                FileCache.Entry entry = Downloader.getInstance(context).getCache(config.url, 0);
+                ResourceCacheEntity entry = downloader.getCache(config.url, 0);
                 if (entry == null) {
                     throw new IOException("データの取得エラー。タップして再読み込み");
                 }
                 html = entry.data;
             } else {
-                html = Downloader.getInstance(context).download(config.url, TenkiApp.HTML_SIZE_MAX,
+                html = downloader.download(config.url, TenkiApp.HTML_SIZE_MAX,
                         System.currentTimeMillis() - 15 * DateUtils.MINUTE_IN_MILLIS, true);
             }
             YahooWeather data = YahooWeather.parse(html);
@@ -292,7 +293,7 @@ public class WidgetUpdateService extends IntentService {
                 Bitmap bmp = mCache.get(url);
                 if (bmp != null) return bmp;
 
-                bmp = Downloader.getInstance(mContext).downloadImage(url, 8000, 0);
+                bmp = TenkiApp.from(mContext).getDownloader().downloadImage(url, 8000, 0);
                 if (bmp != null) {
                     Bitmap newBitmap = convertBitmap(bmp);
                     if (newBitmap != null) {

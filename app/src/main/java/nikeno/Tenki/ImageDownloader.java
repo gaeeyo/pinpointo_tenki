@@ -48,7 +48,7 @@ public class ImageDownloader {
     };
 
     public ImageDownloader(Context context) {
-        mDownloader = Downloader.getInstance(context);
+        mDownloader = TenkiApp.from(context).getDownloader();
     }
 
     public void setImage(String url, Downloader.ImageHandler view) {
