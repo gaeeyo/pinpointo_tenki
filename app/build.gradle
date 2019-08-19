@@ -10,7 +10,7 @@ android {
     compileSdkVersion 28
     defaultConfig {
         applicationId "nikeno.Tenki"
-        minSdkVersion 16
+        minSdkVersion 15
         targetSdkVersion 28
         versionCode 27
         versionName "0.2.6"
@@ -32,9 +32,9 @@ android {
 }
 
 dependencies {
-    implementation 'androidx.annotation:annotation:1.0.2'
+    implementation 'androidx.annotation:annotation:1.1.0'
 
     testImplementation 'junit:junit:4.12'
-    androidTestImplementation 'androidx.test:runner:1.1.1'
-    androidTestImplementation 'androidx.test.espresso:espresso-core:3.1.1'
+    androidTestImplementation 'androidx.test:runner:1.2.0'
+    androidTestImplementation 'androidx.test.espresso:espresso-core:3.2.0'
 }
