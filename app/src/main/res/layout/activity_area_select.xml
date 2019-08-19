@@ -18,6 +18,7 @@
             android:layout_height="wrap_content"
             android:layout_gravity="center_vertical"
             android:layout_weight="1"
+            android:importantForAutofill="noExcludeDescendants"
             android:hint="@string/area_select_search_label"
             android:imeOptions="actionSearch"
             android:singleLine="true">
