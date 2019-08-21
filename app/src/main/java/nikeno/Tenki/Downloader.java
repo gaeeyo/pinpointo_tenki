@@ -29,7 +29,7 @@ public class Downloader {
         mBitmapCache = new WeakHashMap<>();
     }
 
-    byte[] download(String url, int maxSize, boolean storeCache) throws Exception {
+    public byte[] download(String url, int maxSize, boolean storeCache) throws Exception {
         if (BuildConfig.DEBUG) {
             Log.d(TAG, "downloading " + url);
         }
@@ -66,7 +66,7 @@ public class Downloader {
         return data;
     }
 
-    static int sFakeError = BuildConfig.DEBUG ? 5 : 0;
+    static int sFakeError = BuildConfig.DEBUG ? 0 : 0;
 
     public byte[] download(String url, int maxSize, long since, boolean storeCache) throws Exception {
         if (sFakeError > 0 && url.endsWith(".html")) {

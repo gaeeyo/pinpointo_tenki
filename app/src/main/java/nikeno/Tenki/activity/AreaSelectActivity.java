@@ -1,16 +1,14 @@
-package nikeno.Tenki;
+package nikeno.Tenki.activity;
 
 import android.app.Activity;
 import android.app.AlertDialog;
 import android.content.Context;
 import android.content.DialogInterface;
 import android.content.Intent;
-import android.os.AsyncTask;
 import android.os.Bundle;
 import android.text.Editable;
 import android.text.TextUtils;
 import android.text.TextWatcher;
-import android.util.Log;
 import android.view.KeyEvent;
 import android.view.Menu;
 import android.view.MenuItem;
@@ -26,15 +24,18 @@ import android.widget.ListView;
 import android.widget.TextView;
 import android.widget.TextView.OnEditorActionListener;
 
-import java.net.URLEncoder;
 import java.util.ArrayList;
 import java.util.List;
-import java.util.regex.Matcher;
-import java.util.regex.Pattern;
+
+import nikeno.Tenki.Area;
+import nikeno.Tenki.Prefs;
+import nikeno.Tenki.R;
+import nikeno.Tenki.TenkiApp;
+import nikeno.Tenki.task.Callback;
+import nikeno.Tenki.task.SearchAddressTask;
 
 public class AreaSelectActivity extends Activity implements AdapterView.OnItemClickListener, OnItemLongClickListener {
-    private static final String TAG             = "AreaSelectActivity";
-    private static final String SERVER_ENCODING = "UTF-8";
+    private static final String TAG = "AreaSelectActivity";
 
     private Button   mSearchBtn;
     private EditText mSearchText;
@@ -42,77 +43,11 @@ public class AreaSelectActivity extends Activity implements AdapterView.OnItemCl
     private ListView mList;
     private TextView mMessage;
 
-    private Prefs     mPrefs;
-    private boolean   mListIsRecent;
-    private String    mErrorMessage;
-    private AsyncTask mSearchTask;
-    private boolean   mIsLoading;
-
-    public static ArrayList<Area> parseAreaListHtml(String html) throws Exception {
-        return parseAreaListHtml_20181112(html);
-    }
-
-    public static ArrayList<Area> parseAreaListHtml_20181112(String html) throws Exception {
-        ArrayList<Area> result = new ArrayList<>();
-
-        html = html.replace("\n", "");
-
-        // ざっくりとした
-        Pattern p = Pattern.compile("<thead(.*?)<tfoot",
-                Pattern.CASE_INSENSITIVE);
-        Matcher m = p.matcher(html);
-        if (m.find()) {
-
-            html = m.group(1);
-            // <tr><td>zip</td><td>県名</td><td><a href="">住所</a></td>
-            m = Pattern.compile(
-                    "<tr.*?href=\"(.*?)\".*?>(.*?)</a>"
-            ).matcher(html);
-            while (m.find()) {
-                Area d = new Area();
-                d.address1 = m.group(2);
-                d.address2 = "";
-                d.zipCode = "";
-                if (m.group(1).startsWith("//")) {
-                    d.url = "https:" + m.group(1);
-                } else {
-                    d.url = m.group(1);
-                }
-                result.add(d);
-                //Log.d(TAG, m.group(1) +"," +m.group(2) + "," + m.group(4) + "," + m.group(3) );
-            }
-        }
-        return result;
-    }
-
-    public static ArrayList<Area> parseAreaListHtml_old(String html) throws Exception {
-        ArrayList<Area> result = new ArrayList<>();
-
-        html = html.replace("\n", "");
-
-        // ざっくりとした祝
-        Pattern p = Pattern.compile("<thead.*?郵便番号.*?</thead(.*?)</tbody",
-                Pattern.CASE_INSENSITIVE);
-        Matcher m = p.matcher(html);
-        if (m.find()) {
-
-            html = m.group(1);
-            // <tr><td>zip</td><td>県名</td><td><a href="">住所</a></td>
-            m = Pattern.compile(
-                    "<tr.*?<td.*?>(.*?)</td>.*?<td.*?>(.*?)</td>.*?<td.*?>.*?(https://[a-zA-Z0-9./_]*?)\".*?>(.*?)</a>.*?</tr"
-            ).matcher(html);
-            while (m.find()) {
-                Area d = new Area();
-                d.address1 = m.group(2);
-                d.address2 = m.group(4);
-                d.zipCode = m.group(1);
-                d.url = m.group(3);
-                result.add(d);
-                //Log.d(TAG, m.group(1) +"," +m.group(2) + "," + m.group(4) + "," + m.group(3) );
-            }
-        }
-        return result;
-    }
+    private Prefs             mPrefs;
+    private boolean           mListIsRecent;
+    private String            mErrorMessage;
+    private SearchAddressTask mSearchTask;
+    private boolean           mIsLoading;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -155,6 +90,14 @@ public class AreaSelectActivity extends Activity implements AdapterView.OnItemCl
         });
 
         setAreaList(mPrefs.getRecentAreaList(), true);
+    }
+
+    @Override
+    protected void onDestroy() {
+        super.onDestroy();
+        if (mSearchTask != null) {
+            mSearchTask.cancel(true);
+        }
     }
 
     @Override
@@ -215,7 +158,7 @@ public class AreaSelectActivity extends Activity implements AdapterView.OnItemCl
 
     @SuppressWarnings("unchecked")
     public void onClickSearch(View v) {
-        String text = mSearchText.getText().toString();
+        final String text = mSearchText.getText().toString();
         if (text.length() == 0) return;
 
         if (mSearchTask != null) {
@@ -228,61 +171,32 @@ public class AreaSelectActivity extends Activity implements AdapterView.OnItemCl
         mErrorMessage = null;
         updateViews();
 
-        mSearchTask = new AsyncTask<Object, Void, Object>() {
-
-            protected Object doInBackground(Object... params) {
-                Log.d(TAG, "doInBackground");
-                String text = (String) params[0];
-                try {
-                    String url = "https://weather.yahoo.co.jp/weather/search/"
-                            + "?p=" + URLEncoder.encode(text, SERVER_ENCODING);
-
-                    byte[] buff = TenkiApp.from(getApplicationContext()).getDownloader()
-                            .download(url, 50 * 1024, -1, false);
-                    if (buff == null) {
-                        throw new Exception("Download error.");
+        mSearchTask = new SearchAddressTask(TenkiApp.from(this).getDownloader(), text,
+                new Callback<List<Area>>() {
+                    @Override
+                    public void onSuccess(List<Area> result) {
+                        if (result.size() > 0) {
+                            setAreaList(result, false);
+                        } else {
+                            mErrorMessage = getString(R.string.area_select_result_empty, text);
+                        }
                     }
 
-                    String html = new String(buff, SERVER_ENCODING);
-
-                    List<Area> areaList = parseAreaListHtml(html);
-                    if (areaList.size() == 0) {
-                        return getString(R.string.area_select_result_empty, text);
+                    @Override
+                    public void onError(Throwable error) {
+                        super.onError(error);
+                        mErrorMessage = error.getMessage();
                     }
-                    return areaList;
 
-                } catch (Exception e) {
-                    return e.getMessage();
-                }
-            }
-
-            @Override
-            protected void onPostExecute(Object result) {
-                Log.d(TAG, "onPostExecute");
-                super.onPostExecute(result);
-                if (result instanceof List) {
-                    setAreaList((List<Area>) result, false);
-                } else if (result instanceof String) {
-                    mErrorMessage = (String) result;
-                }
-                onFinish();
-            }
-
-            @Override
-            protected void onCancelled() {
-                super.onCancelled();
-                onFinish();
-            }
-
-            void onFinish() {
-                if (mSearchTask == this) {
-                    mSearchTask = null;
-                    mIsLoading = false;
-                    updateViews();
-                }
-            }
-        };
-        mSearchTask.execute(text);
+                    @Override
+                    public void onFinish() {
+                        super.onFinish();
+                        mSearchTask = null;
+                        mIsLoading = false;
+                        updateViews();
+                    }
+                });
+        mSearchTask.execute();
     }
 
     @Override

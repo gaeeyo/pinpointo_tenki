@@ -24,7 +24,7 @@
             </intent-filter>
         </activity>
         <activity
-            android:name="AreaSelectActivity"
+            android:name=".activity.AreaSelectActivity"
             android:configChanges="orientation|keyboardHidden"
             android:label="@string/area_select_title">
             <intent-filter>
@@ -32,7 +32,7 @@
             </intent-filter>
         </activity>
         <activity
-            android:name="HelpActivity"
+            android:name=".activity.HelpActivity"
             android:label="@string/help_title">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />

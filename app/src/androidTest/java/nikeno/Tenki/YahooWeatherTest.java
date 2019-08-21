@@ -14,6 +14,8 @@ import java.util.ArrayList;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
+import nikeno.Tenki.task.SearchAddressTask;
+
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertTrue;
 
@@ -57,7 +59,7 @@ public class YahooWeatherTest {
         while ((c = is.read()) != -1) out.write(c);
 
         String html = new String(out.toByteArray(), "utf-8");
-        ArrayList<Area> areas = AreaSelectActivity.parseAreaListHtml(html);
+        ArrayList<Area> areas = SearchAddressTask.parseAreaListHtml(html);
         assertTrue(areas != null);
     }
 

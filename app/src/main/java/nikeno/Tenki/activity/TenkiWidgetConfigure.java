@@ -10,7 +10,6 @@ import android.os.Bundle;
 import android.preference.PreferenceManager;
 import android.util.Log;
 
-import nikeno.Tenki.AreaSelectActivity;
 import nikeno.Tenki.Utils;
 import nikeno.Tenki.service.WidgetUpdateService;
 

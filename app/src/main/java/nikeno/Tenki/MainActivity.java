@@ -6,7 +6,6 @@ import android.content.res.Configuration;
 import android.content.res.Resources;
 import android.content.res.TypedArray;
 import android.net.Uri;
-import android.os.AsyncTask;
 import android.os.Bundle;
 import android.text.Spannable;
 import android.text.SpannableString;
@@ -27,7 +26,11 @@ import java.util.Date;
 import java.util.Locale;
 import java.util.TimeZone;
 
+import nikeno.Tenki.activity.AreaSelectActivity;
+import nikeno.Tenki.activity.HelpActivity;
 import nikeno.Tenki.db.entity.ResourceCacheEntity;
+import nikeno.Tenki.task.Callback;
+import nikeno.Tenki.task.GetYahooWeatherTask;
 import nikeno.Tenki.view.TextTableView;
 
 public class MainActivity extends Activity {
@@ -43,18 +46,18 @@ public class MainActivity extends Activity {
     int          mColorTextDisabled;
     int          mColorMaxTempText;
     int          mColorMinTempText;
-    private TextView                      mTodayHeader;
-    private TextView                      mTomorrowHeader;
-    private TextView                      mWeekHeader;
-    private TextTableView                 mTodayTable2;
-    private TextTableView                 mTomorrowTable2;
-    private TextTableView                 mWeekTable2;
-    private TextView                      mTime;
-    private View                          mProgress;
-    private View                          mErrorGroup;
-    private AsyncTask<Void, Void, Object> mDownloadTask;
-    private Prefs                         mPrefs;
-    private String                        mPrefUrl;
+    private TextView            mTodayHeader;
+    private TextView            mTomorrowHeader;
+    private TextView            mWeekHeader;
+    private TextTableView       mTodayTable2;
+    private TextTableView       mTomorrowTable2;
+    private TextTableView       mWeekTable2;
+    private TextView            mTime;
+    private View                mProgress;
+    private View                mErrorGroup;
+    private GetYahooWeatherTask mDownloadTask;
+    private Prefs               mPrefs;
+    private String              mPrefUrl;
 
     @Override
     public void onCreate(Bundle savedInstanceState) {
@@ -91,6 +94,14 @@ public class MainActivity extends Activity {
         ta.recycle();
 
         loadCache(mPrefUrl);
+    }
+
+    @Override
+    protected void onDestroy() {
+        super.onDestroy();
+        if (mDownloadTask != null) {
+            mDownloadTask.cancel(true);
+        }
     }
 
     @Override
@@ -203,50 +214,29 @@ public class MainActivity extends Activity {
 
         mErrorGroup.setVisibility(View.GONE);
         mProgress.setVisibility(View.VISIBLE);
-        mDownloadTask = new AsyncTask<Void, Void, Object>() {
+        mDownloadTask = new GetYahooWeatherTask(
+                TenkiApp.from(this).getDownloader(),
+                mPrefUrl, new Callback<YahooWeather>() {
             @Override
-            protected Object doInBackground(Void... params) {
-                try {
-                    byte[] buff = TenkiApp.from(MainActivity.this).getDownloader()
-                            .download(mPrefUrl, 50 * 1024, true);
-                    if (buff != null) {
-                        return YahooWeather.parse(buff);
-                    }
-                } catch (Exception e) {
-                    e.printStackTrace();
-                    return e;
-                }
-                return null;
+            public void onSuccess(YahooWeather result) {
+                mData = result;
+                mDataTime = System.currentTimeMillis();
+                setData(mData, mDataTime);
             }
 
             @Override
-            protected void onPostExecute(Object o) {
-                super.onPostExecute(o);
-                if (o instanceof YahooWeather) {
-                    mData = (YahooWeather) o;
-                    mDataTime = System.currentTimeMillis();
-                    setData(mData, mDataTime);
-                } else if (o instanceof Exception) {
-                    mErrorGroup.setVisibility(View.VISIBLE);
-                    mErrorGroup.startAnimation(AnimationUtils.loadAnimation(MainActivity.this, android.R.anim.fade_in));
-                }
-                onFinish();
+            public void onError(Throwable error) {
+                mErrorGroup.setVisibility(View.VISIBLE);
+                mErrorGroup.startAnimation(AnimationUtils.loadAnimation(MainActivity.this, android.R.anim.fade_in));
             }
 
             @Override
-            protected void onCancelled() {
-                super.onCancelled();
-                onFinish();
+            public void onFinish() {
+                super.onFinish();
+                mProgress.setVisibility(View.GONE);
+                mDownloadTask = null;
             }
-
-            void onFinish() {
-                if (this == mDownloadTask) {
-                    mProgress.setVisibility(View.GONE);
-                    mDownloadTask = null;
-                }
-            }
-
-        };
+        });
         mDownloadTask.execute();
     }
 
