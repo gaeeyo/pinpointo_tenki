@@ -28,6 +28,6 @@
         <attr name="colorTableTextDisabled" format="color"/>
         <attr name="colorMaxTempText" format="color"/>
         <attr name="colorMinTempText" format="color"/>
-        <attr name="weatherIconAlpha"/>
+        <attr name="weatherIconAlpha" format="integer"/>
     </declare-styleable>
 </resources>
