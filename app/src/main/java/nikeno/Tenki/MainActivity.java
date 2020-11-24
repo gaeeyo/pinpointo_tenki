@@ -18,7 +18,6 @@ import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
 import android.view.animation.AnimationUtils;
-import android.widget.TextView;
 import android.widget.Toast;
 
 import java.util.Calendar;
@@ -32,6 +31,7 @@ import nikeno.Tenki.db.entity.ResourceCacheEntity;
 import nikeno.Tenki.task.Callback;
 import nikeno.Tenki.task.GetYahooWeatherTask;
 import nikeno.Tenki.view.TextTableView;
+import nikeno.Tenki.viewbinding.ActivityMainBinding;
 
 public class MainActivity extends Activity {
     static final         int    REQUEST_AREA = 1;
@@ -46,18 +46,11 @@ public class MainActivity extends Activity {
     int          mColorTextDisabled;
     int          mColorMaxTempText;
     int          mColorMinTempText;
-    private TextView            mTodayHeader;
-    private TextView            mTomorrowHeader;
-    private TextView            mWeekHeader;
-    private TextTableView       mTodayTable2;
-    private TextTableView       mTomorrowTable2;
-    private TextTableView       mWeekTable2;
-    private TextView            mTime;
-    private View                mProgress;
-    private View                mErrorGroup;
+
     private GetYahooWeatherTask mDownloadTask;
     private Prefs               mPrefs;
     private String              mPrefUrl;
+    private ActivityMainBinding mBinding;
 
     @Override
     public void onCreate(Bundle savedInstanceState) {
@@ -65,16 +58,7 @@ public class MainActivity extends Activity {
         super.onCreate(savedInstanceState);
 
         setContentView(R.layout.activity_main);
-
-        mTodayHeader = findViewById(R.id.todayHeader);
-        mTomorrowHeader = findViewById(R.id.tomorrowHeader);
-        mWeekHeader = findViewById(R.id.weekHeader);
-        mTodayTable2 = findViewById(R.id.today2);
-        mTomorrowTable2 = findViewById(R.id.tomorrow2);
-        mWeekTable2 = findViewById(R.id.week2);
-        mTime = findViewById(R.id.time);
-        mProgress = findViewById(android.R.id.progress);
-        mErrorGroup = findViewById(R.id.errorGroup);
+        mBinding = new ActivityMainBinding(this);
         mPrefs = ((TenkiApp) getApplication()).getPrefs();
 
         if (getIntent().getDataString() != null) {
@@ -212,8 +196,8 @@ public class MainActivity extends Activity {
             return;
         }
 
-        mErrorGroup.setVisibility(View.GONE);
-        mProgress.setVisibility(View.VISIBLE);
+        mBinding.errorGroup.setVisibility(View.GONE);
+        mBinding.progress.setVisibility(View.VISIBLE);
         mDownloadTask = new GetYahooWeatherTask(
                 TenkiApp.from(this).getDownloader(),
                 mPrefUrl, new Callback<YahooWeather>() {
@@ -226,14 +210,14 @@ public class MainActivity extends Activity {
 
             @Override
             public void onError(Throwable error) {
-                mErrorGroup.setVisibility(View.VISIBLE);
-                mErrorGroup.startAnimation(AnimationUtils.loadAnimation(MainActivity.this, android.R.anim.fade_in));
+                mBinding.errorGroup.setVisibility(View.VISIBLE);
+                mBinding.errorGroup.startAnimation(AnimationUtils.loadAnimation(MainActivity.this, android.R.anim.fade_in));
             }
 
             @Override
             public void onFinish() {
                 super.onFinish();
-                mProgress.setVisibility(View.GONE);
+                mBinding.progress.setVisibility(View.GONE);
                 mDownloadTask = null;
             }
         });
@@ -340,19 +324,19 @@ public class MainActivity extends Activity {
         if (getResources().getConfiguration().orientation == Configuration.ORIENTATION_LANDSCAPE) {
             textSize /= 2;
         }
-        mTodayHeader.setText(getDateText(data.today.date));
-        mTomorrowHeader.setText(getDateText(data.tomorrow.date));
+        mBinding.todayHeader.setText(getDateText(data.today.date));
+        mBinding.tomorrowHeader.setText(getDateText(data.tomorrow.date));
 
-        mTodayHeader.setTextSize(TypedValue.COMPLEX_UNIT_PX, textSize);
-        mTomorrowHeader.setTextSize(TypedValue.COMPLEX_UNIT_PX, textSize);
-        if (mWeekHeader != null) {
-            mWeekHeader.setTextSize(TypedValue.COMPLEX_UNIT_PX, textSize);
+        mBinding.todayHeader.setTextSize(TypedValue.COMPLEX_UNIT_PX, textSize);
+        mBinding.tomorrowHeader.setTextSize(TypedValue.COMPLEX_UNIT_PX, textSize);
+        if (mBinding.weekHeader != null) {
+            mBinding.weekHeader.setTextSize(TypedValue.COMPLEX_UNIT_PX, textSize);
         }
 
-        setDayData(mTodayTable2, data.today, textSize);
-        setDayData(mTomorrowTable2, data.tomorrow, textSize);
-        setWeekData(mWeekTable2, data.days, textSize);
-        mTime.setText(DateUtils.formatDateTime(this, time,
+        setDayData(mBinding.todayTable2, data.today, textSize);
+        setDayData(mBinding.tomorrowTable2, data.tomorrow, textSize);
+        setWeekData(mBinding.weekTable2, data.days, textSize);
+        mBinding.time.setText(DateUtils.formatDateTime(this, time,
                 DateUtils.FORMAT_SHOW_DATE | DateUtils.FORMAT_SHOW_TIME));
     }
 
