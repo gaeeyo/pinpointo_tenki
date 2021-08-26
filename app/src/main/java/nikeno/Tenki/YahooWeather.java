@@ -97,7 +97,7 @@ public class YahooWeather {
                         hour.rain = text;
                         break;
                     case 5:    // 風速
-                        hour.wind = text;
+                        hour.wind = text.replaceAll(" ", "");
                         break;
                 }
             }
@@ -187,7 +187,13 @@ public class YahooWeather {
 
     private static String removeTag(String html) {
         Pattern p = Pattern.compile("<.*?>", Pattern.CASE_INSENSITIVE);
-        return p.matcher(html).replaceAll("");
+        return removeBlank(p.matcher(html).replaceAll(""));
+    }
+
+    static Matcher BLANK_REMOER = Pattern.compile("^\\s*|\\s*$").matcher("");
+
+    private static String removeBlank(String html) {
+        return BLANK_REMOER.reset(html).replaceAll("");
     }
 
     public static class YahooWeatherParseException extends Exception {

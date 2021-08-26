@@ -1,6 +1,9 @@
 package nikeno.Tenki;
 
 
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertTrue;
+
 import androidx.test.InstrumentationRegistry;
 import androidx.test.runner.AndroidJUnit4;
 
@@ -15,9 +18,6 @@ import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
 import nikeno.Tenki.task.SearchAddressTask;
-
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertTrue;
 
 @RunWith(AndroidJUnit4.class)
 public class YahooWeatherTest {
@@ -83,5 +83,18 @@ public class YahooWeatherTest {
             return m.group();
         }
         return null;
+    }
+
+    @Test
+    public void test20210826() throws IOException, YahooWeather.YahooWeatherParseException {
+        InputStream is = InstrumentationRegistry.getContext().getAssets().open("yw20210826_13112.html");
+        ByteArrayOutputStream out = new ByteArrayOutputStream();
+        int c;
+        while ((c = is.read()) != -1) out.write(c);
+
+        String html = new String(out.toByteArray(), "utf-8");
+        YahooWeather yw = YahooWeather.parse(out.toByteArray());
+
+        System.out.print(re(html, "<title.*?>(.*?).*</title>"));
     }
 }
