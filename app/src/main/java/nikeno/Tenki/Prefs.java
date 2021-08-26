@@ -2,20 +2,31 @@ package nikeno.Tenki;
 
 import android.content.SharedPreferences;
 
+import androidx.annotation.NonNull;
+
 import java.util.ArrayList;
 import java.util.List;
 
 public class Prefs {
-    static final String RECENT_PREFIX = "Recent";
-    static final String URL           = "url";
-    static final String THEME    = "theme";
-    private static final int RECENT_MAX = 5;
-    final SharedPreferences mPrefs;
+
+    public static final BoolValue SHOW_WEATHER_ICON       = new BoolValue("showWeatherIcon", true);
+    public static final BoolValue SHOW_WEATHER_ICON_LABEL = new BoolValue("showWeatherIconLabel", true);
+    public static final BoolValue SHOW_TEMPERATURE        = new BoolValue("showTemperature", true);
+    public static final BoolValue SHOW_HUMIDITY           = new BoolValue("showHumidity", true);
+    public static final BoolValue SHOW_PRECIPITATION      = new BoolValue("showPrecipitation", true);
+    public static final BoolValue SHOW_WIND               = new BoolValue("showWind", true);
+
+    static final         String            RECENT_PREFIX = "Recent";
+    static final         String            URL           = "url";
+    static final         String            THEME         = "theme";
+    private static final int               RECENT_MAX    = 5;
+    final                SharedPreferences mPrefs;
 
     public enum ThemeNames {
         DEFAULT("default"), DARK("dark");
 
         String value;
+
         ThemeNames(String value) {
             this.value = value;
         }
@@ -89,5 +100,25 @@ public class Prefs {
 
     public void setCurrentAreaUrl(String url) {
         mPrefs.edit().putString(URL, url).commit();
+    }
+
+    public boolean get(@NonNull BoolValue key) {
+        return mPrefs.getBoolean(key.key, key.defaultValue);
+    }
+
+    public void set(@NonNull BoolValue key, boolean value) {
+        mPrefs.edit().putBoolean(key.key, value).apply();
+    }
+
+    public static class BoolValue {
+
+        @NonNull
+        final String  key;
+        final boolean defaultValue;
+
+        public BoolValue(@NonNull String key, boolean defaultValue) {
+            this.key = key;
+            this.defaultValue = defaultValue;
+        }
     }
 }

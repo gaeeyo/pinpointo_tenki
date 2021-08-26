@@ -7,7 +7,7 @@ import android.widget.TextView;
 import nikeno.Tenki.R;
 import nikeno.Tenki.view.TextTableView;
 
-public class ActivityMainBinding  {
+public final class ActivityMainBinding  {
     public final TextView      todayHeader;
     public final TextView      tomorrowHeader;
     public final TextView      weekHeader;

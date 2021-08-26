@@ -1,0 +1,44 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content"
+    android:background="?android:windowBackground"
+    android:orientation="vertical">
+
+    <CheckBox
+        android:id="@+id/show_weather_icon"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="@string/show_weather_icon" />
+
+    <CheckBox
+        android:id="@+id/show_weather_icon_label"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="@string/show_weather_icon_label" />
+
+    <CheckBox
+        android:id="@+id/show_temperature"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="@string/show_temperature" />
+
+    <CheckBox
+        android:id="@+id/show_humidity"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="@string/show_humidity" />
+
+    <CheckBox
+        android:id="@+id/show_precipitation"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="@string/show_precipitation" />
+
+    <CheckBox
+        android:id="@+id/show_wind"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="@string/show_wind" />
+
+</LinearLayout>

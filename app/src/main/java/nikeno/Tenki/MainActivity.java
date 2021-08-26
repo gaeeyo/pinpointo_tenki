@@ -1,6 +1,7 @@
 package nikeno.Tenki;
 
 import android.app.Activity;
+import android.app.AlertDialog;
 import android.content.Intent;
 import android.content.res.Configuration;
 import android.content.res.Resources;
@@ -18,6 +19,8 @@ import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
 import android.view.animation.AnimationUtils;
+import android.widget.CheckBox;
+import android.widget.CompoundButton;
 import android.widget.Toast;
 
 import java.util.Calendar;
@@ -28,12 +31,13 @@ import java.util.TimeZone;
 import nikeno.Tenki.activity.AreaSelectActivity;
 import nikeno.Tenki.activity.HelpActivity;
 import nikeno.Tenki.db.entity.ResourceCacheEntity;
+import nikeno.Tenki.dialog.DisplaySettingsDialog;
 import nikeno.Tenki.task.Callback;
 import nikeno.Tenki.task.GetYahooWeatherTask;
 import nikeno.Tenki.view.TextTableView;
 import nikeno.Tenki.viewbinding.ActivityMainBinding;
 
-public class MainActivity extends Activity {
+public class MainActivity extends Activity implements DisplaySettingsDialog.Listener {
     static final         int    REQUEST_AREA = 1;
     private static final String TAG          = "Tenki_MainActivity";
     private static final String WeekStr      = "日月火水木金土";
@@ -116,6 +120,10 @@ public class MainActivity extends Activity {
                 startActivity(i);
             }
             break;
+            case R.id.display_settings:
+//                showDisplaySettings();
+                new DisplaySettingsDialog(this).show();
+                break;
             case R.id.darkTheme:
                 mPrefs.setTheme(item.isChecked() ? Prefs.ThemeNames.DEFAULT : Prefs.ThemeNames.DARK);
                 recreate();
@@ -124,18 +132,33 @@ public class MainActivity extends Activity {
         return true;
     }
 
+    private void showDisplaySettings() {
+        AlertDialog dlg = new AlertDialog.Builder(this)
+                .setPositiveButton(R.string.close, null)
+                .create();
+        dlg.setOwnerActivity(this);
+        dlg.setTitle(R.string.display_settings);
+        dlg.setView(dlg.getLayoutInflater().inflate(R.layout.display_settings, null));
+        CheckBox showWeatherIcon = dlg.findViewById(R.id.show_weather_icon);
+        showWeatherIcon.setOnCheckedChangeListener(new CompoundButton.OnCheckedChangeListener() {
+            @Override
+            public void onCheckedChanged(CompoundButton compoundButton, boolean b) {
+                getParent();
+            }
+        });
+        dlg.show();
+    }
+
     @Override
     protected void onActivityResult(int requestCode, int resultCode, Intent data) {
         super.onActivityResult(requestCode, resultCode, data);
         Log.d(TAG, "onActivityResult");
         switch (requestCode) {
             case REQUEST_AREA:
-                switch (resultCode) {
-                    case RESULT_OK:
-                        mPrefUrl = Utils.httpsUrl(data.getStringExtra("url"));
-                        mPrefs.setCurrentAreaUrl(mPrefUrl);
-                        reload();
-                        break;
+                if (resultCode == RESULT_OK) {
+                    mPrefUrl = Utils.httpsUrl(data.getStringExtra("url"));
+                    mPrefs.setCurrentAreaUrl(mPrefUrl);
+                    reload();
                 }
         }
     }
@@ -146,8 +169,8 @@ public class MainActivity extends Activity {
 
         if (mData != null) {
             setData(mData, mDataTime);
-            long ellapsed = System.currentTimeMillis() - mDataTime;
-            if (ellapsed < 0 || ellapsed > 5 * DateUtils.MINUTE_IN_MILLIS) {
+            long elapsed = System.currentTimeMillis() - mDataTime;
+            if (elapsed < 0 || elapsed > 5 * DateUtils.MINUTE_IN_MILLIS) {
                 reload();
             }
         } else {
@@ -176,7 +199,6 @@ public class MainActivity extends Activity {
     }
 
     void loadCache(String url) {
-        YahooWeather result = null;
         ResourceCacheEntity entry = TenkiApp.from(this).getDownloader().getCache(url,
                 System.currentTimeMillis() - 24 * DateUtils.HOUR_IN_MILLIS);
         if (entry != null) {
@@ -224,28 +246,48 @@ public class MainActivity extends Activity {
         mDownloadTask.execute();
     }
 
-    @SuppressWarnings("deprecation")
     public void setDayData(TextTableView v, YahooWeather.Day data, float textSize) {
 
-        Calendar  nowJapan = Calendar.getInstance(Locale.JAPAN);
-        long      now      = nowJapan.getTime().getTime() - 3 * DateUtils.HOUR_IN_MILLIS;
-        long      baseTime = data.date.getTime();
-        Resources res      = getResources();
+        Calendar nowJapan = Calendar.getInstance(Locale.JAPAN);
+        long     now      = nowJapan.getTime().getTime() - 3 * DateUtils.HOUR_IN_MILLIS;
+        long     baseTime = data.date.getTime();
 
-//        int colorTempTextColor =
+        boolean showWeatherIcon      = mPrefs.get(Prefs.SHOW_WEATHER_ICON);
+        boolean showWeatherIconLabel = mPrefs.get(Prefs.SHOW_WEATHER_ICON_LABEL);
+        boolean showTemperature      = mPrefs.get(Prefs.SHOW_TEMPERATURE);
+        boolean showHumidity         = mPrefs.get(Prefs.SHOW_HUMIDITY);
+        boolean showPrecipitation    = mPrefs.get(Prefs.SHOW_PRECIPITATION);
+        boolean showWind    = mPrefs.get(Prefs.SHOW_WIND);
 
         int columns = data.hours.length;
-        v.setSize(columns, 6);
 
-        v.getRow(2).setTextColor(mColorTempText);
-        v.getRow(3).setTextColor(mColorHumidityText);
+        int r                = 1;
+        int timeRow          = 0;
+        int weatherRow       = ((showWeatherIcon || showWeatherIconLabel) ? r++ : -1);
+        int tempRow          = (showTemperature ? r++ : -1);
+        int humidityRow      = (showHumidity ? r++ : -1);
+        int precipitationRow = (showPrecipitation ? r++ : -1);
+        int windRow          = (showWind ? r++ : -1);
+        v.setSize(columns, r);
 
-        v.getRow(0).setTextSize(textSize);  // 時間
-        v.getRow(1).setTextSize(textSize * 0.75f);  // 天気
-        v.getRow(2).setTextSize(textSize);  // 温度
-        v.getRow(3).setTextSize(textSize);  // 湿度
-        v.getRow(4).setTextSize(textSize);  // 雨量
-        v.getRow(5).setTextSize(textSize * 0.75f);  // 風
+        v.getRow(timeRow).setTextSize(textSize);  // 時間
+        if (weatherRow != -1) {
+            v.getRow(weatherRow).setTextSize(textSize * 0.75f);  // 天気
+        }
+        if (tempRow != -1) {
+            v.getRow(tempRow).setTextSize(textSize);  // 温度
+            v.getRow(tempRow).setTextColor(mColorTempText);
+        }
+        if (humidityRow != -1) {
+            v.getRow(humidityRow).setTextSize(textSize);  // 湿度
+            v.getRow(humidityRow).setTextColor(mColorHumidityText);
+        }
+        if (precipitationRow != -1) {
+            v.getRow(precipitationRow).setTextSize(textSize);  // 雨量
+        }
+        if (windRow != -1) {
+            v.getRow(windRow).setTextSize(textSize * 0.75f);  // 風
+        }
 
         v.getRow(1).setIconWidth((int) (textSize * 2f));
 
@@ -257,22 +299,28 @@ public class MainActivity extends Activity {
             boolean enabled  = (baseTime + h.hour * DateUtils.HOUR_IN_MILLIS) > now;
             String  imageUrl = h.getImageUrl(enabled);
 
-            downloader.setImage(imageUrl, new TextTableView.CellBitmapHandler(v, v.getCell(x, 1)));
+            v.getCell(x, timeRow).setText(Integer.toString(h.hour));
 
-            v.getCell(x, 0).setText(Integer.toString(h.hour));
-            v.getCell(x, 1).setText(h.text);
-            v.getCell(x, 2).setText(h.temp);
-            v.getCell(x, 3).setText(h.humidity);
-            v.getCell(x, 4).setText(h.rain);
-            v.getCell(x, 5).setText(h.wind.length() < 3 ?
-                    h.wind :
-                    h.wind.substring(0, 2) + "\n" + h.wind.substring(2));
+            if (weatherRow != -1 && showWeatherIcon) {
+                downloader.setImage(imageUrl,
+                        new TextTableView.CellBitmapHandler(v, v.getCell(x, weatherRow)));
+            }
+            if (weatherRow != -1 && showWeatherIconLabel) v.getCell(x, weatherRow).setText(h.text);
+            if (tempRow != -1) v.getCell(x, tempRow).setText(h.temp);
+            if (humidityRow != -1) v.getCell(x, humidityRow).setText(h.humidity);
+            if (precipitationRow != -1) v.getCell(x, precipitationRow).setText(h.rain);
+            if (windRow != -1) {
+                v.getCell(x, windRow).setText(h.wind.length() < 3 ?
+                        h.wind :
+                        h.wind.substring(0, 2) + "\n" + h.wind.substring(2));
+            }
 
-            v.getCell(x, 0).setBackgroundColor(enabled ? mColorDateBg : mColorDateBgDisabled);
+            v.getCell(x, timeRow).setBackgroundColor(enabled ? mColorDateBg : mColorDateBgDisabled);
             if (!enabled) {
                 v.getColumn(x).setTextColor(mColorTextDisabled);
             }
         }
+        v.requestLayout();
         v.invalidate();
     }
 
@@ -313,14 +361,19 @@ public class MainActivity extends Activity {
         }
     }
 
+    private YahooWeather mLastData;
+    private long         mLastDataTime;
+
     private void setData(YahooWeather data, long time) {
 
 
         setTitle(getString(R.string.mainTitleFormat, data.areaName));
 
+        mLastData = data;
+        mLastDataTime = time;
 
         DisplayMetrics dm       = getResources().getDisplayMetrics();
-        float          textSize = (dm.widthPixels / 8 / 3);
+        float          textSize = (dm.widthPixels / 8f / 3f);
         if (getResources().getConfiguration().orientation == Configuration.ORIENTATION_LANDSCAPE) {
             textSize /= 2;
         }
@@ -352,5 +405,12 @@ public class MainActivity extends Activity {
 
     public void onClickErrorMessage(View v) {
         reload();
+    }
+
+    @Override
+    public void onDisplaySettingChanged() {
+        if (mLastData != null) {
+            setData(mLastData, mLastDataTime);
+        }
     }
 }

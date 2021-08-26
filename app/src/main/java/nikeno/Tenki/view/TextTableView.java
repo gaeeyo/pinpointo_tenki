@@ -70,20 +70,20 @@ public class TextTableView extends View {
                     cell.layout = new StaticLayout(cell.text, cell.paint, cellWidth,
                             Layout.Alignment.ALIGN_CENTER, 1f, 0f, true);
                 }
+            }
 
-                cell.height = 0;
-                if (cell.icon != null) {
-                    cell.scale = (float) cell.iconWidth / cell.icon.getWidth();
-                    cell.height = (int) (cell.icon.getHeight() * cell.scale);
-                }
+            cell.height = 0;
+            if (cell.icon != null) {
+                cell.scale = (float) cell.iconWidth / cell.icon.getWidth();
+                cell.height = (int) (cell.icon.getHeight() * cell.scale);
+            }
 
-                if (cell.layout != null) {
-                    cell.height += cell.layout.getHeight();
-                }
+            if (cell.layout != null) {
+                cell.height += cell.layout.getHeight();
+            }
 
-                if (cell.height > rowHeight) {
-                    rowHeight = cell.height;
-                }
+            if (cell.height > rowHeight) {
+                rowHeight = cell.height;
             }
             if (++columns >= mColumns) {
                 rowHeight += mCellPadding * 2;
@@ -319,6 +319,7 @@ public class TextTableView extends View {
             backgroundColor = 0;
             icon = null;
             layout = null;
+            text = null;
         }
 
         @Override

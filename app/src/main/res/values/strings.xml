@@ -13,7 +13,16 @@
 	<string name="menu_reload">最新の情報に更新</string>
 	<string name="menu_pref">地域を変更</string>
 	<string name="retry">再試行</string>
-	
+	<string name="display_settings">表示設定</string>
+	<string name="show_weather_icon">天気アイコン</string>
+	<string name="show_weather_icon_label">天気テキスト</string>
+	<string name="show_temperature">温度</string>
+	<string name="show_humidity">湿度</string>
+	<string name="show_precipitation">降水量</string>
+	<string name="show_wind">風向き・風速</string>
+	<string name="close">閉じる</string>
+	<string name="done">完了</string>
+
 	<string name="reload_error">データの取得ができませんでした。</string>
 	<string name="using_cache">データの取得が失敗したため、前回の情報を表示します。</string>
 	<string name="area_select_search_empty">郵便番号、または地域名を入力して検索してください。</string>
