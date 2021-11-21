@@ -85,6 +85,11 @@ public class MainActivity extends Activity implements DisplaySettingsDialog.List
     }
 
     @Override
+    public void onBackPressed() {
+        finish();
+    }
+
+    @Override
     protected void onDestroy() {
         super.onDestroy();
         if (mDownloadTask != null) {

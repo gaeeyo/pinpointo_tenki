@@ -7,11 +7,11 @@ android {
         config {
         }
     }
-    compileSdk 29
+    compileSdk 31
     defaultConfig {
         applicationId "nikeno.Tenki"
         minSdk 15
-        targetSdk 29
+        targetSdk 31
         versionCode 29
         versionName "0.2.7"
 

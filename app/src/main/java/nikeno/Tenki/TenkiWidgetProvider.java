@@ -17,6 +17,7 @@ import android.text.format.DateUtils;
 import nikeno.Tenki.activity.TenkiWidgetConfigure;
 import nikeno.Tenki.service.MyJobService;
 import nikeno.Tenki.service.WidgetUpdateService;
+import nikeno.Tenki.util.PendingIntentCompat;
 
 public class TenkiWidgetProvider extends AppWidgetProvider {
 
@@ -72,7 +73,7 @@ public class TenkiWidgetProvider extends AppWidgetProvider {
 
             Intent intent = new Intent(context, WidgetUpdateService.class);
             PendingIntent pi = PendingIntent.getService(context, 0, intent,
-                    PendingIntent.FLAG_UPDATE_CURRENT);
+                    PendingIntentCompat.FLAG_MUTABLE);
 
             am.setInexactRepeating(AlarmManager.ELAPSED_REALTIME,
                     SystemClock.elapsedRealtime() + 30 * DateUtils.MINUTE_IN_MILLIS,
@@ -90,7 +91,7 @@ public class TenkiWidgetProvider extends AppWidgetProvider {
             AlarmManager am = (AlarmManager) context.getSystemService(Context.ALARM_SERVICE);
             Intent intent = new Intent(context, WidgetUpdateService.class);
             PendingIntent pi = PendingIntent.getService(context, 0, intent,
-                    PendingIntent.FLAG_UPDATE_CURRENT);
+                    PendingIntentCompat.FLAG_MUTABLE);
             am.cancel(pi);
 
             JobScheduler js = (JobScheduler) context.getSystemService(Context.JOB_SCHEDULER_SERVICE);

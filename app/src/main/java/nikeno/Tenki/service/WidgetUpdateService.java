@@ -1,5 +1,7 @@
 package nikeno.Tenki.service;
 
+import static nikeno.Tenki.TenkiApp.N_ID_WIDGET_UPDATE_SERVICE;
+
 import android.app.IntentService;
 import android.app.Notification;
 import android.app.PendingIntent;
@@ -36,8 +38,7 @@ import nikeno.Tenki.YahooWeather.Day;
 import nikeno.Tenki.activity.TenkiWidgetConfigure;
 import nikeno.Tenki.activity.TenkiWidgetConfigure.WidgetConfig;
 import nikeno.Tenki.db.entity.ResourceCacheEntity;
-
-import static nikeno.Tenki.TenkiApp.N_ID_WIDGET_UPDATE_SERVICE;
+import nikeno.Tenki.util.PendingIntentCompat;
 
 public class WidgetUpdateService extends IntentService {
 
@@ -140,7 +141,7 @@ public class WidgetUpdateService extends IntentService {
             Intent i = new Intent(context, MainActivity.class);
             i.setData(Uri.parse(config.url));
             PendingIntent pi = PendingIntent.getActivity(context, 0,
-                    i, 0);
+                    i, PendingIntentCompat.FLAG_MUTABLE);
             views.setOnClickPendingIntent(R.id.container, pi);
             manager.updateAppWidget(id, views);
         }
@@ -148,9 +149,8 @@ public class WidgetUpdateService extends IntentService {
         PendingIntent getManualReloadPendingIntent(Context context) {
             Intent i = new Intent(context, WidgetUpdateService.class);
             i.setAction(ACTION_MANUAL_UPDATE);
-            return PendingIntent.getService(context, 0,
-                    i,
-                    PendingIntent.FLAG_UPDATE_CURRENT);
+            return PendingIntent.getService(context, 0, i,
+                    PendingIntentCompat.FLAG_MUTABLE);
         }
 
         RemoteViews createErrorView(Context context, Throwable e) {
