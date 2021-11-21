@@ -42,7 +42,7 @@ import nikeno.Tenki.util.PendingIntentCompat;
 
 public class WidgetUpdateService extends IntentService {
 
-    static final String TAG = WidgetUpdateService.class.getSimpleName();
+    static final String TAG                  = WidgetUpdateService.class.getSimpleName();
     static final String ACTION_MANUAL_UPDATE = "manualUpdate";
 
     public WidgetUpdateService() {
@@ -123,7 +123,7 @@ public class WidgetUpdateService extends IntentService {
             WidgetConfig config = TenkiWidgetConfigure.getWidgetConfig(context, id);
 
             final Downloader downloader = TenkiApp.from(context).getDownloader();
-            byte[] html;
+            byte[]           html;
             if (forceCache) {
                 ResourceCacheEntity entry = downloader.getCache(config.url, 0);
                 if (entry == null) {
@@ -139,6 +139,7 @@ public class WidgetUpdateService extends IntentService {
             RemoteViews views = buildUpdate(context, id, data, theme, forceCache);
 
             Intent i = new Intent(context, MainActivity.class);
+            i.setFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP | Intent.FLAG_ACTIVITY_NEW_TASK);
             i.setData(Uri.parse(config.url));
             PendingIntent pi = PendingIntent.getActivity(context, 0,
                     i, PendingIntentCompat.FLAG_MUTABLE);
@@ -200,10 +201,10 @@ public class WidgetUpdateService extends IntentService {
                     R.id.i5, R.id.i6, R.id.i7
             };
 
-            final int HOUR = 60 * 60 * 1000;
-            Calendar nowJapan = Calendar.getInstance(Locale.JAPAN);
-            long now = nowJapan.getTime().getTime() - 3 * HOUR;
-            int col = 0;
+            final int HOUR     = 60 * 60 * 1000;
+            Calendar  nowJapan = Calendar.getInstance(Locale.JAPAN);
+            long      now      = nowJapan.getTime().getTime() - 3 * HOUR;
+            int       col      = 0;
 
             for (int y = 0; y < 2; y++) {
                 Day day = (y == 0 ? data.today : data.tomorrow);
@@ -276,8 +277,8 @@ public class WidgetUpdateService extends IntentService {
 
     static class WeatherIconManager {
 
-        private final Context mContext;
-        private HashMap<String, Bitmap> mCache = new HashMap<>();
+        private final Context                 mContext;
+        private       HashMap<String, Bitmap> mCache = new HashMap<>();
         int mIconSize;
         int mShadowOffset;
 
@@ -310,16 +311,16 @@ public class WidgetUpdateService extends IntentService {
 
         public Bitmap convertBitmap(Bitmap bmp) {
             Bitmap newBmp = Bitmap.createBitmap(mIconSize, mIconSize, Bitmap.Config.ARGB_8888);
-            Bitmap alpha = bmp.extractAlpha();
+            Bitmap alpha  = bmp.extractAlpha();
             try {
                 Canvas c = new Canvas(newBmp);
-                Paint p = new Paint();
+                Paint  p = new Paint();
                 p.setFilterBitmap(true);
                 p.setColor(0x88000000);
-                Matrix m = new Matrix();
-                float scaleX = (float) (mIconSize - mShadowOffset * 2) / bmp.getWidth();
-                float scaleY = (float) (mIconSize - mShadowOffset * 2) / bmp.getHeight();
-                float scale = Math.max(scaleX, scaleY);
+                Matrix m      = new Matrix();
+                float  scaleX = (float) (mIconSize - mShadowOffset * 2) / bmp.getWidth();
+                float  scaleY = (float) (mIconSize - mShadowOffset * 2) / bmp.getHeight();
+                float  scale  = Math.max(scaleX, scaleY);
                 m.preScale(scale, scale);
                 m.postTranslate(mShadowOffset * 2, mShadowOffset * 2);
                 c.drawBitmap(alpha, m, p);
