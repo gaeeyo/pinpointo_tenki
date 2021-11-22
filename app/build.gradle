@@ -17,7 +17,7 @@ android {
 
         testInstrumentationRunner "androidx.test.runner.AndroidJUnitRunner"
 
-        archivesBaseName = "pinpoint_tenki-$versionName-" + new SimpleDateFormat("yyyyMMdd").format(new Date())
+        archivesBaseName = "pinpoint_tenki-$versionName-$versionCode-" + new SimpleDateFormat("yyyyMMdd").format(new Date())
     }
     buildTypes {
         release {
