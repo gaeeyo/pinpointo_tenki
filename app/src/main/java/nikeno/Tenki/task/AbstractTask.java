@@ -18,6 +18,7 @@ public abstract class AbstractTask<T> extends AsyncTask<Object, Object, Object> 
         try {
             return doInBackground();
         } catch (Exception e) {
+            e.printStackTrace();
             return e;
         }
     }
