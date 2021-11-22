@@ -14,9 +14,9 @@ import android.os.Build;
 import android.os.SystemClock;
 import android.text.format.DateUtils;
 
-import nikeno.Tenki.activity.TenkiWidgetConfigure;
 import nikeno.Tenki.service.MyJobService;
 import nikeno.Tenki.service.WidgetUpdateService;
+import nikeno.Tenki.appwidget.weatherwidget.WeatherWidgetPrefs;
 import nikeno.Tenki.util.PendingIntentCompat;
 
 public class TenkiWidgetProvider extends AppWidgetProvider {
@@ -45,7 +45,7 @@ public class TenkiWidgetProvider extends AppWidgetProvider {
     @Override
     public void onDeleted(Context context, int[] appWidgetIds) {
         super.onDeleted(context, appWidgetIds);
-        TenkiWidgetConfigure.deleteWidgetConfig(context, appWidgetIds);
+        WeatherWidgetPrefs.deleteWidgetConfig(context, appWidgetIds);
     }
 
     abstract static class ScheduleCompat {

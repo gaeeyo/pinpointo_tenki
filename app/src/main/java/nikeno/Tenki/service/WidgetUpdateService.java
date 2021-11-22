@@ -35,9 +35,9 @@ import nikeno.Tenki.TenkiApp;
 import nikeno.Tenki.TenkiWidgetProvider;
 import nikeno.Tenki.YahooWeather;
 import nikeno.Tenki.YahooWeather.Day;
-import nikeno.Tenki.activity.TenkiWidgetConfigure;
-import nikeno.Tenki.activity.TenkiWidgetConfigure.WidgetConfig;
+import nikeno.Tenki.appwidget.weatherwidget.WeatherWidgetConfig;
 import nikeno.Tenki.db.entity.ResourceCacheEntity;
+import nikeno.Tenki.appwidget.weatherwidget.WeatherWidgetPrefs;
 import nikeno.Tenki.util.PendingIntentCompat;
 
 public class WidgetUpdateService extends IntentService {
@@ -120,7 +120,7 @@ public class WidgetUpdateService extends IntentService {
 
         void updateWidget(Context context, AppWidgetManager manager,
                           int id, WidgetTheme theme, boolean forceCache) throws Exception {
-            WidgetConfig config = TenkiWidgetConfigure.getWidgetConfig(context, id);
+            WeatherWidgetConfig config = WeatherWidgetPrefs.getWidgetConfig(context, id);
 
             final Downloader downloader = TenkiApp.from(context).getDownloader();
             byte[]           html;

@@ -38,7 +38,7 @@
 
         <!-- Widget Provider -->
         <receiver
-            android:name="TenkiWidgetProvider"
+            android:name=".TenkiWidgetProvider"
             android:exported="true">
             <intent-filter>
                 <action android:name="android.appwidget.action.APPWIDGET_UPDATE" />
