@@ -1,0 +1,9 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <!-- Android 12 でウィジェットが角丸になって文字が欠けるのを防ぐ
+         このやり方は間違っているが、そもそもウィジェットのデザイン的に
+         枠内ぎりぎりまでコンテンツを出している関係で仕方なく、文字が切れないこと優先で対処
+     -->
+    <dimen name="widgetPaddingLeft">4dp</dimen>
+    <dimen name="widgetPaddingRight">4dp</dimen>
+</resources>

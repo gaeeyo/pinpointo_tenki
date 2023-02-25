@@ -1,7 +1,5 @@
 package nikeno.Tenki.service;
 
-import static nikeno.Tenki.TenkiApp.N_ID_WIDGET_UPDATE_SERVICE;
-
 import android.app.IntentService;
 import android.app.Notification;
 import android.app.PendingIntent;
@@ -10,9 +8,6 @@ import android.content.ComponentName;
 import android.content.Context;
 import android.content.Intent;
 import android.graphics.Bitmap;
-import android.graphics.Canvas;
-import android.graphics.Matrix;
-import android.graphics.Paint;
 import android.net.Uri;
 import android.os.Build;
 import android.os.IBinder;
@@ -21,24 +16,21 @@ import android.text.format.DateUtils;
 import android.text.style.ForegroundColorSpan;
 import android.util.Log;
 import android.widget.RemoteViews;
+import nikeno.Tenki.*;
+import nikeno.Tenki.YahooWeather.Day;
+import nikeno.Tenki.appwidget.weatherwidget.WeatherIconManager;
+import nikeno.Tenki.appwidget.weatherwidget.WeatherWidgetConfig;
+import nikeno.Tenki.appwidget.weatherwidget.WeatherWidgetPrefs;
+import nikeno.Tenki.appwidget.weatherwidget.WidgetTheme;
+import nikeno.Tenki.db.entity.ResourceCacheEntity;
+import nikeno.Tenki.util.PendingIntentCompat;
 
 import java.io.IOException;
 import java.net.UnknownHostException;
 import java.util.Calendar;
-import java.util.HashMap;
 import java.util.Locale;
 
-import nikeno.Tenki.Downloader;
-import nikeno.Tenki.MainActivity;
-import nikeno.Tenki.R;
-import nikeno.Tenki.TenkiApp;
-import nikeno.Tenki.TenkiWidgetProvider;
-import nikeno.Tenki.YahooWeather;
-import nikeno.Tenki.YahooWeather.Day;
-import nikeno.Tenki.appwidget.weatherwidget.WeatherWidgetConfig;
-import nikeno.Tenki.db.entity.ResourceCacheEntity;
-import nikeno.Tenki.appwidget.weatherwidget.WeatherWidgetPrefs;
-import nikeno.Tenki.util.PendingIntentCompat;
+import static nikeno.Tenki.TenkiApp.N_ID_WIDGET_UPDATE_SERVICE;
 
 public class WidgetUpdateService extends IntentService {
 
@@ -47,6 +39,118 @@ public class WidgetUpdateService extends IntentService {
 
     public WidgetUpdateService() {
         super("WidgetUpdateService");
+    }
+
+    static PendingIntent getManualReloadPendingIntent(Context context) {
+        Intent i = new Intent(context, WidgetUpdateService.class);
+        i.setAction(ACTION_MANUAL_UPDATE);
+        return PendingIntent.getService(context, 0, i,
+                PendingIntentCompat.FLAG_MUTABLE);
+    }
+
+    public static RemoteViews buildUpdate(Context context, YahooWeather data,
+                                          WidgetTheme theme, boolean forceCache, WeatherIconManager iconManager) {
+
+        int layout;
+        switch (theme.theme) {
+            case WidgetTheme.THEME_LIGHT:
+                layout = R.layout.weather_widget_light;
+                break;
+            case WidgetTheme.THEME_DARK:
+            default:
+                layout = R.layout.weather_widget_dark;
+                break;
+        }
+
+        RemoteViews views = new RemoteViews(context.getPackageName(),
+                layout);
+
+        String time = DateUtils.formatDateTime(context, System.currentTimeMillis(),
+                DateUtils.FORMAT_SHOW_TIME | DateUtils.FORMAT_SHOW_DATE);
+        views.setTextViewText(R.id.title, data.areaName);
+        if (forceCache) {
+            views.setTextViewText(R.id.time, context.getString(R.string.updateErrorTimeFmt, time));
+        } else {
+            views.setTextViewText(R.id.time, context.getString(R.string.updateTimeFmt, time));
+        }
+        views.setOnClickPendingIntent(R.id.time, getManualReloadPendingIntent(context));
+        views.setOnClickPendingIntent(R.id.h6, getManualReloadPendingIntent(context));
+        views.setOnClickPendingIntent(R.id.h7, getManualReloadPendingIntent(context));
+
+        int[] heads = new int[]{
+                R.id.h0, R.id.h1, R.id.h2, R.id.h3, R.id.h4,
+                R.id.h5, R.id.h6, R.id.h7
+        };
+        int[] cols = new int[]{
+                R.id.t0, R.id.t1, R.id.t2, R.id.t3, R.id.t4,
+                R.id.t5, R.id.t6, R.id.t7
+        };
+        int[] imgs = new int[]{
+                R.id.i0, R.id.i1, R.id.i2, R.id.i3, R.id.i4,
+                R.id.i5, R.id.i6, R.id.i7
+        };
+
+        final int HOUR     = 60 * 60 * 1000;
+        Calendar  nowJapan = Calendar.getInstance(Locale.JAPAN);
+        long      now      = nowJapan.getTime().getTime() - 3 * HOUR;
+        int       col      = 0;
+
+        for (int y = 0; y < 2; y++) {
+            Day day = (y == 0 ? data.today : data.tomorrow);
+
+            long baseTime = day.date.getTime();
+
+            for (int x = 0; x < 8; x++) {
+                YahooWeather.Hour h = day.hours[x];
+
+                boolean enabled = (baseTime + h.hour * HOUR) > now;
+                if (enabled && col < cols.length) {
+
+                    views.setTextViewText(heads[col],
+                            String.valueOf(h.hour) + "時");
+
+                    StringBuilder sb = new StringBuilder();
+
+//                        sb.append(h.text).append("\n");
+                    int textEnd = sb.length();
+
+                    sb.append(h.temp).append("℃\n");
+                    int tempEnd = sb.length();
+
+                    //sb.append(h.humidity + "\n");
+                    int humidEnd = sb.length();
+
+                    sb.append(h.rain).append("㍉");
+                    int rainEnd = sb.length();
+
+                    String imageUrl = h.getImageUrl(true);
+                    Log.d(TAG, "imagerUrl:" + imageUrl);
+                    if (imageUrl != null) {
+                        int bmpId = getBitmapIndexFromUrl(context, imageUrl);
+                        if (bmpId != -1) {
+                            views.setImageViewResource(imgs[col], bmpId);
+                        } else {
+                            Bitmap bmp = iconManager.getIcon(imageUrl);
+                            views.setImageViewBitmap(imgs[col], bmp);
+                        }
+                    }
+
+                    SpannableString ss = new SpannableString(sb);
+//                        ss.setSpan(new ForegroundColorSpan(theme.textColor), 0, textEnd,
+//                                SpannableString.SPAN_INCLUSIVE_INCLUSIVE);
+                    ss.setSpan(new ForegroundColorSpan(theme.tempColor), textEnd, tempEnd,
+                            SpannableString.SPAN_INCLUSIVE_INCLUSIVE);
+                    ss.setSpan(new ForegroundColorSpan(theme.humidColor), tempEnd, humidEnd,
+                            SpannableString.SPAN_INCLUSIVE_INCLUSIVE);
+                    ss.setSpan(new ForegroundColorSpan(theme.rainColor), humidEnd, rainEnd,
+                            SpannableString.SPAN_INCLUSIVE_INCLUSIVE);
+                    views.setTextViewText(cols[col], ss);
+
+                    col++;
+                }
+            }
+        }
+        return views;
     }
 
     @Override
@@ -79,7 +183,8 @@ public class WidgetUpdateService extends IntentService {
             int[] ids = manager.getAppWidgetIds(
                     new ComponentName(context, TenkiWidgetProvider.class));
 
-            WidgetTheme theme = new WidgetTheme(context);
+            WidgetTheme theme = new WidgetTheme(
+                    TenkiApp.from(context).getPrefs().get(Prefs.WW_THEME));
 
             if (isManualUpdate) {
                 for (int id : ids) {
@@ -112,6 +217,7 @@ public class WidgetUpdateService extends IntentService {
                         Log.d(TAG, "キッシュで更新");
                         updateWidget(context, manager, id, theme, true);
                     } catch (Exception e) {
+                        e.printStackTrace();
                         manager.updateAppWidget(id, createErrorView(context, error));
                     }
                 }
@@ -136,7 +242,7 @@ public class WidgetUpdateService extends IntentService {
             }
             YahooWeather data = YahooWeather.parse(html);
 
-            RemoteViews views = buildUpdate(context, id, data, theme, forceCache);
+            RemoteViews views = buildUpdate(context, data, theme, forceCache, getIconManager(context));
 
             Intent i = new Intent(context, MainActivity.class);
             i.setFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP | Intent.FLAG_ACTIVITY_NEW_TASK);
@@ -145,13 +251,6 @@ public class WidgetUpdateService extends IntentService {
                     i, PendingIntentCompat.FLAG_MUTABLE);
             views.setOnClickPendingIntent(R.id.container, pi);
             manager.updateAppWidget(id, views);
-        }
-
-        PendingIntent getManualReloadPendingIntent(Context context) {
-            Intent i = new Intent(context, WidgetUpdateService.class);
-            i.setAction(ACTION_MANUAL_UPDATE);
-            return PendingIntent.getService(context, 0, i,
-                    PendingIntentCompat.FLAG_MUTABLE);
         }
 
         RemoteViews createErrorView(Context context, Throwable e) {
@@ -171,99 +270,6 @@ public class WidgetUpdateService extends IntentService {
             return views;
         }
 
-        RemoteViews buildUpdate(Context context, int id, YahooWeather data,
-                                WidgetTheme theme, boolean forceCache) {
-            RemoteViews views = new RemoteViews(context.getPackageName(),
-                    R.layout.widget);
-
-            String time = DateUtils.formatDateTime(context, System.currentTimeMillis(),
-                    DateUtils.FORMAT_SHOW_TIME | DateUtils.FORMAT_SHOW_DATE);
-            views.setTextViewText(R.id.title, data.areaName);
-            if (forceCache) {
-                views.setTextViewText(R.id.time, context.getString(R.string.updateErrorTimeFmt, time));
-            } else {
-                views.setTextViewText(R.id.time, context.getString(R.string.updateTimeFmt, time));
-            }
-            views.setOnClickPendingIntent(R.id.time, getManualReloadPendingIntent(context));
-            views.setOnClickPendingIntent(R.id.h6, getManualReloadPendingIntent(context));
-            views.setOnClickPendingIntent(R.id.h7, getManualReloadPendingIntent(context));
-
-            int[] heads = new int[]{
-                    R.id.h0, R.id.h1, R.id.h2, R.id.h3, R.id.h4,
-                    R.id.h5, R.id.h6, R.id.h7
-            };
-            int[] cols = new int[]{
-                    R.id.t0, R.id.t1, R.id.t2, R.id.t3, R.id.t4,
-                    R.id.t5, R.id.t6, R.id.t7
-            };
-            int[] imgs = new int[]{
-                    R.id.i0, R.id.i1, R.id.i2, R.id.i3, R.id.i4,
-                    R.id.i5, R.id.i6, R.id.i7
-            };
-
-            final int HOUR     = 60 * 60 * 1000;
-            Calendar  nowJapan = Calendar.getInstance(Locale.JAPAN);
-            long      now      = nowJapan.getTime().getTime() - 3 * HOUR;
-            int       col      = 0;
-
-            for (int y = 0; y < 2; y++) {
-                Day day = (y == 0 ? data.today : data.tomorrow);
-
-                long baseTime = day.date.getTime();
-
-                for (int x = 0; x < 8; x++) {
-                    YahooWeather.Hour h = day.hours[x];
-
-                    boolean enabled = (baseTime + h.hour * HOUR) > now;
-                    if (enabled && col < cols.length) {
-
-                        views.setTextViewText(heads[col],
-                                String.valueOf(h.hour) + "時");
-
-                        StringBuilder sb = new StringBuilder();
-
-//                        sb.append(h.text).append("\n");
-                        int textEnd = sb.length();
-
-                        sb.append(h.temp).append("℃\n");
-                        int tempEnd = sb.length();
-
-                        //sb.append(h.humidity + "\n");
-                        int humidEnd = sb.length();
-
-                        sb.append(h.rain).append("㍉");
-                        int rainEnd = sb.length();
-
-                        String imageUrl = h.getImageUrl(true);
-                        Log.d(TAG, "imagerUrl:" + imageUrl);
-                        if (imageUrl != null) {
-                            int bmpId = getBitmapIndexFromUrl(context, imageUrl);
-                            if (bmpId != -1) {
-                                views.setImageViewResource(imgs[col], bmpId);
-                            } else {
-                                Bitmap bmp = getIconManager(context).getIcon(imageUrl);
-                                views.setImageViewBitmap(imgs[col], bmp);
-                            }
-                        }
-
-                        SpannableString ss = new SpannableString(sb);
-//                        ss.setSpan(new ForegroundColorSpan(theme.textColor), 0, textEnd,
-//                                SpannableString.SPAN_INCLUSIVE_INCLUSIVE);
-                        ss.setSpan(new ForegroundColorSpan(theme.tempColor), textEnd, tempEnd,
-                                SpannableString.SPAN_INCLUSIVE_INCLUSIVE);
-                        ss.setSpan(new ForegroundColorSpan(theme.humidColor), tempEnd, humidEnd,
-                                SpannableString.SPAN_INCLUSIVE_INCLUSIVE);
-                        ss.setSpan(new ForegroundColorSpan(theme.rainColor), humidEnd, rainEnd,
-                                SpannableString.SPAN_INCLUSIVE_INCLUSIVE);
-                        views.setTextViewText(cols[col], ss);
-
-                        col++;
-                    }
-                }
-            }
-            return views;
-        }
-
         WeatherIconManager mIconManager;
 
         WeatherIconManager getIconManager(Context context) {
@@ -274,66 +280,6 @@ public class WidgetUpdateService extends IntentService {
         }
     }
 
-
-    static class WeatherIconManager {
-
-        private final Context                 mContext;
-        private       HashMap<String, Bitmap> mCache = new HashMap<>();
-        int mIconSize;
-        int mShadowOffset;
-
-        public WeatherIconManager(Context context) {
-            mContext = context;
-            float density = context.getResources().getDisplayMetrics().density;
-            mShadowOffset = Math.round(1 * density);
-            mIconSize = (int) (38 * density) + mShadowOffset * 2;
-        }
-
-        public Bitmap getIcon(String url) {
-            try {
-                Bitmap bmp = mCache.get(url);
-                if (bmp != null) return bmp;
-
-                bmp = TenkiApp.from(mContext).getDownloader().downloadImage(url, 8000, 0);
-                if (bmp != null) {
-                    Bitmap newBitmap = convertBitmap(bmp);
-                    if (newBitmap != null) {
-                        bmp = newBitmap;
-                    }
-                    mCache.put(url, bmp);
-                }
-                return bmp;
-            } catch (Exception e) {
-                e.printStackTrace();
-                return null;
-            }
-        }
-
-        public Bitmap convertBitmap(Bitmap bmp) {
-            Bitmap newBmp = Bitmap.createBitmap(mIconSize, mIconSize, Bitmap.Config.ARGB_8888);
-            Bitmap alpha  = bmp.extractAlpha();
-            try {
-                Canvas c = new Canvas(newBmp);
-                Paint  p = new Paint();
-                p.setFilterBitmap(true);
-                p.setColor(0x88000000);
-                Matrix m      = new Matrix();
-                float  scaleX = (float) (mIconSize - mShadowOffset * 2) / bmp.getWidth();
-                float  scaleY = (float) (mIconSize - mShadowOffset * 2) / bmp.getHeight();
-                float  scale  = Math.max(scaleX, scaleY);
-                m.preScale(scale, scale);
-                m.postTranslate(mShadowOffset * 2, mShadowOffset * 2);
-                c.drawBitmap(alpha, m, p);
-                m.postTranslate(-mShadowOffset, -mShadowOffset);
-                c.drawBitmap(bmp, m, null);
-            } finally {
-                alpha.recycle();
-            }
-
-            return newBmp;
-        }
-
-    }
 
     private static final String[] bmpNames = new String[]{
             "psun", "psnow", "psleet",
@@ -362,21 +308,4 @@ public class WidgetUpdateService extends IntentService {
         return -1;
     }
 
-    public static class WidgetTheme {
-        public final int timeColor;
-        public final int tempColor;
-        public final int rainColor;
-        public final int humidColor;
-        public final int textColor;
-
-        public WidgetTheme(Context context) {
-//			Resources res = context.getResources();
-
-            timeColor = 0xffd0d0d0;
-            tempColor = 0xffFFAC59;
-            rainColor = 0xff8EC7FF;
-            humidColor = 0xff8EFF8E;
-            textColor = 0xffe0e0e0;
-        }
-    }
 }

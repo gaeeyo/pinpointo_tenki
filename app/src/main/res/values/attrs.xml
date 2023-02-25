@@ -30,4 +30,7 @@
         <attr name="colorMinTempText" format="color"/>
         <attr name="weatherIconAlpha" format="integer"/>
     </declare-styleable>
+
+    <attr name="widgetBackground" format="reference|color"/>
+    <attr name="widgetTimeTextStyle" format="reference"/>
 </resources>

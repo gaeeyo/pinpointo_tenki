@@ -5,4 +5,7 @@
 
     <dimen name="tableBorderWidth">1dip</dimen>
     <dimen name="tableCellPadding">1.5dip</dimen>
+
+    <dimen name="widgetPaddingLeft">0dp</dimen>
+    <dimen name="widgetPaddingRight">0dp</dimen>
 </resources>

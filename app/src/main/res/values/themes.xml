@@ -1,0 +1,12 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+
+    <style name="WeatherWidget">
+        <item name="widgetBackground">#000</item>
+        <item name="widgetTimeTextStyle">@style/wHour</item>
+    </style>
+    <style name="WeatherWidget.Simple">
+        <item name="widgetBackground">#000</item>
+        <item name="widgetTimeTextStyle">@style/wHour.Simple</item>
+    </style>
+</resources>

@@ -7,6 +7,8 @@ import androidx.annotation.NonNull;
 import java.util.ArrayList;
 import java.util.List;
 
+import nikeno.Tenki.appwidget.weatherwidget.WidgetTheme;
+
 public class Prefs {
 
     public static final BoolValue SHOW_WEATHER_ICON       = new BoolValue("showWeatherIcon", true);
@@ -15,6 +17,9 @@ public class Prefs {
     public static final BoolValue SHOW_HUMIDITY           = new BoolValue("showHumidity", true);
     public static final BoolValue SHOW_PRECIPITATION      = new BoolValue("showPrecipitation", true);
     public static final BoolValue SHOW_WIND               = new BoolValue("showWind", true);
+    public static final IntValue  WW_BG_TRANSPARENCY      = new IntValue("wwBgTransparency", 100);
+    public static final IntValue  WW_THEME                = new IntValue("wwTheme", WidgetTheme.THEME_DARK);
+
 
     static final         String            RECENT_PREFIX = "Recent";
     static final         String            URL           = "url";
@@ -110,14 +115,38 @@ public class Prefs {
         mPrefs.edit().putBoolean(key.key, value).apply();
     }
 
-    public static class BoolValue {
+    public int get(@NonNull IntValue key) {
+        return mPrefs.getInt(key.key, key.defaultValue);
+    }
 
+    public void set(@NonNull IntValue key, int value) {
+        mPrefs.edit().putInt(key.key, value).apply();
+    }
+
+    private static class BaseValue {
         @NonNull
-        final String  key;
+        final String key;
+
+        public BaseValue(@NonNull String key) {
+            this.key = key;
+        }
+    }
+
+    public static class BoolValue extends BaseValue {
+
         final boolean defaultValue;
 
         public BoolValue(@NonNull String key, boolean defaultValue) {
-            this.key = key;
+            super(key);
+            this.defaultValue = defaultValue;
+        }
+    }
+
+    public static class IntValue extends BaseValue {
+        final int defaultValue;
+
+        public IntValue(@NonNull String key, int defaultValue) {
+            super(key);
             this.defaultValue = defaultValue;
         }
     }
