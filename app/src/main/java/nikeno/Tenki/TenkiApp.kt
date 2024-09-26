@@ -1,72 +1,74 @@
-package nikeno.Tenki;
+package nikeno.Tenki
 
-import android.app.Activity;
-import android.app.Application;
-import android.app.NotificationChannel;
-import android.app.NotificationManager;
-import android.content.Context;
-import android.os.Build;
-import android.text.format.DateUtils;
+import android.app.Activity
+import android.app.Application
+import android.app.NotificationChannel
+import android.app.NotificationManager
+import android.content.Context
+import android.os.Build
+import android.text.format.DateUtils
+import nikeno.Tenki.Prefs.ThemeNames
 
-import androidx.annotation.NonNull;
+class TenkiApp : Application() {
+    private var mPrefs: Prefs? = null
+    private var mDownloader: Downloader? = null
 
-public class TenkiApp extends Application {
-    private static final String                      DEFAULT_CACHE_FILENAME = "file_cache.db";
+    override fun onCreate() {
+        super.onCreate()
 
-    public static final int  IMAGE_SIZE_MAX      = 16 * 1024;
-    public static final int  HTML_SIZE_MAX       = 50 * 1024;
-    /**
-     * リロードせずにキャッシュを利用する時間
-     */
-    public static final long PRIORITY_CACHE_TIME = 10 * DateUtils.MINUTE_IN_MILLIS;
-    public static final int  CONNECT_TIMEOUT     = (int) (10 * DateUtils.SECOND_IN_MILLIS);
-
-    public static final int N_ID_WIDGET_UPDATE_SERVICE = 1;
-
-    public static final String N_CH_WIDGET_UPDATE_SERVICE = "widgetUpdateService";
-
-    private Prefs mPrefs;
-    private Downloader mDownloader;
-
-    @Override
-    public void onCreate() {
-        super.onCreate();
-
-        mPrefs = new Prefs(getSharedPreferences("AF.Tenki", Context.MODE_PRIVATE));
+        mPrefs = Prefs(getSharedPreferences("AF.Tenki", MODE_PRIVATE))
 
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
-            NotificationChannel nc = new NotificationChannel(TenkiApp.N_CH_WIDGET_UPDATE_SERVICE, getString(R.string.widgetUpdateService), NotificationManager.IMPORTANCE_NONE);
-            NotificationManager nm = (NotificationManager) getSystemService(NOTIFICATION_SERVICE);
-            nm.createNotificationChannel(nc);
+            val nc = NotificationChannel(
+                N_CH_WIDGET_UPDATE_SERVICE,
+                getString(R.string.widgetUpdateService),
+                NotificationManager.IMPORTANCE_NONE
+            )
+            val nm = getSystemService(NOTIFICATION_SERVICE) as NotificationManager
+            nm.createNotificationChannel(nc)
         }
     }
 
-    @NonNull
-    public Prefs getPrefs() {
-        return mPrefs;
-    }
+    val prefs: Prefs
+        get() = mPrefs!!
 
-    public static void applyActivityTheme(@NonNull Activity activity) {
-        Prefs prefs = ((TenkiApp)activity.getApplication()).getPrefs();
-        switch (prefs.getTheme()) {
-            case DARK:
-                activity.setTheme(R.style.MyTheme_Dark);
-                break;
-            case DEFAULT:
-            default:
-                break;
+    @get:Synchronized
+    val downloader: Downloader
+        get() {
+            if (mDownloader == null) {
+                mDownloader = Downloader(this, DEFAULT_CACHE_FILENAME)
+            }
+            return mDownloader!!
         }
-    }
 
-    @NonNull
-    public synchronized Downloader getDownloader() {
-        if (mDownloader == null) {
-            mDownloader = new Downloader(this, DEFAULT_CACHE_FILENAME);
+    companion object {
+        private const val DEFAULT_CACHE_FILENAME = "file_cache.db"
+
+        const val IMAGE_SIZE_MAX: Int = 16 * 1024
+        const val HTML_SIZE_MAX: Int = 50 * 1024
+
+        /**
+         * リロードせずにキャッシュを利用する時間
+         */
+        const val PRIORITY_CACHE_TIME: Long = 10 * DateUtils.MINUTE_IN_MILLIS
+        const val CONNECT_TIMEOUT: Int = (10 * DateUtils.SECOND_IN_MILLIS).toInt()
+
+        const val N_ID_WIDGET_UPDATE_SERVICE: Int = 1
+
+        const val N_CH_WIDGET_UPDATE_SERVICE: String = "widgetUpdateService"
+
+        fun applyActivityTheme(activity: Activity) {
+            val prefs = (activity.application as TenkiApp).prefs
+            when (prefs.theme) {
+                ThemeNames.DARK -> activity.setTheme(R.style.MyTheme_Dark)
+                ThemeNames.DEFAULT -> {}
+                else -> {}
+            }
         }
-        return mDownloader;
-    }
 
-    public static TenkiApp from(@NonNull Context context) {
-        return (TenkiApp) context.getApplicationContext();
+        @JvmStatic
+        fun from(context: Context): TenkiApp {
+            return context.applicationContext as TenkiApp
+        }
     }
 }

@@ -1,256 +1,233 @@
-package nikeno.Tenki.activity;
+package nikeno.Tenki.activity
 
-import android.app.Activity;
-import android.app.AlertDialog;
-import android.content.Context;
-import android.content.DialogInterface;
-import android.content.Intent;
-import android.os.Bundle;
-import android.text.Editable;
-import android.text.TextUtils;
-import android.text.TextWatcher;
-import android.view.KeyEvent;
-import android.view.Menu;
-import android.view.MenuItem;
-import android.view.View;
-import android.view.ViewGroup;
-import android.view.inputmethod.InputMethodManager;
-import android.widget.AdapterView;
-import android.widget.AdapterView.OnItemLongClickListener;
-import android.widget.ArrayAdapter;
-import android.widget.Button;
-import android.widget.EditText;
-import android.widget.ListView;
-import android.widget.TextView;
-import android.widget.TextView.OnEditorActionListener;
+import android.app.Activity
+import android.app.AlertDialog
+import android.content.Context
+import android.content.Intent
+import android.os.Bundle
+import android.text.Editable
+import android.text.TextUtils
+import android.text.TextWatcher
+import android.view.Menu
+import android.view.MenuItem
+import android.view.View
+import android.view.ViewGroup
+import android.view.inputmethod.InputMethodManager
+import android.widget.AdapterView
+import android.widget.AdapterView.OnItemClickListener
+import android.widget.AdapterView.OnItemLongClickListener
+import android.widget.ArrayAdapter
+import android.widget.Button
+import android.widget.EditText
+import android.widget.ListView
+import android.widget.TextView
+import nikeno.Tenki.Area
+import nikeno.Tenki.Prefs
+import nikeno.Tenki.R
+import nikeno.Tenki.TenkiApp
+import nikeno.Tenki.task.Callback
+import nikeno.Tenki.task.SearchAddressTask
 
-import java.util.ArrayList;
-import java.util.List;
+class AreaSelectActivity : Activity(), OnItemClickListener, OnItemLongClickListener {
+    private lateinit var mSearchBtn: Button
+    private lateinit var mSearchText: EditText
+    private lateinit var mProgress: View
+    private lateinit var mList: ListView
+    private lateinit var mMessage: TextView
 
-import nikeno.Tenki.Area;
-import nikeno.Tenki.Prefs;
-import nikeno.Tenki.R;
-import nikeno.Tenki.TenkiApp;
-import nikeno.Tenki.task.Callback;
-import nikeno.Tenki.task.SearchAddressTask;
+    private lateinit var mPrefs: Prefs
+    private var mListIsRecent = false
+    private var mErrorMessage: String? = null
+    private var mSearchTask: SearchAddressTask? = null
+    private var mIsLoading = false
 
-public class AreaSelectActivity extends Activity implements AdapterView.OnItemClickListener, OnItemLongClickListener {
-    private static final String TAG = "AreaSelectActivity";
+    override fun onCreate(savedInstanceState: Bundle?) {
+        TenkiApp.applyActivityTheme(this)
+        super.onCreate(savedInstanceState)
+        setContentView(R.layout.activity_area_select)
 
-    private Button   mSearchBtn;
-    private EditText mSearchText;
-    private View     mProgress;
-    private ListView mList;
-    private TextView mMessage;
+        mPrefs = (application as TenkiApp).prefs
 
-    private Prefs             mPrefs;
-    private boolean           mListIsRecent;
-    private String            mErrorMessage;
-    private SearchAddressTask mSearchTask;
-    private boolean           mIsLoading;
+        mList = findViewById(android.R.id.list)
+        mMessage = findViewById(android.R.id.message)
+        mSearchBtn = findViewById(R.id.searchButton)
+        mSearchText = findViewById(R.id.searchText)
+        mProgress = findViewById(android.R.id.progress)
 
-    @Override
-    protected void onCreate(Bundle savedInstanceState) {
-        TenkiApp.applyActivityTheme(this);
-        super.onCreate(savedInstanceState);
-        setContentView(R.layout.activity_area_select);
-
-        mPrefs = ((TenkiApp) getApplication()).getPrefs();
-
-        mList = findViewById(android.R.id.list);
-        mMessage = findViewById(android.R.id.message);
-        mSearchBtn = findViewById(R.id.searchButton);
-        mSearchText = findViewById(R.id.searchText);
-        mProgress = findViewById(android.R.id.progress);
-
-        mList.setOnItemLongClickListener(this);
-        mList.setOnItemClickListener(this);
+        mList.setOnItemLongClickListener(this)
+        mList.setOnItemClickListener(this)
 
         // 検索EditText
-        mSearchText.setOnEditorActionListener(new OnEditorActionListener() {
-            public boolean onEditorAction(TextView v, int actionId, KeyEvent event) {
-                onClickSearch(v);
-                return true;
-            }
-        });
+        mSearchText.setOnEditorActionListener({ v, actionId, event ->
+            onClickSearch(v)
+            true
+        })
 
-        mSearchText.addTextChangedListener(new TextWatcher() {
-            @Override
-            public void beforeTextChanged(CharSequence charSequence, int i, int i1, int i2) {
+        mSearchText.addTextChangedListener(object : TextWatcher {
+            override fun beforeTextChanged(charSequence: CharSequence, i: Int, i1: Int, i2: Int) {
             }
 
-            @Override
-            public void onTextChanged(CharSequence charSequence, int i, int i1, int i2) {
-                updateViews();
+            override fun onTextChanged(charSequence: CharSequence, i: Int, i1: Int, i2: Int) {
+                updateViews()
             }
 
-            @Override
-            public void afterTextChanged(Editable editable) {
+            override fun afterTextChanged(editable: Editable) {
             }
-        });
+        })
 
-        setAreaList(mPrefs.getRecentAreaList(), true);
+        setAreaList(mPrefs.recentAreaList, true)
     }
 
-    @Override
-    protected void onDestroy() {
-        super.onDestroy();
+    override fun onDestroy() {
+        super.onDestroy()
         if (mSearchTask != null) {
-            mSearchTask.cancel(true);
+            mSearchTask!!.cancel(true)
         }
     }
 
-    @Override
-    protected void onResume() {
-        super.onResume();
-        updateViews();
+    override fun onResume() {
+        super.onResume()
+        updateViews()
     }
 
-    void updateViews() {
-        boolean textIsEmpty = TextUtils.isEmpty(mSearchText.getText().toString().trim());
-        mSearchBtn.setEnabled(!textIsEmpty);
-        mProgress.setVisibility(mIsLoading ? View.VISIBLE : View.GONE);
-        mList.setLongClickable(mListIsRecent);
+    fun updateViews() {
+        val textIsEmpty = TextUtils.isEmpty(mSearchText.text.toString().trim { it <= ' ' })
+        mSearchBtn.isEnabled = !textIsEmpty
+        mProgress.visibility = if (mIsLoading) View.VISIBLE else View.GONE
+        mList.isLongClickable = mListIsRecent
 
         if (mIsLoading) {
-            mList.setVisibility(View.GONE);
-            mMessage.setVisibility(View.GONE);
+            mList.visibility = View.GONE
+            mMessage.visibility = View.GONE
         } else {
-            String message = null;
+            var message: String? = null
             if (mErrorMessage != null) {
-                message = mErrorMessage;
-            } else if (mList.getAdapter() == null || mList.getAdapter().getCount() == 0) {
-                message = getString(mListIsRecent
-                        ? R.string.area_select_search_empty
-                        : R.string.area_select_result_empty);
+                message = mErrorMessage
+            } else if (mList.adapter == null || mList.adapter.count == 0) {
+                message = getString(
+                    if (mListIsRecent
+                    ) R.string.area_select_search_empty
+                    else R.string.area_select_result_empty
+                )
             }
 
-            mMessage.setText(message);
-            mMessage.setVisibility(message != null ? View.VISIBLE : View.GONE);
-            mList.setVisibility(message != null ? View.GONE : View.VISIBLE);
+            mMessage.text = message
+            mMessage.visibility = if (message != null) View.VISIBLE else View.GONE
+            mList.visibility = if (message != null) View.GONE else View.VISIBLE
         }
     }
 
-    @Override
-    public boolean onCreateOptionsMenu(Menu menu) {
-        getMenuInflater().inflate(R.menu.area_select_menu, menu);
-        return true;
+    override fun onCreateOptionsMenu(menu: Menu): Boolean {
+        menuInflater.inflate(R.menu.area_select_menu, menu)
+        return true
     }
 
-    @Override
-    public boolean onMenuItemSelected(int featureId, MenuItem item) {
+    override fun onMenuItemSelected(featureId: Int, item: MenuItem): Boolean {
         if (featureId == R.id.clearRecent) {
-            ArrayList<Area> empty = new ArrayList<>();
-            mPrefs.putRecentAreaList(empty);
-            setAreaList(empty, true);
-            return true;
+            val empty = ArrayList<Area>()
+            mPrefs.putRecentAreaList(empty)
+            setAreaList(empty, true)
+            return true
         }
-        return super.onMenuItemSelected(featureId, item);
+        return super.onMenuItemSelected(featureId, item)
     }
 
-    void closeSoftwareKeyboard() {
-        InputMethodManager imm = (InputMethodManager) getSystemService(INPUT_METHOD_SERVICE);
-        if (imm != null) {
-            imm.hideSoftInputFromWindow(mSearchText.getWindowToken(), 0);
-        }
+    fun closeSoftwareKeyboard() {
+        val imm = getSystemService(INPUT_METHOD_SERVICE) as InputMethodManager
+        imm.hideSoftInputFromWindow(mSearchText.windowToken, 0)
     }
 
-    @SuppressWarnings("unchecked")
-    public void onClickSearch(View v) {
-        final String text = mSearchText.getText().toString();
-        if (text.length() == 0) return;
+    fun onClickSearch(v: View?) {
+        val text = mSearchText.text.toString()
+        if (text.length == 0) return
 
         if (mSearchTask != null) {
-            mSearchTask.cancel(true);
+            mSearchTask!!.cancel(true)
         }
 
-        closeSoftwareKeyboard();
+        closeSoftwareKeyboard()
 
-        mIsLoading = true;
-        mErrorMessage = null;
-        updateViews();
+        mIsLoading = true
+        mErrorMessage = null
+        updateViews()
 
-        mSearchTask = new SearchAddressTask(TenkiApp.from(this).getDownloader(), text,
-                new Callback<List<Area>>() {
-                    @Override
-                    public void onSuccess(List<Area> result) {
-                        if (result.size() > 0) {
-                            setAreaList(result, false);
-                        } else {
-                            mErrorMessage = getString(R.string.area_select_result_empty, text);
-                        }
+        mSearchTask = SearchAddressTask(TenkiApp.from(this).downloader, text,
+            object : Callback<List<Area>>() {
+                override fun onSuccess(result: List<Area>) {
+                    if (result.size > 0) {
+                        setAreaList(result, false)
+                    } else {
+                        mErrorMessage = getString(R.string.area_select_result_empty, text)
                     }
+                }
 
-                    @Override
-                    public void onError(Throwable error) {
-                        super.onError(error);
-                        mErrorMessage = error.getMessage();
-                    }
+                override fun onError(error: Throwable) {
+                    super.onError(error)
+                    mErrorMessage = error.message
+                }
 
-                    @Override
-                    public void onFinish() {
-                        super.onFinish();
-                        mSearchTask = null;
-                        mIsLoading = false;
-                        updateViews();
-                    }
-                });
-        mSearchTask.execute();
+                override fun onFinish() {
+                    super.onFinish()
+                    mSearchTask = null
+                    mIsLoading = false
+                    updateViews()
+                }
+            })
+        mSearchTask!!.execute()
     }
 
-    @Override
-    public void onItemClick(AdapterView<?> adapterView, View view, int position, long id) {
-        Area selected = (Area) adapterView.getItemAtPosition(position);
+    override fun onItemClick(adapterView: AdapterView<*>, view: View, position: Int, id: Long) {
+        val selected = adapterView.getItemAtPosition(position) as Area
 
-        mPrefs.addRecentArea(selected);
+        mPrefs.addRecentArea(selected)
 
-        Intent i = new Intent();
-        i.putExtra("url", selected.url);
-        setResult(RESULT_OK, i);
-        finish();
+        val i = Intent()
+        i.putExtra("url", selected.url)
+        setResult(RESULT_OK, i)
+        finish()
     }
 
-    private void setAreaList(List<Area> newList, boolean isRecent) {
-        mListIsRecent = isRecent;
-        mList.setAdapter(new AreaAdapter(this, newList));
-        updateViews();
+    private fun setAreaList(newList: List<Area>, isRecent: Boolean) {
+        mListIsRecent = isRecent
+        mList.adapter = AreaAdapter(this, newList)
+        updateViews()
     }
 
     // クリックされた履歴を消す
-    public boolean onItemLongClick(AdapterView<?> parent, View view, int position,
-                                   long id) {
+    override fun onItemLongClick(
+        parent: AdapterView<*>?, view: View, position: Int,
+        id: Long
+    ): Boolean {
         if (mListIsRecent) {
-            final Area selected = (Area) mList.getItemAtPosition(position);
-            new AlertDialog.Builder(this)
-                    .setTitle(R.string.dlg_recent_remove_title)
-                    .setMessage(getString(R.string.dlg_recent_remove_message, selected.address2))
-                    .setPositiveButton(android.R.string.yes, new DialogInterface.OnClickListener() {
-                        public void onClick(DialogInterface dialog, int which) {
-                            setAreaList(mPrefs.removeRecentArea(selected), true);
-                            dialog.dismiss();
-                        }
-                    })
-                    .setNegativeButton(android.R.string.no, null)
-                    .show();
-            return true;
+            val selected = mList.getItemAtPosition(position) as Area
+            AlertDialog.Builder(this)
+                .setTitle(R.string.dlg_recent_remove_title)
+                .setMessage(getString(R.string.dlg_recent_remove_message, selected.address2))
+                .setPositiveButton(android.R.string.yes) { dialog, which ->
+                    setAreaList(mPrefs.removeRecentArea(selected), true)
+                    dialog.dismiss()
+                }
+                .setNegativeButton(android.R.string.no, null)
+                .show()
+            return true
         }
-        return false;
+        return false
     }
 
-    static class AreaAdapter extends ArrayAdapter<Area> {
-
-        public AreaAdapter(Context context, List<Area> items) {
-            super(context, R.layout.area_select_row, items);
-        }
-
-        @Override
-        public View getView(int position, View convertView, ViewGroup parent) {
-            TextView tv   = (TextView) super.getView(position, convertView, parent);
-            Area     area = getItem(position);
+    internal class AreaAdapter(context: Context?, items: List<Area>?) : ArrayAdapter<Area?>(
+        context!!, R.layout.area_select_row, items!!
+    ) {
+        override fun getView(position: Int, convertView: View?, parent: ViewGroup): View {
+            val tv = super.getView(position, convertView, parent) as TextView
+            val area = getItem(position)
             if (area != null) {
-                tv.setText(String.format("%s %s\n%s", area.zipCode, area.address1, area.address2));
+                tv.text = String.format("%s %s\n%s", area.zipCode, area.address1, area.address2)
             }
-            return tv;
+            return tv
         }
+    }
+
+    companion object {
+        private const val TAG = "AreaSelectActivity"
     }
 }
