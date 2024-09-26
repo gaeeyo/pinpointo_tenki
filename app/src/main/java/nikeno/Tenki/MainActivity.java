@@ -112,27 +112,19 @@ public class MainActivity extends Activity implements DisplaySettingsDialog.List
 
     @Override
     public boolean onOptionsItemSelected(MenuItem item) {
-        switch (item.getItemId()) {
-            case R.id.menu_reload:    // リロード
-                reload();
-                break;
-            case R.id.menu_pref:    // 地域変更
-                onClickChangeArea(null);
-                break;
-            case R.id.menu_help:    // ヘルプ
-            {
-                Intent i = new Intent(getApplicationContext(), HelpActivity.class);
-                startActivity(i);
-            }
-            break;
-            case R.id.display_settings:
-//                showDisplaySettings();
-                new DisplaySettingsDialog(this).show();
-                break;
-            case R.id.darkTheme:
-                mPrefs.setTheme(item.isChecked() ? Prefs.ThemeNames.DEFAULT : Prefs.ThemeNames.DARK);
-                recreate();
-                break;
+        int itemId = item.getItemId();
+        if (itemId == R.id.menu_reload) {    // リロード
+            reload();
+        } else if (itemId == R.id.menu_pref) {    // 地域変更
+            onClickChangeArea(null);
+        } else if (itemId == R.id.menu_help) {    // ヘルプ
+            Intent i = new Intent(getApplicationContext(), HelpActivity.class);
+            startActivity(i);
+        } else if (itemId == R.id.display_settings) {//                showDisplaySettings();
+            new DisplaySettingsDialog(this).show();
+        } else if (itemId == R.id.darkTheme) {
+            mPrefs.setTheme(item.isChecked() ? Prefs.ThemeNames.DEFAULT : Prefs.ThemeNames.DARK);
+            recreate();
         }
         return true;
     }

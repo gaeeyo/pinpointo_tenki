@@ -139,12 +139,11 @@ public class AreaSelectActivity extends Activity implements AdapterView.OnItemCl
 
     @Override
     public boolean onMenuItemSelected(int featureId, MenuItem item) {
-        switch (featureId) {
-            case R.id.clearRecent:
-                ArrayList<Area> empty = new ArrayList<>();
-                mPrefs.putRecentAreaList(empty);
-                setAreaList(empty, true);
-                return true;
+        if (featureId == R.id.clearRecent) {
+            ArrayList<Area> empty = new ArrayList<>();
+            mPrefs.putRecentAreaList(empty);
+            setAreaList(empty, true);
+            return true;
         }
         return super.onMenuItemSelected(featureId, item);
     }
