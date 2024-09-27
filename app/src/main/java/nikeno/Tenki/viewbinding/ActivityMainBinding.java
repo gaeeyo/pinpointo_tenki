@@ -1,7 +1,7 @@
 package nikeno.Tenki.viewbinding;
 
-import android.app.Activity;
 import android.view.View;
+import android.view.ViewGroup;
 import android.widget.TextView;
 
 import nikeno.Tenki.R;
@@ -18,7 +18,7 @@ public final class ActivityMainBinding  {
     public final View          progress;
     public final View          errorGroup;
 
-    public ActivityMainBinding(Activity v) {
+    public ActivityMainBinding(ViewGroup v) {
         todayHeader = v.findViewById(R.id.todayHeader);
         tomorrowHeader = v.findViewById(R.id.tomorrowHeader);
         weekHeader = v.findViewById(R.id.weekHeader);

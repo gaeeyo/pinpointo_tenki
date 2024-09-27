@@ -1,6 +1,5 @@
 package nikeno.Tenki
 
-import android.app.Activity
 import android.app.AlertDialog
 import android.content.Intent
 import android.content.res.Configuration
@@ -15,16 +14,30 @@ import android.util.TypedValue
 import android.view.Menu
 import android.view.MenuItem
 import android.view.View
-import android.view.animation.AnimationUtils
+import android.view.ViewGroup
 import android.widget.CheckBox
+import android.widget.FrameLayout
 import android.widget.Toast
+import androidx.activity.ComponentActivity
+import androidx.activity.compose.setContent
+import androidx.activity.viewModels
+import androidx.compose.foundation.layout.fillMaxSize
+import androidx.compose.foundation.layout.padding
+import androidx.compose.material3.Scaffold
+import androidx.compose.material3.Surface
+import androidx.compose.ui.Modifier
+import androidx.compose.ui.viewinterop.AndroidView
+import androidx.lifecycle.Lifecycle
+import androidx.lifecycle.lifecycleScope
+import androidx.lifecycle.repeatOnLifecycle
+import kotlinx.coroutines.launch
 import nikeno.Tenki.YahooWeather.Day
 import nikeno.Tenki.YahooWeather.WeeklyDay
 import nikeno.Tenki.activity.AreaSelectActivity
 import nikeno.Tenki.activity.HelpActivity
 import nikeno.Tenki.dialog.DisplaySettingsDialog
-import nikeno.Tenki.task.Callback
-import nikeno.Tenki.task.GetYahooWeatherTask
+import nikeno.Tenki.ui.main.MainViewModel
+import nikeno.Tenki.ui.theme.AppTheme
 import nikeno.Tenki.view.TextTableView
 import nikeno.Tenki.view.TextTableView.CellBitmapHandler
 import nikeno.Tenki.viewbinding.ActivityMainBinding
@@ -33,9 +46,7 @@ import java.util.Date
 import java.util.Locale
 import java.util.TimeZone
 
-class MainActivity : Activity(), DisplaySettingsDialog.Listener {
-    private var mData: YahooWeather? = null
-    private var mDataTime: Long = 0
+class MainActivity : ComponentActivity(), DisplaySettingsDialog.Listener {
     private var mColorTempText: Int = 0
     private var mColorHumidityText: Int = 0
     private var mColorDateBg: Int = 0
@@ -44,24 +55,51 @@ class MainActivity : Activity(), DisplaySettingsDialog.Listener {
     private var mColorMaxTempText: Int = 0
     private var mColorMinTempText: Int = 0
 
-    private var mDownloadTask: GetYahooWeatherTask? = null
     private lateinit var mPrefs: Prefs
     private var mPrefUrl: String? = null
     private lateinit var mBinding: ActivityMainBinding
+    private val mViewModel: MainViewModel by viewModels()
 
     public override fun onCreate(savedInstanceState: Bundle?) {
         TenkiApp.applyActivityTheme(this)
         super.onCreate(savedInstanceState)
 
-        setContentView(R.layout.activity_main)
-        mBinding = ActivityMainBinding(this)
+
+        val root = FrameLayout(this, null)
+        layoutInflater.inflate(R.layout.activity_main, root, true)!!
+
+        setContent {
+            AppTheme {
+                Scaffold(modifier = Modifier.fillMaxSize()) { innerPadding ->
+
+                    Surface(
+                        modifier = Modifier
+                            .padding(innerPadding)
+                            .fillMaxSize()
+                    ) {
+                        AndroidView(
+                            modifier = Modifier.fillMaxSize(),
+                            factory = { context ->
+                                root
+                            })
+                    }
+                }
+            }
+        }
+
+
+        mBinding = ActivityMainBinding(root as ViewGroup)
+
+
         mPrefs = (application as TenkiApp).prefs
 
-        mPrefUrl = if (intent.dataString != null) {
+        mViewModel.setUrl(
+            if (intent.dataString != null) {
             Utils.httpsUrl(intent.dataString)
         } else {
             Utils.httpsUrl(mPrefs.currentAreaUrl)
-        }
+            }
+        )
 
         val ta = theme.obtainStyledAttributes(R.styleable.WeatherTable)
         mColorTempText = ta.getColor(R.styleable.WeatherTable_colorTempText, 0)
@@ -74,17 +112,24 @@ class MainActivity : Activity(), DisplaySettingsDialog.Listener {
         mColorMinTempText = ta.getColor(R.styleable.WeatherTable_colorMinTempText, 0)
         ta.recycle()
 
-        loadCache(mPrefUrl)
-    }
+        lifecycleScope.launch {
+            lifecycle.repeatOnLifecycle(Lifecycle.State.STARTED) {
+                val state = mViewModel.state.value
+                if (state.data == null) {
+                    mViewModel.requestData()
+                }
+            }
+        }
+        lifecycleScope.launch {
+            mViewModel.state.collect {
 
-    override fun onBackPressed() {
-        finish()
-    }
+                mBinding.progress.visibility = if (it.loading) View.VISIBLE else View.GONE
+                mBinding.errorGroup.visibility = if (it.error != null) View.VISIBLE else View.GONE
 
-    override fun onDestroy() {
-        super.onDestroy()
-        if (mDownloadTask != null) {
-            mDownloadTask!!.cancel(true)
+                if (it.data != null) {
+                    setData(it.data, it.dataTime)
+                }
+            }
         }
     }
 
@@ -129,31 +174,18 @@ class MainActivity : Activity(), DisplaySettingsDialog.Listener {
         dlg.show()
     }
 
-    override fun onActivityResult(requestCode: Int, resultCode: Int, data: Intent) {
+    override fun onActivityResult(requestCode: Int, resultCode: Int, data: Intent?) {
         super.onActivityResult(requestCode, resultCode, data)
         Log.d(TAG, "onActivityResult")
         when (requestCode) {
             REQUEST_AREA -> if (resultCode == RESULT_OK) {
-                mPrefUrl = Utils.httpsUrl(data.getStringExtra("url"))
+                mPrefUrl = Utils.httpsUrl(data?.getStringExtra("url"))
                 mPrefs.currentAreaUrl = mPrefUrl
-                reload()
+                mViewModel.setUrl(mPrefUrl!!)
             }
         }
     }
 
-    override fun onStart() {
-        super.onStart()
-
-        if (mData != null) {
-            setData(mData, mDataTime)
-            val elapsed = System.currentTimeMillis() - mDataTime
-            if (elapsed < 0 || elapsed > 5 * DateUtils.MINUTE_IN_MILLIS) {
-                reload()
-            }
-        } else {
-            reload()
-        }
-    }
 
     override fun onSearchRequested(): Boolean {
         onClickChangeArea(null)
@@ -174,56 +206,9 @@ class MainActivity : Activity(), DisplaySettingsDialog.Listener {
         }
     }
 
-    private fun loadCache(url: String?) {
-        val entry = TenkiApp.from(this).downloader.getCache(
-            url,
-            System.currentTimeMillis() - 24 * DateUtils.HOUR_IN_MILLIS
-        )
-        if (entry != null) {
-            try {
-                mData = YahooWeather.parse(entry.data)
-                mDataTime = entry.time
-            } catch (e: Exception) {
-                e.printStackTrace()
-                Log.d(TAG, e.message.toString())
-            }
-        }
-    }
-
     // リロードする
     private fun reload() {
-        if (mDownloadTask != null) {
-            return
-        }
-
-        mBinding.errorGroup.visibility = View.GONE
-        mBinding.progress.visibility = View.VISIBLE
-        mDownloadTask = GetYahooWeatherTask(
-            TenkiApp.from(this).downloader,
-            mPrefUrl!!, object : Callback<YahooWeather?>() {
-                override fun onSuccess(result: YahooWeather?) {
-                    mData = result
-                    mDataTime = System.currentTimeMillis()
-                    setData(mData, mDataTime)
-                }
-
-                override fun onError(error: Throwable) {
-                    mBinding.errorGroup.visibility = View.VISIBLE
-                    mBinding.errorGroup.startAnimation(
-                        AnimationUtils.loadAnimation(
-                            this@MainActivity,
-                            android.R.anim.fade_in
-                        )
-                    )
-                }
-
-                override fun onFinish() {
-                    super.onFinish()
-                    mBinding.progress.visibility = View.GONE
-                    mDownloadTask = null
-                }
-            })
-        mDownloadTask!!.execute()
+        mViewModel.reload()
     }
 
     private fun setDayData(v: TextTableView, data: Day, textSize: Float) {
