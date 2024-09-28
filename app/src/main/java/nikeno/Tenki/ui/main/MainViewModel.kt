@@ -9,12 +9,15 @@ import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.launch
+import kotlinx.datetime.Clock
+import nikeno.Tenki.BuildConfig
 import nikeno.Tenki.TenkiApp
 import nikeno.Tenki.YahooWeather
 import nikeno.Tenki.feature.weather.getYahooWeather
 
 class MainViewModel(application: Application) : AndroidViewModel(application) {
     data class MainViewState(
+        val now: Long = Clock.System.now().toEpochMilliseconds(),
         val url: String? = null,
         val data: YahooWeather? = null,
         val dataTime: Long = 0,
@@ -40,6 +43,10 @@ class MainViewModel(application: Application) : AndroidViewModel(application) {
         }
     }
 
+    fun setError(value: String?) {
+        mState.value = mState.value.copy(error = value)
+    }
+
     fun requestData() {
         val s = state.value
         if (s.loading) return
@@ -48,6 +55,7 @@ class MainViewModel(application: Application) : AndroidViewModel(application) {
             if (s.preferCache) {
                 mState.value = mState.value.copy(preferCache = false)
                 loadCache()
+                if (BuildConfig.DEBUG) return // TODO
                 reload()
             } else {
                 reload()
@@ -64,6 +72,7 @@ class MainViewModel(application: Application) : AndroidViewModel(application) {
         val url = mState.value.url ?: return
 
         mState.value = mState.value.copy(
+            now = Clock.System.now().toEpochMilliseconds(),
             loading = true,
             error = null
         )
@@ -105,8 +114,12 @@ class MainViewModel(application: Application) : AndroidViewModel(application) {
 
             } catch (e: Exception) {
                 e.printStackTrace()
-                Log.d(javaClass.simpleName, e.message.toString())
+                Log.d(TAG, e.message.toString())
             }
         }
+    }
+
+    companion object {
+        const val TAG = "MainViewModel"
     }
 }

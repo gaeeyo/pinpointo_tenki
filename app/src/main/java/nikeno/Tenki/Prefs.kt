@@ -1,124 +1,123 @@
-package nikeno.Tenki;
+package nikeno.Tenki
 
-import android.content.SharedPreferences;
+import android.content.SharedPreferences
+import kotlinx.coroutines.flow.MutableStateFlow
+import kotlinx.coroutines.flow.asStateFlow
 
-import androidx.annotation.NonNull;
-
-import java.util.ArrayList;
-import java.util.List;
-
-public class Prefs {
-
-    public static final BoolValue SHOW_WEATHER_ICON       = new BoolValue("showWeatherIcon", true);
-    public static final BoolValue SHOW_WEATHER_ICON_LABEL = new BoolValue("showWeatherIconLabel", true);
-    public static final BoolValue SHOW_TEMPERATURE        = new BoolValue("showTemperature", true);
-    public static final BoolValue SHOW_HUMIDITY           = new BoolValue("showHumidity", true);
-    public static final BoolValue SHOW_PRECIPITATION      = new BoolValue("showPrecipitation", true);
-    public static final BoolValue SHOW_WIND               = new BoolValue("showWind", true);
-
-    static final         String            RECENT_PREFIX = "Recent";
-    static final         String            URL           = "url";
-    static final         String            THEME         = "theme";
-    private static final int               RECENT_MAX    = 5;
-    final                SharedPreferences mPrefs;
-
-    public enum ThemeNames {
+class Prefs(val mPrefs: SharedPreferences) {
+    enum class ThemeNames(var value: String) {
         DEFAULT("default"), DARK("dark");
 
-        String value;
-
-        ThemeNames(String value) {
-            this.value = value;
-        }
-    }
-
-    public Prefs(SharedPreferences prefs) {
-        mPrefs = prefs;
-    }
-
-    public ThemeNames getTheme() {
-        String value = mPrefs.getString(THEME, ThemeNames.DEFAULT.value);
-        if (ThemeNames.DARK.value.equals(value)) {
-            return ThemeNames.DARK;
-        } else {
-            return ThemeNames.DEFAULT;
-        }
-    }
-
-    public void setTheme(ThemeNames theme) {
-        mPrefs.edit().putString(THEME, theme.value).apply();
-    }
-
-    public List<Area> getRecentAreaList() {
-        List<Area> list = new ArrayList<>();
-
-        String data;
-        for (int j = 0; j < RECENT_MAX; j++) {
-            data = mPrefs.getString(RECENT_PREFIX + j, null);
-            if (data != null) {
-                Area areaData = Area.deserialize(data);
-                if (areaData != null) {
-                    list.add(areaData);
+        companion object {
+            fun fromValue(value: String?): ThemeNames {
+                return when (value) {
+                    DARK.value -> ThemeNames.DARK
+                    else -> ThemeNames.DEFAULT
                 }
             }
         }
-        return list;
     }
 
-    public void putRecentAreaList(List<Area> list) {
-        SharedPreferences.Editor editor = mPrefs.edit();
+    private val mTheme = MutableStateFlow(
+        ThemeNames.fromValue(mPrefs.getString(THEME, ThemeNames.DEFAULT.value))
+    )
 
-        for (int j = 0; j < RECENT_MAX; j++) {
-            if (j < list.size()) {
-                editor.putString(RECENT_PREFIX + j, list.get(j).serialize());
+    val theme = mTheme.asStateFlow()
+
+    fun setTheme(theme: ThemeNames) {
+        mTheme.value = theme
+        mPrefs.edit().putString(THEME, theme.value).apply()
+    }
+
+    val recentAreaList: MutableList<Area>
+        get() {
+            val list: MutableList<Area> = ArrayList()
+
+            var data: String?
+            for (j in 0 until RECENT_MAX) {
+                data = mPrefs.getString(RECENT_PREFIX + j, null)
+                if (data != null) {
+                    val areaData = Area.deserialize(data)
+                    if (areaData != null) {
+                        list.add(areaData)
+                    }
+                }
+            }
+            return list
+        }
+
+    fun putRecentAreaList(list: List<Area>) {
+        val editor = mPrefs.edit()
+
+        for (j in 0 until RECENT_MAX) {
+            if (j < list.size) {
+                editor.putString(RECENT_PREFIX + j, list[j].serialize())
             } else {
-                editor.remove(RECENT_PREFIX + j);
+                editor.remove(RECENT_PREFIX + j)
             }
         }
-        editor.commit();
+        editor.apply()
     }
 
-    public List<Area> addRecentArea(Area area) {
-        List<Area> list = getRecentAreaList();
-        list.remove(area);
-        list.add(0, area);
-        putRecentAreaList(list);
-        return list;
+    fun addRecentArea(area: Area): List<Area> {
+        val list = recentAreaList
+        list.remove(area)
+        list.add(0, area)
+        putRecentAreaList(list)
+        return list
     }
 
-    public List<Area> removeRecentArea(Area area) {
-        List<Area> list = getRecentAreaList();
-        list.remove(area);
-        putRecentAreaList(list);
-        return list;
+    fun removeRecentArea(area: Area): List<Area> {
+        val list = recentAreaList
+        list.remove(area)
+        putRecentAreaList(list)
+        return list
     }
 
+    private val mCurrentAreaUrl = MutableStateFlow(
+        mPrefs.getString(
+            URL,
+            "http://weather.yahoo.co.jp/weather/jp/13/4410/13101.html"
+        )
+    )
 
-    public String getCurrentAreaUrl() {
-        return mPrefs.getString(URL, "http://weather.yahoo.co.jp/weather/jp/13/4410/13101.html");
+    val currentAreaUrl = mCurrentAreaUrl.asStateFlow()
+    fun setCurrentAreaUrl(value: String) {
+        mCurrentAreaUrl.value = value
+        mPrefs.edit().putString(URL, value).apply()
     }
 
-    public void setCurrentAreaUrl(String url) {
-        mPrefs.edit().putString(URL, url).commit();
+    fun get(key: BoolValue): Boolean {
+        return mPrefs.getBoolean(key.key, key.defaultValue)
     }
 
-    public boolean get(@NonNull BoolValue key) {
-        return mPrefs.getBoolean(key.key, key.defaultValue);
+    fun set(key: BoolValue, value: Boolean) {
+        mPrefs.edit().putBoolean(key.key, value).apply()
     }
 
-    public void set(@NonNull BoolValue key, boolean value) {
-        mPrefs.edit().putBoolean(key.key, value).apply();
-    }
+    class BoolValue(val key: String, val defaultValue: Boolean)
+    companion object {
+        @JvmField
+        val SHOW_WEATHER_ICON: BoolValue = BoolValue("showWeatherIcon", true)
 
-    public static class BoolValue {
+        @JvmField
+        val SHOW_WEATHER_ICON_LABEL: BoolValue = BoolValue("showWeatherIconLabel", true)
 
-        @NonNull
-        final String  key;
-        final boolean defaultValue;
+        @JvmField
+        val SHOW_TEMPERATURE: BoolValue = BoolValue("showTemperature", true)
 
-        public BoolValue(@NonNull String key, boolean defaultValue) {
-            this.key = key;
-            this.defaultValue = defaultValue;
-        }
+        @JvmField
+        val SHOW_HUMIDITY: BoolValue = BoolValue("showHumidity", true)
+
+        @JvmField
+        val SHOW_PRECIPITATION: BoolValue = BoolValue("showPrecipitation", true)
+
+        @JvmField
+        val SHOW_WIND: BoolValue = BoolValue("showWind", true)
+
+        const val RECENT_PREFIX: String = "Recent"
+        const val URL: String = "url"
+        const val THEME: String = "theme"
+        private const val RECENT_MAX = 5
     }
 }

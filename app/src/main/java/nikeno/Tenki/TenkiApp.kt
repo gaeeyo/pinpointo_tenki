@@ -10,7 +10,7 @@ import android.text.format.DateUtils
 import nikeno.Tenki.Prefs.ThemeNames
 
 class TenkiApp : Application() {
-    private var mPrefs: Prefs? = null
+    private lateinit var mPrefs: Prefs
     private var mDownloader: Downloader? = null
 
     override fun onCreate() {
@@ -30,7 +30,7 @@ class TenkiApp : Application() {
     }
 
     val prefs: Prefs
-        get() = mPrefs!!
+        get() = mPrefs
 
     @get:Synchronized
     val downloader: Downloader
@@ -59,7 +59,7 @@ class TenkiApp : Application() {
 
         fun applyActivityTheme(activity: Activity) {
             val prefs = (activity.application as TenkiApp).prefs
-            when (prefs.theme) {
+            when (prefs.theme.value) {
                 ThemeNames.DARK -> activity.setTheme(R.style.MyTheme_Dark)
                 ThemeNames.DEFAULT -> {}
                 else -> {}
@@ -72,3 +72,6 @@ class TenkiApp : Application() {
         }
     }
 }
+
+fun Context.prefs() = (this.applicationContext as TenkiApp).prefs
+

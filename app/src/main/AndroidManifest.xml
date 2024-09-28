@@ -16,7 +16,8 @@
         <activity
             android:name=".MainActivity"
             android:exported="true"
-            android:label="@string/app_name">
+            android:label="@string/app_name"
+            android:theme="@android:style/Theme.Material.Light.NoActionBar">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
 
@@ -28,12 +29,12 @@
             android:name=".activity.AreaSelectActivity"
             android:configChanges="orientation|keyboardHidden"
             android:exported="false"
-            android:label="@string/area_select_title"/>
+            android:label="@string/area_select_title" />
 
         <activity
             android:name=".activity.HelpActivity"
             android:exported="false"
-            android:label="@string/help_title"/>
+            android:label="@string/help_title" />
 
         <!-- Widget Provider -->
         <receiver
