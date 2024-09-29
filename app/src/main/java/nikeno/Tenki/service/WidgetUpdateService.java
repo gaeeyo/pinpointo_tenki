@@ -36,8 +36,8 @@ import nikeno.Tenki.TenkiWidgetProvider;
 import nikeno.Tenki.YahooWeather;
 import nikeno.Tenki.YahooWeather.Day;
 import nikeno.Tenki.appwidget.weatherwidget.WeatherWidgetConfig;
-import nikeno.Tenki.db.entity.ResourceCacheEntity;
 import nikeno.Tenki.appwidget.weatherwidget.WeatherWidgetPrefs;
+import nikeno.Tenki.db.entity.ResourceCacheEntity;
 import nikeno.Tenki.util.PendingIntentCompat;
 
 public class WidgetUpdateService extends IntentService {
@@ -139,7 +139,7 @@ public class WidgetUpdateService extends IntentService {
             RemoteViews views = buildUpdate(context, id, data, theme, forceCache);
 
             Intent i = new Intent(context, MainActivity.class);
-            i.setFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP | Intent.FLAG_ACTIVITY_NEW_TASK);
+            i.setFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP | Intent.FLAG_ACTIVITY_NEW_TASK | Intent.FLAG_ACTIVITY_NO_HISTORY);
             i.setData(Uri.parse(config.url));
             PendingIntent pi = PendingIntent.getActivity(context, 0,
                     i, PendingIntentCompat.FLAG_MUTABLE);

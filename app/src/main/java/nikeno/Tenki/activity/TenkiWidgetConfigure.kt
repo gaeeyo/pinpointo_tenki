@@ -30,6 +30,8 @@ class TenkiWidgetConfigure : ComponentActivity() {
                     setWidgetAreaUrl(widgetId, it.url)
                     setResult(Activity.RESULT_OK)
                     finish()
+                }, onBackPressed = {
+                    finish()
                 })
             }
         }

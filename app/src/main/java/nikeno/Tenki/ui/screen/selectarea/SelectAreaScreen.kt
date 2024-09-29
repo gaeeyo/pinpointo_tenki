@@ -13,10 +13,14 @@ import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.text.KeyboardActions
 import androidx.compose.foundation.text.KeyboardOptions
+import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.automirrored.filled.ArrowBack
 import androidx.compose.material3.Button
 import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.ElevatedButton
 import androidx.compose.material3.ExperimentalMaterial3Api
+import androidx.compose.material3.Icon
+import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.OutlinedTextField
 import androidx.compose.material3.Scaffold
@@ -34,21 +38,25 @@ import androidx.compose.ui.unit.dp
 import androidx.lifecycle.viewmodel.compose.viewModel
 import nikeno.Tenki.Area
 import nikeno.Tenki.R
-import nikeno.Tenki.ui.app.LocalWeatherTheme
 import nikeno.Tenki.ui.app.MyTopBar
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
-fun SelectAreaScreen(onSelectArea: (Area) -> Unit) {
-    val vm: SelectAreaViewModel = viewModel()
+fun SelectAreaScreen(
+    vm: SelectAreaViewModel = viewModel(), onSelectArea: (Area) -> Unit, onBackPressed: () -> Unit
+) {
 
     val state = vm.state.collectAsState().value
-    val savedAreaList = state.savedAreaList
-    val foundAreaList = state.foundAreaList
-    val wt = LocalWeatherTheme.current
 
     Scaffold(modifier = Modifier.fillMaxSize(), topBar = {
-        MyTopBar(title = { Text(stringResource(R.string.area_select_title)) })
+        MyTopBar(title = { Text(stringResource(R.string.area_select_title)) }, navigationIcon = {
+            IconButton(onClick = onBackPressed) {
+                Icon(
+                    imageVector = Icons.AutoMirrored.Default.ArrowBack,
+                    contentDescription = "Localized description"
+                )
+            }
+        })
     }) {
         Surface(
             modifier = Modifier
@@ -59,7 +67,7 @@ fun SelectAreaScreen(onSelectArea: (Area) -> Unit) {
                 keyword = state.keyword,
                 setKeyword = vm::setKeyword,
                 savedAreaList = state.savedAreaList,
-                foundAreaList = foundAreaList,
+                foundAreaList = state.foundAreaList,
                 loading = state.loading,
                 onSelectArea = onSelectArea,
                 onSearch = vm::search

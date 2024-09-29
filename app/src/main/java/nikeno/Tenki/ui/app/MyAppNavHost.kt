@@ -11,16 +11,18 @@ import nikeno.Tenki.ui.screen.main.MainScreen
 import nikeno.Tenki.ui.screen.selectarea.SelectAreaScreen
 
 @Composable
-fun MyAppNavHost() {
+fun MyAppNavHost(startDestination: Any = ScreenMain) {
     val navController = rememberNavController()
 
-    NavHost(navController = navController, startDestination = ScreenMain) {
+    NavHost(navController = navController, startDestination = startDestination) {
         composable<ScreenMain> {
             MainScreen(navController)
         }
         composable<ScreenSelectArea> {
             SelectAreaScreen(onSelectArea = {
                 navController.previousBackStackEntry?.savedStateHandle?.set("selectedArea", it)
+                navController.popBackStack()
+            }, onBackPressed = {
                 navController.popBackStack()
             })
         }
