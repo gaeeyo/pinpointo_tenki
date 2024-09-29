@@ -79,7 +79,7 @@ class Prefs(val mPrefs: SharedPreferences) {
     private val mCurrentAreaUrl = MutableStateFlow(
         mPrefs.getString(
             URL,
-            "http://weather.yahoo.co.jp/weather/jp/13/4410/13101.html"
+            "https://weather.yahoo.co.jp/weather/jp/13/4410/13101.html"
         )
     )
 
