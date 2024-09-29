@@ -8,6 +8,7 @@ import androidx.lifecycle.viewModelScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.asStateFlow
+import kotlinx.coroutines.flow.flow
 import kotlinx.coroutines.launch
 import kotlinx.datetime.Clock
 import nikeno.Tenki.TenkiApp
@@ -27,8 +28,18 @@ class MainViewModel(application: Application) : AndroidViewModel(application) {
         val error: String? = null
     )
 
+
     private val mState = MutableStateFlow(MainViewState())
     val state = mState.asStateFlow()
+
+    // compose側で collectAsStateWithLifecycle() する
+    // アプリが Foreground になったとき、データが古ければ再読み込みする
+    val active = flow<Unit> {
+        if (isDataOutdated) {
+            Log.d(TAG, "データが無効なので再読み込み")
+            requestData()
+        }
+    }
 
     fun setUrl(url: String) {
         if (mState.value.url != url) {
@@ -41,10 +52,6 @@ class MainViewModel(application: Application) : AndroidViewModel(application) {
             )
             requestData()
         }
-    }
-
-    fun setError(value: String?) {
-        mState.value = mState.value.copy(error = value)
     }
 
     fun requestData() {

@@ -59,6 +59,7 @@ import androidx.compose.ui.text.buildAnnotatedString
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.navigation.NavController
 import nikeno.Tenki.Area
@@ -87,8 +88,9 @@ fun MainScreen(
 
     val vm = viewModel<MainViewModel>()
 
-
     val state = vm.state.collectAsState().value
+
+    vm.active.collectAsStateWithLifecycle(Unit)
 
     if (url != null) {
         // url指定つきのときはそのurlのデータを表示
