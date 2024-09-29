@@ -1,6 +1,5 @@
 package nikeno.Tenki.activity
 
-import android.app.Activity
 import android.appwidget.AppWidgetManager
 import android.content.Intent
 import android.os.Bundle
@@ -28,7 +27,7 @@ class TenkiWidgetConfigure : ComponentActivity() {
             MyAppTheme {
                 SelectAreaScreen(onSelectArea = {
                     setWidgetAreaUrl(widgetId, it.url)
-                    setResult(Activity.RESULT_OK)
+                    setResult(RESULT_OK)
                     finish()
                 }, onBackPressed = {
                     finish()

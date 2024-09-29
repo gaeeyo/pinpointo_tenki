@@ -16,13 +16,13 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.viewinterop.AndroidView
-import androidx.navigation.NavController
 import nikeno.Tenki.R
+import nikeno.Tenki.ui.app.MyAppNavigator
 import nikeno.Tenki.ui.app.MyTopBar
 
 @Composable
-fun HelpScreen(navController: NavController) {
-    HelpScreen(onClickBack = navController.previousBackStackEntry?.let { ({ navController.popBackStack() }) })
+fun HelpScreen(navigator: MyAppNavigator) {
+    HelpScreen(onClickBack = navigator::back)
 }
 
 @OptIn(ExperimentalMaterial3Api::class)

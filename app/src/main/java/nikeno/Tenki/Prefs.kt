@@ -85,7 +85,7 @@ class Prefs(val mPrefs: SharedPreferences) {
 
     val currentAreaUrl = mCurrentAreaUrl.asStateFlow()
 
-    fun setCurrentAreaUrl(value: String) {
+    private fun setCurrentAreaUrl(value: String) {
         mCurrentAreaUrl.value = value
         mPrefs.edit().putString(URL, value).apply()
     }

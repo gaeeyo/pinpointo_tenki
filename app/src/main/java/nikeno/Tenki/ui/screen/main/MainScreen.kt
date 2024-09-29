@@ -61,17 +61,14 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.lifecycle.viewmodel.compose.viewModel
-import androidx.navigation.NavController
-import nikeno.Tenki.Area
 import nikeno.Tenki.ImageDownloader
 import nikeno.Tenki.Prefs
 import nikeno.Tenki.R
 import nikeno.Tenki.YahooWeather
 import nikeno.Tenki.prefs
 import nikeno.Tenki.ui.app.LocalWeatherTheme
+import nikeno.Tenki.ui.app.MyAppNavigator
 import nikeno.Tenki.ui.app.MyTopBar
-import nikeno.Tenki.ui.app.ScreenHelp
-import nikeno.Tenki.ui.app.ScreenSelectArea
 import kotlin.math.max
 import kotlin.math.roundToInt
 
@@ -81,7 +78,7 @@ private val TAG = "MainScreen"
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun MainScreen(
-    navController: NavController, url: String? = null
+    navigator: MyAppNavigator, url: String? = null
 ) {
 
     val context = LocalContext.current
@@ -109,12 +106,11 @@ fun MainScreen(
     }
 
     // 地域選択画面からの選択結果を処理
-    val result = navController.currentBackStackEntry?.savedStateHandle?.get<Area>("selectedArea")
+    val result = navigator.getSelectedArea()
 
     LaunchedEffect(result) {
         if (result != null) {
             context.prefs.setCurrentArea(result)
-            navController.currentBackStackEntry?.savedStateHandle?.remove<Area>("selectedArea")
         }
     }
 
@@ -132,7 +128,7 @@ fun MainScreen(
             }
         },
         onClickHelp = {
-            navController.navigate(ScreenHelp)
+            navigator.toHelp()
         },
         onClickTheme = {
             val prefs = context.prefs
@@ -142,7 +138,7 @@ fun MainScreen(
             )
         },
         onClickChangeArea = {
-            navController.navigate(ScreenSelectArea)
+            navigator.toSelectArea()
         },
     )
 }
