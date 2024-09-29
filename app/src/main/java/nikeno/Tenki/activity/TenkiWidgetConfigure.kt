@@ -4,58 +4,40 @@ import android.app.Activity
 import android.appwidget.AppWidgetManager
 import android.content.Intent
 import android.os.Bundle
+import androidx.activity.ComponentActivity
+import androidx.activity.compose.setContent
 import nikeno.Tenki.appwidget.weatherwidget.WeatherWidgetPrefs
 import nikeno.Tenki.service.WidgetUpdateService
+import nikeno.Tenki.ui.app.MyAppTheme
+import nikeno.Tenki.ui.screen.selectarea.SelectAreaScreen
 
-class TenkiWidgetConfigure : Activity() {
-    private var mAppWidgetId = AppWidgetManager.INVALID_APPWIDGET_ID
-
+class TenkiWidgetConfigure : ComponentActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
 
-        val extras = intent.extras
-        if (extras != null) {
-            mAppWidgetId = extras.getInt(
-                AppWidgetManager.EXTRA_APPWIDGET_ID,
-                mAppWidgetId
-            )
-        }
-
-        if (mAppWidgetId == AppWidgetManager.INVALID_APPWIDGET_ID) {
+        val widgetId = intent.extras?.getInt(
+            AppWidgetManager.EXTRA_APPWIDGET_ID,
+            AppWidgetManager.INVALID_APPWIDGET_ID
+        )
+        if (widgetId == null || widgetId == AppWidgetManager.INVALID_APPWIDGET_ID) {
             finish()
             return
         }
 
-        TODO("ウィジェットの地域選択は未実装")
-//        val i = Intent(this, AreaSelectActivity::class.java)
-//        startActivityForResult(i, 1)
+        setContent {
+            MyAppTheme {
+                SelectAreaScreen(onSelectArea = {
+                    setWidgetAreaUrl(widgetId, it.url)
+                    setResult(Activity.RESULT_OK)
+                    finish()
+                })
+            }
+        }
     }
 
-    override fun onActivityResult(requestCode: Int, resultCode: Int, data: Intent) {
-        super.onActivityResult(requestCode, resultCode, data)
-
-        when (resultCode) {
-            RESULT_OK -> {
-                if (data != null) {
-                    // ウィジェットの設定を更新 
-                    val url = data.getStringExtra("url")
-                    WeatherWidgetPrefs.addWidgetConfig(this, mAppWidgetId, url)
-
-
-                    // Homeアプリに戻り値を返す
-                    val i = Intent()
-                    i.putExtra(AppWidgetManager.EXTRA_APPWIDGET_ID, mAppWidgetId)
-                    setResult(RESULT_OK, i)
-
-
-                    // ウィジェットを更新する
-                    startService(Intent(this, WidgetUpdateService::class.java))
-                }
-                finish()
-            }
-
-            else -> finish()
-        }
+    private fun setWidgetAreaUrl(id: Int, url: String) {
+        WeatherWidgetPrefs.addWidgetConfig(this, id, url)
+        startService(Intent(this, WidgetUpdateService::class.java))
     }
 
     companion object {

@@ -1,33 +1,4 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
-    <attr name="borderWidth" format="dimension"/>
-    <attr name="borderColor" format="color"/>
-    <attr name="iconMargin" format="dimension"/>
 
-    <declare-styleable name="MyTableLayout">
-        <attr name="borderWidth"/>
-        <attr name="borderColor"/>
-    </declare-styleable>
-
-    <declare-styleable name="TextTableView">
-        <attr name="borderWidth"/>
-        <attr name="borderColor"/>
-        <attr name="iconMargin"/>
-        <attr name="android:textColor"/>
-        <attr name="cellPadding" format="dimension"/>
-        <attr name="iconAlpha" format="integer|reference"/>
-    </declare-styleable>
-
-    <attr name="weatherTableStyle" format="reference"/>
-
-    <declare-styleable name="WeatherTable">
-        <attr name="colorTempText" format="color"/>
-        <attr name="colorHumidityText" format="color"/>
-        <attr name="colorTableDateBackground" format="color"/>
-        <attr name="colorTableDateBackgroundDisabled" format="color"/>
-        <attr name="colorTableTextDisabled" format="color"/>
-        <attr name="colorMaxTempText" format="color"/>
-        <attr name="colorMinTempText" format="color"/>
-        <attr name="weatherIconAlpha" format="integer"/>
-    </declare-styleable>
 </resources>

@@ -1,67 +1,5 @@
 <?xml version="1.0" encoding="utf-8" ?>
-<resources
-    >
-
-    <style name="BaseTheme" parent="@android:style/Theme.Light">
-
-    </style>
-
-    <style name="BaseTheme.Dark" parent="@android:style/Theme">
-
-    </style>
-
-    <color name="window_background_color_light">#f7f7f7</color>
-    <color name="window_background_color_dark">#000</color>
-    <color name="primary_text_color_dark">#bbbbbb</color>
-
-    <style name="MyTheme" parent="@style/BaseTheme">
-        <item name="android:windowBackground">@color/window_background_color_light</item>
-        <item name="android:textColorPrimary">#ff000000</item>
-        <item name="android:textColorSecondary">#ff000000</item>
-
-        <item name="weatherTableStyle">@style/weatherTable</item>
-        <item name="colorTempText">#F60</item>
-        <item name="colorHumidityText">#090</item>
-        <item name="colorTableDateBackground">#E9EEFD</item>
-        <item name="colorTableDateBackgroundDisabled">#EEE</item>
-        <item name="colorTableTextDisabled">#999</item>
-        <item name="colorMaxTempText">#F30</item>
-        <item name="colorMinTempText">#06F</item>
-        <item name="weatherIconAlpha">255</item>
-    </style>
-
-    <style name="MyTheme.Dark" parent="@style/BaseTheme.Dark">
-        <item name="android:windowBackground">@color/window_background_color_dark</item>
-        <item name="android:textColorPrimary">@color/primary_text_color_dark</item>
-
-        <item name="weatherTableStyle">@style/weatherTable.Dark</item>
-        <item name="colorTempText">#CC7832</item>
-        <item name="colorHumidityText">#629755</item>
-        <item name="colorTableDateBackground">#343E52</item>
-        <item name="colorTableDateBackgroundDisabled">#2B2B2B</item>
-        <item name="colorTableTextDisabled">#808080</item>
-        <item name="colorMaxTempText">#D96858</item>
-        <item name="colorMinTempText">#589DF6</item>
-    </style>
-
-    <color name="errorMessageBackgroundColor">#aa000000</color>
-    <color name="errorMessageTextColor">#ffffffff</color>
-    <color name="accentColor">#40C4FF</color>
-
-    <style name="weatherTable">
-        <item name="android:background">#fff</item>
-        <item name="borderColor">#AAA</item>
-        <item name="borderWidth">@dimen/tableBorderWidth</item>
-        <item name="cellPadding">@dimen/tableCellPadding</item>
-        <item name="android:textColor">#ff000000</item>
-    </style>
-
-    <style name="weatherTable.Dark">
-        <item name="android:background">#131313</item>
-        <item name="borderColor">#4D4D4D</item>
-        <item name="android:textColor">#BBBBBB</item>
-        <item name="iconAlpha">170</item>
-    </style>
+<resources>
 
     <!-- Widget -->
     <style name="wTextBase">
@@ -101,10 +39,6 @@
         <item name="android:layout_width">wrap_content</item>
         <item name="android:layout_height">26sp</item>
         <item name="android:scaleType">fitCenter</item>
-    </style>
-
-    <style name="sectionHeader">
-        <item name="android:textAppearance">?android:attr/textAppearanceMedium</item>
     </style>
 
 </resources>

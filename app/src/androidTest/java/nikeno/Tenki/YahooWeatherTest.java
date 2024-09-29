@@ -2,22 +2,17 @@ package nikeno.Tenki;
 
 
 import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertTrue;
 
 import androidx.test.InstrumentationRegistry;
-import androidx.test.runner.AndroidJUnit4;
 
 import org.junit.Test;
-import org.junit.runner.RunWith;
 
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
-import java.util.ArrayList;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
-@RunWith(AndroidJUnit4.class)
 public class YahooWeatherTest {
 
     public void test20160715() throws IOException, YahooWeather.YahooWeatherParseException {
@@ -49,18 +44,6 @@ public class YahooWeatherTest {
         YahooWeather yw = YahooWeather.parse(out.toByteArray());
         assertEquals("https://s.yimg.jp/images/weather/general/forecast/size45/clouds_sun_st.gif", yw.days[0].imageUrl);
     }
-
-    public void test20170413s() throws Exception {
-        InputStream is = InstrumentationRegistry.getContext().getAssets().open("search20170413.html");
-        ByteArrayOutputStream out = new ByteArrayOutputStream();
-        int c;
-        while ((c = is.read()) != -1) out.write(c);
-
-        String html = new String(out.toByteArray(), "utf-8");
-        ArrayList<Area> areas = SearchAddressTask.parseAreaListHtml(html);
-        assertTrue(areas != null);
-    }
-
 
     @Test
     public void test20181020() throws IOException, YahooWeather.YahooWeatherParseException {

@@ -19,7 +19,10 @@ fun MyAppNavHost() {
             MainScreen(navController)
         }
         composable<ScreenSelectArea> {
-            SelectAreaScreen(navController)
+            SelectAreaScreen(onSelectArea = {
+                navController.previousBackStackEntry?.savedStateHandle?.set("selectedArea", it)
+                navController.popBackStack()
+            })
         }
         composable<ScreenMainWithUrl> {
             val args = it.toRoute<ScreenMainWithUrl>()

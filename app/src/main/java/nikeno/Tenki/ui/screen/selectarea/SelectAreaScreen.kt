@@ -32,7 +32,6 @@ import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
 import androidx.lifecycle.viewmodel.compose.viewModel
-import androidx.navigation.NavController
 import nikeno.Tenki.Area
 import nikeno.Tenki.R
 import nikeno.Tenki.ui.app.LocalWeatherTheme
@@ -40,13 +39,8 @@ import nikeno.Tenki.ui.app.MyTopBar
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
-fun SelectAreaScreen(navController: NavController) {
+fun SelectAreaScreen(onSelectArea: (Area) -> Unit) {
     val vm: SelectAreaViewModel = viewModel()
-
-    fun onSelectedArea(result: Area) {
-        navController.previousBackStackEntry?.savedStateHandle?.set("selectedArea", result)
-        navController.popBackStack()
-    }
 
     val state = vm.state.collectAsState().value
     val savedAreaList = state.savedAreaList
@@ -67,7 +61,7 @@ fun SelectAreaScreen(navController: NavController) {
                 savedAreaList = state.savedAreaList,
                 foundAreaList = foundAreaList,
                 loading = state.loading,
-                onSelectArea = ::onSelectedArea,
+                onSelectArea = onSelectArea,
                 onSearch = vm::search
             )
         }

@@ -1,13 +1,11 @@
 package nikeno.Tenki
 
-import android.app.Activity
 import android.app.Application
 import android.app.NotificationChannel
 import android.app.NotificationManager
 import android.content.Context
 import android.os.Build
 import android.text.format.DateUtils
-import nikeno.Tenki.Prefs.ThemeNames
 
 class TenkiApp : Application() {
     private lateinit var mPrefs: Prefs
@@ -56,15 +54,6 @@ class TenkiApp : Application() {
         const val N_ID_WIDGET_UPDATE_SERVICE: Int = 1
 
         const val N_CH_WIDGET_UPDATE_SERVICE: String = "widgetUpdateService"
-
-        fun applyActivityTheme(activity: Activity) {
-            val prefs = (activity.application as TenkiApp).prefs
-            when (prefs.theme.value) {
-                ThemeNames.DARK -> activity.setTheme(R.style.MyTheme_Dark)
-                ThemeNames.DEFAULT -> {}
-                else -> {}
-            }
-        }
 
         @JvmStatic
         fun from(context: Context): TenkiApp {
