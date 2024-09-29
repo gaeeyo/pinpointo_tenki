@@ -23,7 +23,7 @@ fun MyAppTheme(content: @Composable () -> Unit) {
     }
 
     CompositionLocalProvider(LocalWeatherTheme provides weatherTheme) {
-        AppTheme(dynamicColor = false, darkTheme = currentTheme == Prefs.ThemeNames.DARK) {
+        AppTheme(dynamicColor = true, darkTheme = currentTheme == Prefs.ThemeNames.DARK) {
             content()
         }
     }

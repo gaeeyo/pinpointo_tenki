@@ -25,11 +25,6 @@
             </intent-filter>
         </activity>
 
-        <activity
-            android:name=".activity.HelpActivity"
-            android:exported="false"
-            android:label="@string/help_title" />
-
         <!-- Widget Provider -->
         <receiver
             android:name=".TenkiWidgetProvider"

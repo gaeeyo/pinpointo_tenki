@@ -67,10 +67,10 @@ import nikeno.Tenki.ImageDownloader
 import nikeno.Tenki.Prefs
 import nikeno.Tenki.R
 import nikeno.Tenki.YahooWeather
-import nikeno.Tenki.activity.HelpActivity
 import nikeno.Tenki.prefs
 import nikeno.Tenki.ui.app.LocalWeatherTheme
 import nikeno.Tenki.ui.app.MyTopBar
+import nikeno.Tenki.ui.app.ScreenHelp
 import nikeno.Tenki.ui.app.ScreenSelectArea
 import kotlin.math.max
 import kotlin.math.roundToInt
@@ -132,8 +132,7 @@ fun MainScreen(
             }
         },
         onClickHelp = {
-            val i = Intent(context, HelpActivity::class.java)
-            context.startActivity(i)
+            navController.navigate(ScreenHelp)
         },
         onClickTheme = {
             val prefs = context.prefs
