@@ -1,9 +1,12 @@
-package nikeno.Tenki.ui.main
+package nikeno.Tenki.ui.screen.main
 
 import android.content.Context
+import android.content.Intent
 import android.graphics.Bitmap
+import android.net.Uri
 import android.text.format.DateUtils
 import android.util.Log
+import android.widget.Toast
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Arrangement
@@ -34,8 +37,6 @@ import androidx.compose.material3.SnackbarHostState
 import androidx.compose.material3.SnackbarResult
 import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
-import androidx.compose.material3.TopAppBar
-import androidx.compose.material3.TopAppBarDefaults
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.collectAsState
@@ -46,7 +47,6 @@ import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.drawWithContent
-import androidx.compose.ui.draw.shadow
 import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.geometry.Size
 import androidx.compose.ui.graphics.Color
@@ -59,33 +59,131 @@ import androidx.compose.ui.text.buildAnnotatedString
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import androidx.lifecycle.viewmodel.compose.viewModel
+import androidx.navigation.NavController
+import nikeno.Tenki.Area
 import nikeno.Tenki.ImageDownloader
+import nikeno.Tenki.Prefs
 import nikeno.Tenki.R
 import nikeno.Tenki.YahooWeather
-import nikeno.Tenki.ui.theme.LocalWeatherTheme
+import nikeno.Tenki.activity.HelpActivity
+import nikeno.Tenki.prefs
+import nikeno.Tenki.ui.app.LocalWeatherTheme
+import nikeno.Tenki.ui.app.MyTopBar
+import nikeno.Tenki.ui.app.ScreenSelectArea
 import kotlin.math.max
 import kotlin.math.roundToInt
 
 
 private val TAG = "MainScreen"
 
-enum class ClickEvent {
-    OPEN_BROWSER, CHANGE_AREA, HELP, RELOAD, CHANGE_THEME
+@OptIn(ExperimentalMaterial3Api::class)
+@Composable
+fun MainScreen(
+    navController: NavController, url: String? = null
+) {
+
+    val context = LocalContext.current
+
+    val vm = viewModel<MainViewModel>()
+
+
+    val state = vm.state.collectAsState().value
+
+    if (url != null) {
+        // url指定つきのときはそのurlのデータを表示
+        LaunchedEffect(true) {
+            vm.setUrl(url)
+        }
+    } else {
+        // url指定なしのときは設定のurlを表示
+        val prefUrl = context.prefs.currentAreaUrl.collectAsState().value
+
+        LaunchedEffect(prefUrl) {
+            if (prefUrl != null) {
+                vm.setUrl(prefUrl)
+            }
+        }
+    }
+
+    // 地域選択画面からの選択結果を処理
+    val result = navController.currentBackStackEntry?.savedStateHandle?.get<Area>("selectedArea")
+
+    LaunchedEffect(result) {
+        if (result != null) {
+            context.prefs.setCurrentArea(result)
+            navController.currentBackStackEntry?.savedStateHandle?.remove<Area>("selectedArea")
+        }
+    }
+
+    MainScreen(
+        state = state,
+        onClickReload = {
+            vm.requestData()
+        },
+        onClickOpenYahooWeather = {
+            try {
+                val i = Intent(Intent.ACTION_VIEW, Uri.parse(state.url))
+                context.startActivity(i)
+            } catch (e: Exception) {
+                Toast.makeText(context, e.message, Toast.LENGTH_LONG).show()
+            }
+        },
+        onClickHelp = {
+            val i = Intent(context, HelpActivity::class.java)
+            context.startActivity(i)
+        },
+        onClickTheme = {
+            val prefs = context.prefs
+            prefs.setTheme(
+                if (prefs.theme.value == Prefs.ThemeNames.DEFAULT)
+                    Prefs.ThemeNames.DARK else Prefs.ThemeNames.DEFAULT
+            )
+        },
+        onClickChangeArea = {
+            navController.navigate(ScreenSelectArea)
+        },
+    )
 }
 
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
-fun MainScreen(vm: MainViewModel, onClick: (ClickEvent) -> Unit) {
+fun MainScreen(
+    state: MainViewModel.MainViewState,
+    onClickReload: () -> Unit,
+    onClickOpenYahooWeather: () -> Unit,
+    onClickHelp: () -> Unit,
+    onClickTheme: () -> Unit,
+    onClickChangeArea: () -> Unit,
+) {
+    val context = LocalContext.current
+
     val snackbarHostState = remember { SnackbarHostState() }
 
-    val state = vm.state.collectAsState().value
-    val context = LocalContext.current
+    LaunchedEffect(state.error) {
+        Log.d(TAG, "エラーの有無: ${!state.error.isNullOrEmpty()}")
+
+        if (!state.error.isNullOrEmpty()) {
+            if (snackbarHostState.showSnackbar(
+                    state.error,
+                    actionLabel = context.getString(R.string.retry),
+                ) == SnackbarResult.ActionPerformed
+            ) {
+                onClickReload()
+            }
+        }
+    }
 
     Scaffold(modifier = Modifier.fillMaxSize(),
         snackbarHost = { SnackbarHost(snackbarHostState) },
         topBar = {
-            MainScreenAppBar(state, onClick)
+            MainScreenAppBar(
+                state, onClickChangeArea = onClickChangeArea,
+                onClickReload = onClickReload,
+                onClickTheme = onClickTheme,
+                onClickHelp = onClickHelp
+            )
         }
     ) { innerPadding ->
         Surface(
@@ -94,28 +192,17 @@ fun MainScreen(vm: MainViewModel, onClick: (ClickEvent) -> Unit) {
                 .fillMaxSize()
                 .verticalScroll(rememberScrollState())
         ) {
-            MainScreenContent(state, onClick)
+            MainScreenContent(
+                state,
+                onClickOpenYahooWeather = onClickOpenYahooWeather,
+                onClickChangeArea = onClickChangeArea,
+            )
             if (state.loading) {
                 Box(contentAlignment = Alignment.Center) {
                     CircularProgressIndicator()
                 }
             }
 
-            LaunchedEffect(state.error) {
-                Log.d(TAG, "エラーの有無: ${!state.error.isNullOrEmpty()}")
-
-                if (!state.error.isNullOrEmpty()) {
-                    if (snackbarHostState.showSnackbar(
-                            state.error,
-                            actionLabel = context.getString(R.string.retry),
-                        ) == SnackbarResult.ActionPerformed
-                    ) {
-                        vm.setError(null)
-                        onClick(ClickEvent.RELOAD)
-                    }
-                }
-
-            }
         }
     }
 }
@@ -124,20 +211,18 @@ fun MainScreen(vm: MainViewModel, onClick: (ClickEvent) -> Unit) {
 @Composable
 fun MainScreenAppBar(
     state: MainViewModel.MainViewState,
-    onClick: (ClickEvent) -> Unit
+    onClickChangeArea: () -> Unit,
+    onClickReload: () -> Unit,
+    onClickTheme: () -> Unit,
+    onClickHelp: () -> Unit,
 ) {
     var showMenu by remember { mutableStateOf(false) }
-    TopAppBar(
-        modifier = Modifier.shadow(8.dp),
+    MyTopBar(
         title = {
             Text(state.data?.areaName?.let { "${it}の天気" } ?: "")
         },
-        colors = TopAppBarDefaults.topAppBarColors(
-            containerColor = MaterialTheme.colorScheme.primaryContainer,
-            titleContentColor = MaterialTheme.colorScheme.primary,
-        ),
         actions = {
-            IconButton(onClick = { onClick(ClickEvent.RELOAD) }) {
+            IconButton(onClick = onClickReload) {
                 Icon(
                     imageVector = Icons.Filled.Refresh,
                     contentDescription = ""
@@ -149,8 +234,8 @@ fun MainScreenAppBar(
                     contentDescription = "Localized description"
                 )
             }
-            fun onMenuClick(event: ClickEvent) {
-                onClick(event)
+            fun onMenuClick(handler: () -> Unit) {
+                handler()
                 showMenu = false
             }
 
@@ -158,17 +243,17 @@ fun MainScreenAppBar(
                 DropdownMenuItem(
                     text = { Text(stringResource(id = R.string.menu_pref)) },
                     onClick = {
-                        onMenuClick(ClickEvent.CHANGE_AREA)
+                        onMenuClick(onClickChangeArea)
                     })
                 DropdownMenuItem(
                     text = { Text(stringResource(id = R.string.dark_theme)) },
                     onClick = {
-                        onMenuClick(ClickEvent.CHANGE_THEME)
+                        onMenuClick(onClickTheme)
                     })
                 DropdownMenuItem(
                     text = { Text(stringResource(id = R.string.menu_help)) },
                     onClick = {
-                        onMenuClick(ClickEvent.HELP)
+                        onMenuClick(onClickHelp)
                     })
 
             }
@@ -179,9 +264,28 @@ fun MainScreenAppBar(
 
 @Composable
 fun MainScreenContent(
-    state: MainViewModel.MainViewState, onClick: (ClickEvent) -> Unit,
+    state: MainViewModel.MainViewState,
+    onClickOpenYahooWeather: () -> Unit,
+    onClickChangeArea: () -> Unit,
 ) {
     val tableMargin = 8.dp
+
+    Box(
+        contentAlignment = Alignment.TopEnd,
+        modifier = Modifier
+            .fillMaxWidth()
+            .padding(top = 4.dp, end = 8.dp)
+    ) {
+        val context = LocalContext.current
+
+        Text(
+            if (state.dataTime != 0L) formatUpdateTime(context, state.dataTime) else "",
+            modifier = Modifier.padding(),
+            style = MaterialTheme.typography.bodySmall,
+            color = MaterialTheme.colorScheme.secondary
+        )
+    }
+
     Column(
         modifier = Modifier
             .fillMaxWidth()
@@ -189,16 +293,6 @@ fun MainScreenContent(
         verticalArrangement = Arrangement.spacedBy(tableMargin)
     ) {
 
-        Box(contentAlignment = Alignment.CenterEnd, modifier = Modifier.fillMaxWidth()) {
-            val context = LocalContext.current
-
-            Text(
-                if (state.dataTime != 0L) formatUpdateTime(context, state.dataTime) else "",
-                modifier = Modifier.padding(),
-                style = MaterialTheme.typography.bodySmall,
-                color = MaterialTheme.colorScheme.secondary
-            )
-        }
         if (state.data != null) {
             BoxWithConstraints(modifier = Modifier.fillMaxWidth()) {
                 if (maxWidth < 600.dp) {
@@ -230,10 +324,10 @@ fun MainScreenContent(
             modifier = Modifier.fillMaxWidth()
 
         ) {
-            ElevatedButton(onClick = { onClick(ClickEvent.OPEN_BROWSER) }) {
+            ElevatedButton(onClick = onClickOpenYahooWeather) {
                 Text(stringResource(R.string.main_open_browser))
             }
-            ElevatedButton(onClick = { onClick(ClickEvent.CHANGE_AREA) }) {
+            ElevatedButton(onClick = onClickChangeArea) {
                 Text(stringResource(R.string.main_pref))
             }
         }

@@ -73,5 +73,6 @@ class TenkiApp : Application() {
     }
 }
 
-fun Context.prefs() = (this.applicationContext as TenkiApp).prefs
+val Context.prefs
+    get() = (this.applicationContext as TenkiApp).prefs
 

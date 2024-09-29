@@ -1,4 +1,4 @@
-package nikeno.Tenki.ui.main
+package nikeno.Tenki.ui.screen.main
 
 import android.app.Application
 import android.text.format.DateUtils
@@ -10,10 +10,10 @@ import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.launch
 import kotlinx.datetime.Clock
-import nikeno.Tenki.BuildConfig
 import nikeno.Tenki.TenkiApp
 import nikeno.Tenki.YahooWeather
 import nikeno.Tenki.feature.weather.getYahooWeather
+import kotlin.time.Duration.Companion.minutes
 
 class MainViewModel(application: Application) : AndroidViewModel(application) {
     data class MainViewState(
@@ -55,8 +55,9 @@ class MainViewModel(application: Application) : AndroidViewModel(application) {
             if (s.preferCache) {
                 mState.value = mState.value.copy(preferCache = false)
                 loadCache()
-                if (BuildConfig.DEBUG) return // TODO
-                reload()
+                if (isDataOutdated) {
+                    reload()
+                }
             } else {
                 reload()
             }
@@ -68,19 +69,16 @@ class MainViewModel(application: Application) : AndroidViewModel(application) {
         }
     }
 
-    fun reload() {
+    private fun reload() {
         val url = mState.value.url ?: return
 
         mState.value = mState.value.copy(
-            now = Clock.System.now().toEpochMilliseconds(),
-            loading = true,
-            error = null
+            now = Clock.System.now().toEpochMilliseconds(), loading = true, error = null
         )
         viewModelScope.launch(Dispatchers.IO) {
             try {
                 val data = getYahooWeather(
-                    TenkiApp.from(getApplication()).downloader,
-                    url
+                    TenkiApp.from(getApplication()).downloader, url
                 )
                 mState.value = mState.value.copy(
                     data = data,
@@ -92,8 +90,7 @@ class MainViewModel(application: Application) : AndroidViewModel(application) {
             } catch (e: Exception) {
                 e.printStackTrace()
                 mState.value = mState.value.copy(
-                    loading = false,
-                    error = e.message
+                    loading = false, error = e.message
                 )
             }
         }
@@ -101,8 +98,7 @@ class MainViewModel(application: Application) : AndroidViewModel(application) {
 
     private fun loadCache() {
         val entry = TenkiApp.from(getApplication()).downloader.getCache(
-            mState.value.url,
-            System.currentTimeMillis() - 24 * DateUtils.HOUR_IN_MILLIS
+            mState.value.url, System.currentTimeMillis() - 24 * DateUtils.HOUR_IN_MILLIS
         )
         if (entry != null) {
             try {
@@ -118,6 +114,9 @@ class MainViewModel(application: Application) : AndroidViewModel(application) {
             }
         }
     }
+
+    private val isDataOutdated: Boolean
+        get() = mState.value.dataTime < Clock.System.now().minus(5.minutes).toEpochMilliseconds()
 
     companion object {
         const val TAG = "MainViewModel"

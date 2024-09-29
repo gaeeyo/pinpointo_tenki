@@ -17,8 +17,6 @@ import java.util.ArrayList;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
-import nikeno.Tenki.task.SearchAddressTask;
-
 @RunWith(AndroidJUnit4.class)
 public class YahooWeatherTest {
 

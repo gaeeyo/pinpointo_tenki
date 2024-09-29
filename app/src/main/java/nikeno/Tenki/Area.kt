@@ -1,36 +1,32 @@
-package nikeno.Tenki;
+package nikeno.Tenki
 
-public class Area {
-    public String zipCode;
-    public String address1;
-    public String address2;
-    public String url;
+import android.os.Parcelable
+import kotlinx.parcelize.Parcelize
 
-    @Override
-    public boolean equals(Object obj) {
-        if (obj instanceof Area) {
-            return url.equals(((Area) obj).url);
-        }
-        return false;
+@Parcelize
+data class Area(
+    val zipCode: String, val address1: String, val address2: String, val url: String
+) : Parcelable {
+
+    fun serialize(): String {
+        return """
+             $zipCode
+             $address1
+             $address2
+             $url
+             """.trimIndent()
     }
 
-    public static Area deserialize(String text) {
-        Area     data   = null;
-        String[] values = text.split("\n");
-        if (values.length >= 4) {
-            data = new Area();
-            data.zipCode = values[0];
-            data.address1 = values[1];
-            data.address2 = values[2];
-            data.url = values[3];
+    companion object {
+        fun deserialize(text: String): Area? {
+            var data: Area? = null
+            val values = text.split("\n".toRegex()).dropLastWhile { it.isEmpty() }.toTypedArray()
+            if (values.size >= 4) {
+                data = Area(
+                    values[0], values[1], values[2], values[3]
+                )
+            }
+            return data
         }
-        return data;
-    }
-
-    public String serialize() {
-        return zipCode + "\n" +
-                address1 + "\n" +
-                address2 + "\n" +
-                url;
     }
 }

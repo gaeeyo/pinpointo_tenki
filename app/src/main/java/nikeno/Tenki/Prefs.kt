@@ -29,24 +29,28 @@ class Prefs(val mPrefs: SharedPreferences) {
         mPrefs.edit().putString(THEME, theme.value).apply()
     }
 
-    val recentAreaList: MutableList<Area>
-        get() {
-            val list: MutableList<Area> = ArrayList()
+    private val mRecentAreaList = MutableStateFlow<List<Area>>(loadRecentAreaList())
 
-            var data: String?
-            for (j in 0 until RECENT_MAX) {
-                data = mPrefs.getString(RECENT_PREFIX + j, null)
-                if (data != null) {
-                    val areaData = Area.deserialize(data)
-                    if (areaData != null) {
-                        list.add(areaData)
-                    }
+    private fun loadRecentAreaList(): List<Area> {
+        val list: MutableList<Area> = ArrayList()
+
+        var data: String?
+        for (j in 0 until RECENT_MAX) {
+            data = mPrefs.getString(RECENT_PREFIX + j, null)
+            if (data != null) {
+                val areaData = Area.deserialize(data)
+                if (areaData != null) {
+                    list.add(areaData)
                 }
             }
-            return list
         }
+        return list
+    }
 
-    fun putRecentAreaList(list: List<Area>) {
+    val recentAreaList = mRecentAreaList.asStateFlow()
+
+    fun setRecentAreaList(list: List<Area>) {
+        mRecentAreaList.value = list
         val editor = mPrefs.edit()
 
         for (j in 0 until RECENT_MAX) {
@@ -59,19 +63,17 @@ class Prefs(val mPrefs: SharedPreferences) {
         editor.apply()
     }
 
-    fun addRecentArea(area: Area): List<Area> {
-        val list = recentAreaList
+    fun addRecentArea(area: Area) {
+        val list = mRecentAreaList.value.toMutableList()
         list.remove(area)
         list.add(0, area)
-        putRecentAreaList(list)
-        return list
+        setRecentAreaList(list)
     }
 
-    fun removeRecentArea(area: Area): List<Area> {
-        val list = recentAreaList
+    fun removeRecentArea(area: Area) {
+        val list = mRecentAreaList.value.toMutableList()
         list.remove(area)
-        putRecentAreaList(list)
-        return list
+        setRecentAreaList(list)
     }
 
     private val mCurrentAreaUrl = MutableStateFlow(
@@ -82,9 +84,18 @@ class Prefs(val mPrefs: SharedPreferences) {
     )
 
     val currentAreaUrl = mCurrentAreaUrl.asStateFlow()
+
     fun setCurrentAreaUrl(value: String) {
         mCurrentAreaUrl.value = value
         mPrefs.edit().putString(URL, value).apply()
+    }
+
+    fun setCurrentArea(area: Area) {
+        // 設定地域を変更
+        setCurrentAreaUrl(area.url)
+
+        // 最近使った地域に登録
+        addRecentArea(area)
     }
 
     fun get(key: BoolValue): Boolean {

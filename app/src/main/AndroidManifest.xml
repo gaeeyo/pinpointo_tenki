@@ -26,12 +26,6 @@
         </activity>
 
         <activity
-            android:name=".activity.AreaSelectActivity"
-            android:configChanges="orientation|keyboardHidden"
-            android:exported="false"
-            android:label="@string/area_select_title" />
-
-        <activity
             android:name=".activity.HelpActivity"
             android:exported="false"
             android:label="@string/help_title" />

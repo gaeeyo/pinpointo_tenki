@@ -8,8 +8,6 @@ import org.junit.runner.RunWith;
 
 import java.util.ArrayList;
 
-import nikeno.Tenki.task.SearchAddressTask;
-
 @RunWith(AndroidJUnit4.class)
 public class AreaSelectActivityTest {
 

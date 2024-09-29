@@ -4,7 +4,6 @@ import android.app.Activity
 import android.appwidget.AppWidgetManager
 import android.content.Intent
 import android.os.Bundle
-import nikeno.Tenki.activity.AreaSelectActivity
 import nikeno.Tenki.appwidget.weatherwidget.WeatherWidgetPrefs
 import nikeno.Tenki.service.WidgetUpdateService
 
@@ -27,8 +26,9 @@ class TenkiWidgetConfigure : Activity() {
             return
         }
 
-        val i = Intent(this, AreaSelectActivity::class.java)
-        startActivityForResult(i, 1)
+        TODO("ウィジェットの地域選択は未実装")
+//        val i = Intent(this, AreaSelectActivity::class.java)
+//        startActivityForResult(i, 1)
     }
 
     override fun onActivityResult(requestCode: Int, resultCode: Int, data: Intent) {

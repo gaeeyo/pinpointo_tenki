@@ -12,6 +12,8 @@
    	<string name="weekly_text">週間天気</string>
 	<string name="menu_reload">最新の情報に更新</string>
 	<string name="menu_pref">地域を変更</string>
+	<string name="recentlyUsedArea">最近使った地域</string>
+	<string name="searchResult">検索結果</string>
 	<string name="retry">再試行</string>
 	<string name="display_settings">表示設定</string>
 	<string name="show_weather_icon">天気アイコン</string>
@@ -25,9 +27,11 @@
 
 	<string name="reload_error">データの取得ができませんでした。</string>
 	<string name="using_cache">データの取得が失敗したため、前回の情報を表示します。</string>
+	<string name="search_area_keyword_label">郵便番号・住所</string>
 	<string name="area_select_search_empty">郵便番号、または地域名を入力して検索してください。</string>
 	<string name="area_select_title">地域設定</string>
 	<string name="area_select_result_empty">「%1$s」は見つかりませんでした。</string>
+	<string name="area_not_found">検索結果が見つかりませんでした</string>
 	<string name="main_open_browser">Yahoo!天気情報</string>
 	<string name="help_title">ピンポイント天気 - ヘルプ</string>
 	<string name="dark_theme">ダークテーマ</string>

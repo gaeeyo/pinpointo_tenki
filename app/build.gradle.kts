@@ -5,6 +5,9 @@ plugins {
     id("com.android.application")
     id("org.jetbrains.kotlin.android")
     id("org.jetbrains.kotlin.plugin.compose")
+
+    kotlin("plugin.serialization") version "2.0.20"
+    id("kotlin-parcelize")
 }
 
 android {
@@ -32,7 +35,7 @@ android {
     }
     buildTypes {
         release {
-            isMinifyEnabled = false
+            isMinifyEnabled = true
             proguardFiles(
                 getDefaultProguardFile("proguard-android-optimize.txt"),
                 "proguard-rules.pro"
@@ -60,8 +63,11 @@ dependencies {
     implementation("androidx.compose.ui:ui-tooling")
     implementation("androidx.compose.ui:ui-tooling-preview")
     implementation("androidx.compose.material3:material3")
+    implementation("androidx.lifecycle:lifecycle-viewmodel-compose:2.8.6")
+    implementation("androidx.navigation:navigation-compose:2.8.1")
 
     implementation("org.jetbrains.kotlinx:kotlinx-datetime:0.6.0")
+    implementation("org.jetbrains.kotlinx:kotlinx-serialization-json:1.7.1")
 
     testImplementation("junit:junit:4.13.2")
     androidTestImplementation("androidx.test:runner:1.6.2")

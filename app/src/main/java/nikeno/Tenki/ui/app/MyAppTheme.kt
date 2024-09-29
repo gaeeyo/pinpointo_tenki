@@ -1,48 +1,29 @@
-package nikeno.Tenki.ui.theme
+package nikeno.Tenki.ui.app
 
-import androidx.compose.material3.MaterialTheme
-import androidx.compose.material3.darkColorScheme
-import androidx.compose.material3.lightColorScheme
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.CompositionLocalProvider
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.compositionLocalOf
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.LocalContext
+import com.example.compose.AppTheme
 import nikeno.Tenki.Prefs
 import nikeno.Tenki.prefs
 
 
 @Composable
-fun AppTheme(content: @Composable () -> Unit) {
+fun MyAppTheme(content: @Composable () -> Unit) {
     val context = LocalContext.current
 
-    val currentTheme = context.prefs().theme.collectAsState().value
+    val currentTheme = context.prefs.theme.collectAsState().value
+
     val weatherTheme = when (currentTheme) {
         Prefs.ThemeNames.DEFAULT -> WEATHER_THEME_LIGHT
         else -> WEATHER_THEME_DARK
     }
 
-    val colorScheme = when (currentTheme) {
-        Prefs.ThemeNames.DEFAULT -> lightColorScheme(
-            surfaceContainerLow = Color.LightGray,
-        )
-
-        else -> darkColorScheme(
-            surfaceContainerLow = Color.DarkGray
-        )
-    }.copy(
-        surface = weatherTheme.background,
-        onSurface = weatherTheme.primary,
-        surfaceContainer = weatherTheme.background,
-        primary = weatherTheme.primary,
-        secondary = weatherTheme.secondary,
-        primaryContainer = weatherTheme.background,
-        onPrimaryContainer = weatherTheme.primary,
-    )
-
     CompositionLocalProvider(LocalWeatherTheme provides weatherTheme) {
-        MaterialTheme(colorScheme = colorScheme) {
+        AppTheme(dynamicColor = false, darkTheme = currentTheme == Prefs.ThemeNames.DARK) {
             content()
         }
     }
