@@ -64,7 +64,7 @@ import androidx.lifecycle.viewmodel.compose.viewModel
 import nikeno.Tenki.ImageDownloader
 import nikeno.Tenki.Prefs
 import nikeno.Tenki.R
-import nikeno.Tenki.YahooWeather
+import nikeno.Tenki.feature.weather.YahooWeather
 import nikeno.Tenki.prefs
 import nikeno.Tenki.ui.app.LocalWeatherTheme
 import nikeno.Tenki.ui.app.MyAppNavigator
@@ -358,11 +358,11 @@ fun WeatherDay(data: YahooWeather.Day, now: Long) {
     val context = LocalContext.current
     val dateText = DateUtils.formatDateTime(
         context,
-        data.date.time,
+        data.date.toEpochMilliseconds(),
         DateUtils.FORMAT_SHOW_DATE or DateUtils.FORMAT_SHOW_WEEKDAY or DateUtils.FORMAT_ABBREV_WEEKDAY
     )
     // 表の先頭の時間と現在時刻をhour単位にする
-    val startH = data.date.time / (60 * 60 * 1000)
+    val startH = data.date.toEpochMilliseconds() / (60 * 60 * 1000)
     val nowH = (now / (60 * 60 * 1000) / 3) * 3
     val wt = LocalWeatherTheme.current
 
@@ -500,7 +500,7 @@ fun WeatherDay(data: YahooWeather.Day, now: Long) {
 }
 
 @Composable
-fun WeatherWeek(data: Array<YahooWeather.WeeklyDay>) {
+fun WeatherWeek(data: List<YahooWeather.WeeklyDay>) {
     val wt = LocalWeatherTheme.current
     Column(modifier = Modifier.fillMaxWidth()) {
         Text(stringResource(R.string.weekly_text), style = MaterialTheme.typography.bodyLarge)
@@ -539,7 +539,7 @@ fun WeatherWeek(data: Array<YahooWeather.WeeklyDay>) {
                         modifier = cellModifier,
                         horizontalAlignment = Alignment.CenterHorizontally
                     ) {
-                        WeatherIcon(url = d.imageUrl)
+                        if (d.imageUrl != null) WeatherIcon(url = d.imageUrl)
                         Text(d.text, textAlign = TextAlign.Center, style = textStyle)
                     }
                 }

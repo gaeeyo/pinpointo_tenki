@@ -1,382 +1,388 @@
-package nikeno.Tenki.service;
+package nikeno.Tenki.service
 
-import static nikeno.Tenki.TenkiApp.N_ID_WIDGET_UPDATE_SERVICE;
+import android.app.IntentService
+import android.app.Notification
+import android.app.PendingIntent
+import android.appwidget.AppWidgetManager
+import android.content.ComponentName
+import android.content.Context
+import android.content.Intent
+import android.graphics.Bitmap
+import android.graphics.Canvas
+import android.graphics.Matrix
+import android.graphics.Paint
+import android.net.Uri
+import android.os.Build
+import android.os.IBinder
+import android.text.SpannableString
+import android.text.format.DateUtils
+import android.text.style.ForegroundColorSpan
+import android.util.Log
+import android.widget.RemoteViews
+import nikeno.Tenki.MainActivity
+import nikeno.Tenki.R
+import nikeno.Tenki.TenkiApp
+import nikeno.Tenki.TenkiApp.Companion.from
+import nikeno.Tenki.TenkiWidgetProvider
+import nikeno.Tenki.appwidget.weatherwidget.WeatherWidgetPrefs
+import nikeno.Tenki.feature.weather.YahooWeather
+import nikeno.Tenki.feature.weather.YahooWeather.Hour
+import nikeno.Tenki.feature.weather.YahooWeatherHtmlParser
+import nikeno.Tenki.util.PendingIntentCompat
+import java.io.IOException
+import java.net.UnknownHostException
+import java.util.Calendar
+import java.util.Locale
+import kotlin.math.max
 
-import android.app.IntentService;
-import android.app.Notification;
-import android.app.PendingIntent;
-import android.appwidget.AppWidgetManager;
-import android.content.ComponentName;
-import android.content.Context;
-import android.content.Intent;
-import android.graphics.Bitmap;
-import android.graphics.Canvas;
-import android.graphics.Matrix;
-import android.graphics.Paint;
-import android.net.Uri;
-import android.os.Build;
-import android.os.IBinder;
-import android.text.SpannableString;
-import android.text.format.DateUtils;
-import android.text.style.ForegroundColorSpan;
-import android.util.Log;
-import android.widget.RemoteViews;
-
-import java.io.IOException;
-import java.net.UnknownHostException;
-import java.util.Calendar;
-import java.util.HashMap;
-import java.util.Locale;
-
-import nikeno.Tenki.Downloader;
-import nikeno.Tenki.MainActivity;
-import nikeno.Tenki.R;
-import nikeno.Tenki.TenkiApp;
-import nikeno.Tenki.TenkiWidgetProvider;
-import nikeno.Tenki.YahooWeather;
-import nikeno.Tenki.YahooWeather.Day;
-import nikeno.Tenki.appwidget.weatherwidget.WeatherWidgetConfig;
-import nikeno.Tenki.appwidget.weatherwidget.WeatherWidgetPrefs;
-import nikeno.Tenki.db.entity.ResourceCacheEntity;
-import nikeno.Tenki.util.PendingIntentCompat;
-
-public class WidgetUpdateService extends IntentService {
-
-    static final String TAG                  = WidgetUpdateService.class.getSimpleName();
-    static final String ACTION_MANUAL_UPDATE = "manualUpdate";
-
-    public WidgetUpdateService() {
-        super("WidgetUpdateService");
+class WidgetUpdateService : IntentService("WidgetUpdateService") {
+    override fun onBind(intent: Intent): IBinder? {
+        return null
     }
 
-    @Override
-    public IBinder onBind(Intent intent) {
-        return null;
-    }
-
-    @Override
-    protected void onHandleIntent(Intent intent) {
-        Log.d(TAG, "onHandleIntent " + intent);
+    override fun onHandleIntent(intent: Intent?) {
+        Log.d(TAG, "onHandleIntent $intent")
 
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
-            Log.d(TAG, "startForeground");
-            Notification n = new Notification.Builder(this, TenkiApp.N_CH_WIDGET_UPDATE_SERVICE)
-                    .setOngoing(true)
-                    .build();
-            startForeground(N_ID_WIDGET_UPDATE_SERVICE, n);
+            Log.d(TAG, "startForeground")
+            val n = Notification.Builder(this, TenkiApp.N_CH_WIDGET_UPDATE_SERVICE)
+                .setOngoing(true)
+                .build()
+            startForeground(TenkiApp.N_ID_WIDGET_UPDATE_SERVICE, n)
         }
 
-        Log.d(TAG, "ウィジェット更新中");
-        boolean isManualUpdate = (intent != null && ACTION_MANUAL_UPDATE.equals(intent.getAction()));
-        new UpdateTask().updateWidgets(this, isManualUpdate);
-        Log.d(TAG, "ウィジェット更新完了");
+        Log.d(TAG, "ウィジェット更新中")
+        val isManualUpdate = (intent != null && ACTION_MANUAL_UPDATE == intent.action)
+        UpdateTask().updateWidgets(this, isManualUpdate)
+        Log.d(TAG, "ウィジェット更新完了")
     }
 
-    static class UpdateTask {
+    internal class UpdateTask {
+        fun updateWidgets(context: Context, isManualUpdate: Boolean) {
+            val manager = AppWidgetManager.getInstance(context)
+            val ids = manager.getAppWidgetIds(
+                ComponentName(context, TenkiWidgetProvider::class.java)
+            )
 
-        void updateWidgets(Context context, boolean isManualUpdate) {
-            AppWidgetManager manager = AppWidgetManager.getInstance(context);
-            int[] ids = manager.getAppWidgetIds(
-                    new ComponentName(context, TenkiWidgetProvider.class));
-
-            WidgetTheme theme = new WidgetTheme(context);
+            val theme = WidgetTheme(context)
 
             if (isManualUpdate) {
-                for (int id : ids) {
-                    manager.updateAppWidget(id, createProgressView(context));
+                for (id in ids) {
+                    manager.updateAppWidget(id, createProgressView(context))
                 }
             }
 
-            Log.d(TAG, "updateWidgets count:" + ids.length);
-            Throwable error = null;
-            for (int id : ids) {
-                for (int retryCount = 0; retryCount < 1; retryCount++) {
+            Log.d(TAG, "updateWidgets count:" + ids.size)
+            var error: Throwable? = null
+            for (id in ids) {
+                for (retryCount in 0..0) {
                     try {
 //                        if (retryCount > 0) {
 //                            Thread.sleep((retryCount - 1) * 3000);
 //                        }
-                        updateWidget(context, manager, id, theme, false);
-                        error = null;
-                        break;
-                    } catch (UnknownHostException e) {
-                        e.printStackTrace();
-                        error = e;
-                    } catch (Exception e) {
-                        e.printStackTrace();
-                        error = e;
-                        break;
+                        updateWidget(context, manager, id, theme, false)
+                        error = null
+                        break
+                    } catch (e: UnknownHostException) {
+                        e.printStackTrace()
+                        error = e
+                    } catch (e: Exception) {
+                        e.printStackTrace()
+                        error = e
+                        break
                     }
                 }
                 if (error != null) {
                     try {
-                        Log.d(TAG, "キッシュで更新");
-                        updateWidget(context, manager, id, theme, true);
-                    } catch (Exception e) {
-                        manager.updateAppWidget(id, createErrorView(context, error));
+                        Log.d(TAG, "キッシュで更新")
+                        updateWidget(context, manager, id, theme, true)
+                    } catch (e: Exception) {
+                        manager.updateAppWidget(id, createErrorView(context, error))
                     }
                 }
             }
         }
 
-        void updateWidget(Context context, AppWidgetManager manager,
-                          int id, WidgetTheme theme, boolean forceCache) throws Exception {
-            WeatherWidgetConfig config = WeatherWidgetPrefs.getWidgetConfig(context, id);
+        @Throws(Exception::class)
+        fun updateWidget(
+            context: Context, manager: AppWidgetManager,
+            id: Int, theme: WidgetTheme, forceCache: Boolean
+        ) {
+            val config = WeatherWidgetPrefs.getWidgetConfig(context, id)
 
-            final Downloader downloader = TenkiApp.from(context).getDownloader();
-            byte[]           html;
+            val downloader = from(context).downloader
+            val html: ByteArray
             if (forceCache) {
-                ResourceCacheEntity entry = downloader.getCache(config.url, 0);
-                if (entry == null) {
-                    throw new IOException("データの取得エラー。タップして再読み込み");
-                }
-                html = entry.data;
+                val entry = downloader.getCache(config.url, 0)
+                    ?: throw IOException("データの取得エラー。タップして再読み込み")
+                html = entry.data
             } else {
-                html = downloader.download(config.url, TenkiApp.HTML_SIZE_MAX,
-                        System.currentTimeMillis() - 15 * DateUtils.MINUTE_IN_MILLIS, true);
+                html = downloader.download(
+                    config.url, TenkiApp.HTML_SIZE_MAX,
+                    System.currentTimeMillis() - 15 * DateUtils.MINUTE_IN_MILLIS, true
+                )
             }
-            YahooWeather data = YahooWeather.parse(html);
+            val data = YahooWeatherHtmlParser().parse(html)
 
-            RemoteViews views = buildUpdate(context, id, data, theme, forceCache);
+            val views = buildUpdate(context, id, data, theme, forceCache)
 
-            Intent i = new Intent(context, MainActivity.class);
-            i.setFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP | Intent.FLAG_ACTIVITY_NEW_TASK | Intent.FLAG_ACTIVITY_NO_HISTORY);
-            i.setData(Uri.parse(config.url));
-            PendingIntent pi = PendingIntent.getActivity(context, 0,
-                    i, PendingIntentCompat.FLAG_MUTABLE);
-            views.setOnClickPendingIntent(R.id.container, pi);
-            manager.updateAppWidget(id, views);
+            val i = Intent(context, MainActivity::class.java)
+            i.setFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP or Intent.FLAG_ACTIVITY_NEW_TASK or Intent.FLAG_ACTIVITY_NO_HISTORY)
+            i.setData(Uri.parse(config.url))
+            val pi = PendingIntent.getActivity(
+                context, 0,
+                i, PendingIntentCompat.FLAG_MUTABLE
+            )
+            views.setOnClickPendingIntent(R.id.container, pi)
+            manager.updateAppWidget(id, views)
         }
 
-        PendingIntent getManualReloadPendingIntent(Context context) {
-            Intent i = new Intent(context, WidgetUpdateService.class);
-            i.setAction(ACTION_MANUAL_UPDATE);
-            return PendingIntent.getService(context, 0, i,
-                    PendingIntentCompat.FLAG_MUTABLE);
+        fun getManualReloadPendingIntent(context: Context?): PendingIntent {
+            val i = Intent(context, WidgetUpdateService::class.java)
+            i.setAction(ACTION_MANUAL_UPDATE)
+            return PendingIntent.getService(
+                context, 0, i,
+                PendingIntentCompat.FLAG_MUTABLE
+            )
         }
 
-        RemoteViews createErrorView(Context context, Throwable e) {
-            RemoteViews views = new RemoteViews(context.getPackageName(),
-                    R.layout.widget_error);
-            String time = DateUtils.formatDateTime(context, System.currentTimeMillis(),
-                    DateUtils.FORMAT_SHOW_TIME | DateUtils.FORMAT_SHOW_DATE);
-            views.setTextViewText(R.id.errorMessage, time + ":" + e.getMessage());
-            views.setOnClickPendingIntent(R.id.errorMessage, getManualReloadPendingIntent(context));
-            return views;
+        fun createErrorView(context: Context, e: Throwable): RemoteViews {
+            val views = RemoteViews(
+                context.packageName,
+                R.layout.widget_error
+            )
+            val time = DateUtils.formatDateTime(
+                context, System.currentTimeMillis(),
+                DateUtils.FORMAT_SHOW_TIME or DateUtils.FORMAT_SHOW_DATE
+            )
+            views.setTextViewText(R.id.errorMessage, time + ":" + e.message)
+            views.setOnClickPendingIntent(R.id.errorMessage, getManualReloadPendingIntent(context))
+            return views
         }
 
-        RemoteViews createProgressView(Context context) {
-            RemoteViews views = new RemoteViews(context.getPackageName(),
-                    R.layout.widget_progress);
-            views.setOnClickPendingIntent(R.id.progress, getManualReloadPendingIntent(context));
-            return views;
+        fun createProgressView(context: Context): RemoteViews {
+            val views = RemoteViews(
+                context.packageName,
+                R.layout.widget_progress
+            )
+            views.setOnClickPendingIntent(R.id.progress, getManualReloadPendingIntent(context))
+            return views
         }
 
-        RemoteViews buildUpdate(Context context, int id, YahooWeather data,
-                                WidgetTheme theme, boolean forceCache) {
-            RemoteViews views = new RemoteViews(context.getPackageName(),
-                    R.layout.widget);
+        fun buildUpdate(
+            context: Context, id: Int, data: YahooWeather,
+            theme: WidgetTheme, forceCache: Boolean
+        ): RemoteViews {
+            val views = RemoteViews(
+                context.packageName,
+                R.layout.widget
+            )
 
-            String time = DateUtils.formatDateTime(context, System.currentTimeMillis(),
-                    DateUtils.FORMAT_SHOW_TIME | DateUtils.FORMAT_SHOW_DATE);
-            views.setTextViewText(R.id.title, data.areaName);
+            val time = DateUtils.formatDateTime(
+                context, System.currentTimeMillis(),
+                DateUtils.FORMAT_SHOW_TIME or DateUtils.FORMAT_SHOW_DATE
+            )
+            views.setTextViewText(R.id.title, data.areaName)
             if (forceCache) {
-                views.setTextViewText(R.id.time, context.getString(R.string.updateErrorTimeFmt, time));
+                views.setTextViewText(
+                    R.id.time,
+                    context.getString(R.string.updateErrorTimeFmt, time)
+                )
             } else {
-                views.setTextViewText(R.id.time, context.getString(R.string.updateTimeFmt, time));
+                views.setTextViewText(R.id.time, context.getString(R.string.updateTimeFmt, time))
             }
-            views.setOnClickPendingIntent(R.id.time, getManualReloadPendingIntent(context));
-            views.setOnClickPendingIntent(R.id.h6, getManualReloadPendingIntent(context));
-            views.setOnClickPendingIntent(R.id.h7, getManualReloadPendingIntent(context));
+            views.setOnClickPendingIntent(R.id.time, getManualReloadPendingIntent(context))
+            views.setOnClickPendingIntent(R.id.h6, getManualReloadPendingIntent(context))
+            views.setOnClickPendingIntent(R.id.h7, getManualReloadPendingIntent(context))
 
-            int[] heads = new int[]{
-                    R.id.h0, R.id.h1, R.id.h2, R.id.h3, R.id.h4,
-                    R.id.h5, R.id.h6, R.id.h7
-            };
-            int[] cols = new int[]{
-                    R.id.t0, R.id.t1, R.id.t2, R.id.t3, R.id.t4,
-                    R.id.t5, R.id.t6, R.id.t7
-            };
-            int[] imgs = new int[]{
-                    R.id.i0, R.id.i1, R.id.i2, R.id.i3, R.id.i4,
-                    R.id.i5, R.id.i6, R.id.i7
-            };
+            val heads = intArrayOf(
+                R.id.h0, R.id.h1, R.id.h2, R.id.h3, R.id.h4,
+                R.id.h5, R.id.h6, R.id.h7
+            )
+            val cols = intArrayOf(
+                R.id.t0, R.id.t1, R.id.t2, R.id.t3, R.id.t4,
+                R.id.t5, R.id.t6, R.id.t7
+            )
+            val imgs = intArrayOf(
+                R.id.i0, R.id.i1, R.id.i2, R.id.i3, R.id.i4,
+                R.id.i5, R.id.i6, R.id.i7
+            )
 
-            final int HOUR     = 60 * 60 * 1000;
-            Calendar  nowJapan = Calendar.getInstance(Locale.JAPAN);
-            long      now      = nowJapan.getTime().getTime() - 3 * HOUR;
-            int       col      = 0;
+            val HOUR = 60 * 60 * 1000
+            val nowJapan = Calendar.getInstance(Locale.JAPAN)
+            val now = nowJapan.time.time - 3 * HOUR
+            var col = 0
 
-            for (int y = 0; y < 2; y++) {
-                Day day = (y == 0 ? data.today : data.tomorrow);
+            for (y in 0..1) {
+                val day: YahooWeather.Day = (if (y == 0) data.today else data.tomorrow)
 
-                long baseTime = day.date.getTime();
+                val baseTime: Long = day.date.toEpochMilliseconds()
 
-                for (int x = 0; x < 8; x++) {
-                    YahooWeather.Hour h = day.hours[x];
+                for (x in 0..7) {
+                    val h: Hour = day.hours.get(x)
 
-                    boolean enabled = (baseTime + h.hour * HOUR) > now;
-                    if (enabled && col < cols.length) {
+                    val enabled = (baseTime + h.hour * HOUR) > now
+                    if (enabled && col < cols.size) {
+                        views.setTextViewText(
+                            heads[col],
+                            h.hour.toString() + "時"
+                        )
 
-                        views.setTextViewText(heads[col],
-                                String.valueOf(h.hour) + "時");
+                        val sb = StringBuilder()
 
-                        StringBuilder sb = new StringBuilder();
+                        //                        sb.append(h.text).append("\n");
+                        val textEnd = sb.length
 
-//                        sb.append(h.text).append("\n");
-                        int textEnd = sb.length();
-
-                        sb.append(h.temp).append("℃\n");
-                        int tempEnd = sb.length();
+                        sb.append(h.temp).append("℃\n")
+                        val tempEnd = sb.length
 
                         //sb.append(h.humidity + "\n");
-                        int humidEnd = sb.length();
+                        val humidEnd = sb.length
 
-                        sb.append(h.rain).append("㍉");
-                        int rainEnd = sb.length();
+                        sb.append(h.rain).append("㍉")
+                        val rainEnd = sb.length
 
-                        String imageUrl = h.getImageUrl(true);
-                        Log.d(TAG, "imagerUrl:" + imageUrl);
+                        val imageUrl = h.getImageUrl(true)
+                        Log.d(TAG, "imagerUrl:$imageUrl")
                         if (imageUrl != null) {
-                            int bmpId = getBitmapIndexFromUrl(context, imageUrl);
+                            val bmpId = getBitmapIndexFromUrl(context, imageUrl)
                             if (bmpId != -1) {
-                                views.setImageViewResource(imgs[col], bmpId);
+                                views.setImageViewResource(imgs[col], bmpId)
                             } else {
-                                Bitmap bmp = getIconManager(context).getIcon(imageUrl);
-                                views.setImageViewBitmap(imgs[col], bmp);
+                                val bmp = getIconManager(context).getIcon(imageUrl)
+                                views.setImageViewBitmap(imgs[col], bmp)
                             }
                         }
 
-                        SpannableString ss = new SpannableString(sb);
-//                        ss.setSpan(new ForegroundColorSpan(theme.textColor), 0, textEnd,
+                        val ss = SpannableString(sb)
+                        //                        ss.setSpan(new ForegroundColorSpan(theme.textColor), 0, textEnd,
 //                                SpannableString.SPAN_INCLUSIVE_INCLUSIVE);
-                        ss.setSpan(new ForegroundColorSpan(theme.tempColor), textEnd, tempEnd,
-                                SpannableString.SPAN_INCLUSIVE_INCLUSIVE);
-                        ss.setSpan(new ForegroundColorSpan(theme.humidColor), tempEnd, humidEnd,
-                                SpannableString.SPAN_INCLUSIVE_INCLUSIVE);
-                        ss.setSpan(new ForegroundColorSpan(theme.rainColor), humidEnd, rainEnd,
-                                SpannableString.SPAN_INCLUSIVE_INCLUSIVE);
-                        views.setTextViewText(cols[col], ss);
+                        ss.setSpan(
+                            ForegroundColorSpan(theme.tempColor), textEnd, tempEnd,
+                            SpannableString.SPAN_INCLUSIVE_INCLUSIVE
+                        )
+                        ss.setSpan(
+                            ForegroundColorSpan(theme.humidColor), tempEnd, humidEnd,
+                            SpannableString.SPAN_INCLUSIVE_INCLUSIVE
+                        )
+                        ss.setSpan(
+                            ForegroundColorSpan(theme.rainColor), humidEnd, rainEnd,
+                            SpannableString.SPAN_INCLUSIVE_INCLUSIVE
+                        )
+                        views.setTextViewText(cols[col], ss)
 
-                        col++;
+                        col++
                     }
                 }
             }
-            return views;
+            return views
         }
 
-        WeatherIconManager mIconManager;
+        var mIconManager: WeatherIconManager? = null
 
-        WeatherIconManager getIconManager(Context context) {
+        fun getIconManager(context: Context): WeatherIconManager {
             if (mIconManager == null) {
-                mIconManager = new WeatherIconManager(context);
+                mIconManager = WeatherIconManager(context)
             }
-            return mIconManager;
+            return mIconManager!!
         }
     }
 
 
-    static class WeatherIconManager {
+    internal class WeatherIconManager(private val mContext: Context) {
+        private val mCache = HashMap<String, Bitmap>()
+        var mIconSize: Int
+        var mShadowOffset: Int
 
-        private final Context                 mContext;
-        private       HashMap<String, Bitmap> mCache = new HashMap<>();
-        int mIconSize;
-        int mShadowOffset;
-
-        public WeatherIconManager(Context context) {
-            mContext = context;
-            float density = context.getResources().getDisplayMetrics().density;
-            mShadowOffset = Math.round(1 * density);
-            mIconSize = (int) (38 * density) + mShadowOffset * 2;
+        init {
+            val density = mContext.resources.displayMetrics.density
+            mShadowOffset = Math.round(1 * density)
+            mIconSize = (38 * density).toInt() + mShadowOffset * 2
         }
 
-        public Bitmap getIcon(String url) {
+        fun getIcon(url: String): Bitmap? {
             try {
-                Bitmap bmp = mCache.get(url);
-                if (bmp != null) return bmp;
+                var bmp = mCache[url]
+                if (bmp != null) return bmp
 
-                bmp = TenkiApp.from(mContext).getDownloader().downloadImage(url, 8000, 0);
+                bmp = from(mContext).downloader.downloadImage(url, 8000, 0)
                 if (bmp != null) {
-                    Bitmap newBitmap = convertBitmap(bmp);
+                    val newBitmap = convertBitmap(bmp)
                     if (newBitmap != null) {
-                        bmp = newBitmap;
+                        bmp = newBitmap
                     }
-                    mCache.put(url, bmp);
+                    mCache[url] = bmp
                 }
-                return bmp;
-            } catch (Exception e) {
-                e.printStackTrace();
-                return null;
+                return bmp
+            } catch (e: Exception) {
+                e.printStackTrace()
+                return null
             }
         }
 
-        public Bitmap convertBitmap(Bitmap bmp) {
-            Bitmap newBmp = Bitmap.createBitmap(mIconSize, mIconSize, Bitmap.Config.ARGB_8888);
-            Bitmap alpha  = bmp.extractAlpha();
+        fun convertBitmap(bmp: Bitmap): Bitmap {
+            val newBmp = Bitmap.createBitmap(mIconSize, mIconSize, Bitmap.Config.ARGB_8888)
+            val alpha = bmp.extractAlpha()
             try {
-                Canvas c = new Canvas(newBmp);
-                Paint  p = new Paint();
-                p.setFilterBitmap(true);
-                p.setColor(0x88000000);
-                Matrix m      = new Matrix();
-                float  scaleX = (float) (mIconSize - mShadowOffset * 2) / bmp.getWidth();
-                float  scaleY = (float) (mIconSize - mShadowOffset * 2) / bmp.getHeight();
-                float  scale  = Math.max(scaleX, scaleY);
-                m.preScale(scale, scale);
-                m.postTranslate(mShadowOffset * 2, mShadowOffset * 2);
-                c.drawBitmap(alpha, m, p);
-                m.postTranslate(-mShadowOffset, -mShadowOffset);
-                c.drawBitmap(bmp, m, null);
+                val c = Canvas(newBmp)
+                val p = Paint()
+                p.isFilterBitmap = true
+                p.color = -0x78000000
+                val m = Matrix()
+                val scaleX = (mIconSize - mShadowOffset * 2).toFloat() / bmp.width
+                val scaleY = (mIconSize - mShadowOffset * 2).toFloat() / bmp.height
+                val scale = max(scaleX.toDouble(), scaleY.toDouble()).toFloat()
+                m.preScale(scale, scale)
+                m.postTranslate((mShadowOffset * 2).toFloat(), (mShadowOffset * 2).toFloat())
+                c.drawBitmap(alpha, m, p)
+                m.postTranslate(-mShadowOffset.toFloat(), -mShadowOffset.toFloat())
+                c.drawBitmap(bmp, m, null)
             } finally {
-                alpha.recycle();
+                alpha.recycle()
             }
 
-            return newBmp;
+            return newBmp
         }
-
     }
 
-    private static final String[] bmpNames = new String[]{
+    class WidgetTheme(context: Context?) {
+        //			Resources res = context.getResources();
+        val timeColor: Int = -0x2f2f30
+        val tempColor: Int = -0x53a7
+        val rainColor: Int = -0x713801
+        val humidColor: Int = -0x710072
+        val textColor: Int = -0x1f1f20
+    }
+
+    companion object {
+        val TAG: String = WidgetUpdateService::class.java.simpleName
+        const val ACTION_MANUAL_UPDATE: String = "manualUpdate"
+
+        private val bmpNames = arrayOf(
             "psun", "psnow", "psleet",
             "prain_light", "prain_gusty",
             "prain", "pmoon", "pclouds"
-    };
+        )
 
-    private static final int[] bmpIds = new int[]{
+        private val bmpIds = intArrayOf(
             R.drawable.psun, R.drawable.psnow, R.drawable.psleet,
             R.drawable.prain, R.drawable.prain_gusty,
             R.drawable.prain, R.drawable.pmoon, R.drawable.pclouds
-    };
+        )
 
-    public static int getBitmapIndexFromUrl(Context c, String url) {
-        return getBitmapIndexFromUrl_old(c, url);
-    }
+        fun getBitmapIndexFromUrl(c: Context?, url: String?): Int {
+            return getBitmapIndexFromUrl_old(c, url)
+        }
 
-    public static int getBitmapIndexFromUrl_old(Context c, String url) {
-        if (url != null) {
-            for (int j = 0; j < bmpNames.length; j++) {
-                if (url.contains(bmpNames[j])) {
-                    return bmpIds[j];
+        fun getBitmapIndexFromUrl_old(c: Context?, url: String?): Int {
+            if (url != null) {
+                for (j in bmpNames.indices) {
+                    if (url.contains(bmpNames[j])) {
+                        return bmpIds[j]
+                    }
                 }
             }
-        }
-        return -1;
-    }
-
-    public static class WidgetTheme {
-        public final int timeColor;
-        public final int tempColor;
-        public final int rainColor;
-        public final int humidColor;
-        public final int textColor;
-
-        public WidgetTheme(Context context) {
-//			Resources res = context.getResources();
-
-            timeColor = 0xffd0d0d0;
-            tempColor = 0xffFFAC59;
-            rainColor = 0xff8EC7FF;
-            humidColor = 0xff8EFF8E;
-            textColor = 0xffe0e0e0;
+            return -1
         }
     }
 }

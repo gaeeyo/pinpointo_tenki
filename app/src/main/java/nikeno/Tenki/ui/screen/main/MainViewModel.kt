@@ -12,7 +12,8 @@ import kotlinx.coroutines.flow.flow
 import kotlinx.coroutines.launch
 import kotlinx.datetime.Clock
 import nikeno.Tenki.TenkiApp
-import nikeno.Tenki.YahooWeather
+import nikeno.Tenki.feature.weather.YahooWeather
+import nikeno.Tenki.feature.weather.YahooWeatherHtmlParser
 import nikeno.Tenki.feature.weather.getYahooWeather
 import kotlin.time.Duration.Companion.minutes
 
@@ -110,7 +111,7 @@ class MainViewModel(application: Application) : AndroidViewModel(application) {
         if (entry != null) {
             try {
                 mState.value = mState.value.copy(
-                    data = YahooWeather.parse(entry.data),
+                    data = YahooWeatherHtmlParser().parse(entry.data),
                     dataTime = entry.time,
                     isCache = true,
                 )
