@@ -1,126 +1,101 @@
-package nikeno.Tenki;
+package nikeno.Tenki
 
-import android.content.Context;
-import android.graphics.Bitmap;
-import android.os.Handler;
-import android.os.Looper;
-import android.os.Message;
+import android.content.Context
+import android.graphics.Bitmap
+import android.os.Handler
+import android.os.Looper
+import android.os.Message
+import nikeno.Tenki.TenkiApp.Companion.from
 
-import java.util.ArrayList;
+class ImageDownloader(context: Context?) {
+    val mDownloader: Downloader = from(context!!).downloader
 
-public class ImageDownloader {
+    var mCurrentTask: Thread? = null
+    var mTasks: ArrayList<Task> = ArrayList()
 
+    var mHandler: Handler = object : Handler(Looper.getMainLooper()) {
+        override fun handleMessage(msg: Message) {
+            super.handleMessage(msg)
 
-    static final int MSG_CHECK_TASK = 1;
-    static final int MSG_TASK_COMPLETE = 2;
-
-    static ImageDownloader sInstance;
-
-    public static synchronized  ImageDownloader getInstance(Context context) {
-        if (sInstance == null) {
-            sInstance = new ImageDownloader(context);
-        }
-        return sInstance;
-    }
-
-
-    final Downloader mDownloader;
-
-    Thread mCurrentTask;
-    ArrayList<Task> mTasks = new ArrayList<>();
-
-    Handler mHandler = new Handler(Looper.getMainLooper()) {
-        @Override
-        public void handleMessage(Message msg) {
-            super.handleMessage(msg);
-
-            switch (msg.what) {
-                case MSG_CHECK_TASK:
-                    checkTask();
-                    break;
-                case MSG_TASK_COMPLETE:
-                    mCurrentTask = null;
-                    onPostExecute((Task) msg.obj);
-                    checkTask();
-                    break;
+            when (msg.what) {
+                MSG_CHECK_TASK -> checkTask()
+                MSG_TASK_COMPLETE -> {
+                    mCurrentTask = null
+                    onPostExecute(msg.obj as Task)
+                    checkTask()
+                }
             }
         }
-    };
-
-    public ImageDownloader(Context context) {
-        mDownloader = TenkiApp.from(context).getDownloader();
     }
 
-    public void setImage(String url, Downloader.ImageHandler view) {
+    fun setImage(url: String?, view: (Bitmap) -> Unit) {
         if (setImageNow(url, view)) {
-            return;
+            return
         }
 
-        Task task = new Task(url, view);
-        mTasks.add(task);
+        val task = Task(url, view)
+        mTasks.add(task)
 
-        mHandler.sendEmptyMessage(MSG_CHECK_TASK);
+        mHandler.sendEmptyMessage(MSG_CHECK_TASK)
     }
 
-    boolean setImageNow(String url, Downloader.ImageHandler view) {
-        Bitmap bmp = mDownloader.getImageFromMemCache(url);
+    fun setImageNow(url: String?, view: (Bitmap) -> Unit): Boolean {
+        val bmp = mDownloader.getImageFromMemCache(url!!)
         if (bmp == null) {
-            return false;
+            return false
         } else {
-            view.setBitmap(bmp);
-            return true;
+            view(bmp)
+            return true
         }
     }
 
-    void checkTask() {
+    fun checkTask() {
         if (mCurrentTask == null) {
-            while (mTasks.size() > 0) {
-                final Task task = mTasks.remove(0);
+            while (mTasks.size > 0) {
+                val task = mTasks.removeAt(0)
                 if (setImageNow(task.url, task.handler)) {
-                    continue;
+                    continue
                 }
 
-                mCurrentTask = new Thread() {
-                    @Override
-                    public void run() {
-                        super.run();
-                        execute(task);
+                mCurrentTask = object : Thread() {
+                    override fun run() {
+                        super.run()
+                        execute(task)
                     }
-                };
-                mCurrentTask.start();
-                break;
+                }
+                mCurrentTask!!.start()
+                break
             }
         }
     }
 
-    void execute(Task task) {
+    fun execute(task: Task) {
         try {
-            task.bmp = mDownloader.downloadImage(task.url, TenkiApp.IMAGE_SIZE_MAX, 0);
-        } catch (Exception e) {
-            e.printStackTrace();
-            task.error = e;
+            task.bmp = mDownloader.downloadImage(task.url!!, TenkiApp.IMAGE_SIZE_MAX, 0)
+        } catch (e: Exception) {
+            e.printStackTrace()
+            task.error = e
         }
 
-        Message msg = mHandler.obtainMessage();
-        msg.what = MSG_TASK_COMPLETE;
-        msg.obj = task;
-        mHandler.sendMessage(msg);
+        val msg = mHandler.obtainMessage()
+        msg.what = MSG_TASK_COMPLETE
+        msg.obj = task
+        mHandler.sendMessage(msg)
     }
 
-    void onPostExecute(Task task) {
+    fun onPostExecute(task: Task) {
         if (task.bmp != null) {
-            task.handler.setBitmap(task.bmp);
+            task.handler(task.bmp!!)
         }
     }
 
-    static class Task {
-        public String                  url;
-        public Downloader.ImageHandler handler;
-        public Bitmap                  bmp;
-        public Throwable               error;
-        public Task(String url, Downloader.ImageHandler handler) {
-            this.url = url;
-            this.handler = handler;
-        }
+    class Task(var url: String?, var handler: (Bitmap) -> Unit) {
+        var bmp: Bitmap? = null
+        var error: Throwable? = null
+    }
+
+    companion object {
+        const val MSG_CHECK_TASK: Int = 1
+        const val MSG_TASK_COMPLETE: Int = 2
     }
 }

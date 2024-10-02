@@ -1,112 +1,67 @@
-package nikeno.Tenki;
+package nikeno.Tenki
 
-import android.content.Context;
-import android.graphics.Bitmap;
-import android.graphics.BitmapFactory;
-import android.os.Build;
-import android.util.DisplayMetrics;
-import android.util.Log;
+import android.content.Context
+import android.graphics.Bitmap
+import android.graphics.BitmapFactory
+import android.util.DisplayMetrics
+import io.ktor.client.HttpClient
+import io.ktor.client.call.body
+import io.ktor.client.request.get
+import io.ktor.http.lastModified
+import kotlinx.datetime.Clock
+import nikeno.Tenki.db.ResourceCache
+import nikeno.Tenki.db.entity.ResourceCacheEntity
+import java.util.WeakHashMap
 
-import java.io.ByteArrayOutputStream;
-import java.io.IOException;
-import java.io.InputStream;
-import java.net.HttpURLConnection;
-import java.net.URL;
-import java.util.WeakHashMap;
+class Downloader(context: Context?, filename: String?, private val client: HttpClient) {
+    private val TAG = "Downloader"
+    private val mFileCache = ResourceCache(context, filename)
+    private val mBitmapCache = WeakHashMap<String, Bitmap?>()
 
-import javax.net.ssl.HttpsURLConnection;
-
-import nikeno.Tenki.db.ResourceCache;
-import nikeno.Tenki.db.entity.ResourceCacheEntity;
-
-public class Downloader {
-    private final        String                      TAG                    = "Downloader";
-    private final        ResourceCache               mFileCache;
-    private final        WeakHashMap<String, Bitmap> mBitmapCache;
-
-    public Downloader(Context context, String filename) {
-        mFileCache = new ResourceCache(context, filename);
-        mBitmapCache = new WeakHashMap<>();
+    suspend fun download(url: String, maxSize: Int, storeCache: Boolean): ByteArray {
+        val res = client.get(url)
+        val body = res.body<ByteArray>()
+        if (storeCache) {
+            mFileCache.put(
+                url,
+                body,
+                res.lastModified()?.time ?: Clock.System.now().toEpochMilliseconds()
+            )
+        }
+        return body
     }
 
-    public byte[] download(String url, int maxSize, boolean storeCache) throws Exception {
-        if (BuildConfig.DEBUG) {
-            Log.d(TAG, "downloading " + url);
-        }
-
-        ByteArrayOutputStream baos = new ByteArrayOutputStream(maxSize);
-
-        URL u = new URL(url);
-
-        HttpURLConnection uc = (HttpURLConnection) u.openConnection();
-        uc.setRequestProperty("User-Agent", "pinpoint_tenki/" + BuildConfig.VERSION_NAME);
-        if (Build.VERSION.SDK_INT <= Build.VERSION_CODES.KITKAT && uc instanceof HttpsURLConnection) {
-            // Android 4.4未満でTLS1.2を有効化する
-            ((HttpsURLConnection) uc).setSSLSocketFactory(new TLSSocketFactory());
-        }
-        uc.setConnectTimeout(TenkiApp.CONNECT_TIMEOUT);
-        uc.getIfModifiedSince();
-
-        InputStream in = uc.getInputStream();
-        try {
-            byte[] buf = new byte[8 * 1024];
-            int    readSize;
-            while ((readSize = in.read(buf)) > 0) {
-                baos.write(buf, 0, readSize);
-            }
-        } finally {
-            in.close();
-        }
-
-        byte[] data = baos.toByteArray();
-        if (data != null && storeCache) {
-            mFileCache.put(url, data, uc.getIfModifiedSince());
-        }
-
-        return data;
-    }
-
-    static int sFakeError = BuildConfig.DEBUG ? 0 : 0;
-
-    public byte[] download(String url, int maxSize, long since, boolean storeCache) throws Exception {
-        if (sFakeError > 0 && url.endsWith(".html")) {
-            sFakeError--;
-            Log.w(TAG, "Fake Error");
-            throw new IOException("Fake Error");
-        }
-        if (since != -1) {
-            ResourceCacheEntity entry = mFileCache.get(url, since);
+    fun download(url: String, maxSize: Int, since: Long, storeCache: Boolean): ByteArray {
+        if (since != -1L) {
+            val entry = mFileCache[url, since]
             if (entry != null) {
-                return entry.data;
+                return entry.data
             }
         }
-        return download(url, maxSize, storeCache);
+        return download(url, maxSize, 0, storeCache)
     }
 
-    public ResourceCacheEntity getCache(String url, long since) {
-        return mFileCache.get(url, since);
+    fun getCache(url: String?, since: Long): ResourceCacheEntity {
+        return mFileCache[url, since]
     }
 
-    public Bitmap downloadImage(String url, int maxSize, long since) throws Exception {
-        Bitmap bmp = mBitmapCache.get(url);
+    @Throws(Exception::class)
+    fun downloadImage(url: String, maxSize: Int, since: Long): Bitmap? {
+        var bmp = mBitmapCache[url]
         if (bmp == null) {
-            byte[] data = download(url, maxSize, since, true);
+            val data = download(url, maxSize, since, true)
             if (data != null) {
-                bmp = BitmapFactory.decodeByteArray(data, 0, data.length);
-                bmp.setDensity(DisplayMetrics.DENSITY_MEDIUM);
-                mBitmapCache.put(url, bmp);
+                bmp = BitmapFactory.decodeByteArray(data, 0, data.size)
+                bmp.setDensity(DisplayMetrics.DENSITY_MEDIUM)
+                mBitmapCache[url] = bmp
             }
         } else {
             //Log.d(TAG, "Found in BitmapCache");
         }
-        return bmp;
+        return bmp
     }
 
-    Bitmap getImageFromMemCache(String url) {
-        return mBitmapCache.get(url);
-    }
-
-    public interface ImageHandler {
-        void setBitmap(Bitmap bmp);
+    fun getImageFromMemCache(url: String): Bitmap? {
+        return mBitmapCache[url]
     }
 }

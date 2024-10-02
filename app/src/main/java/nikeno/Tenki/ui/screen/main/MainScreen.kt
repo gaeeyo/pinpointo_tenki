@@ -570,10 +570,9 @@ fun WeatherWeek(data: List<YahooWeather.WeeklyDay>) {
 
 @Composable
 fun WeatherIcon(modifier: Modifier = Modifier, url: String) {
-    val context = LocalContext.current
     var bitmap by remember { mutableStateOf<Bitmap?>(null) }
+    val downloader: ImageDownloader = koinInject()
 
-    val downloader = ImageDownloader.getInstance(context)
     LaunchedEffect(url) {
         downloader.setImage(url) {
             bitmap = it
