@@ -1,18 +1,15 @@
 package nikeno.Tenki.ui.screen.selectarea
 
-import android.app.Application
 import android.util.Log
-import androidx.lifecycle.AndroidViewModel
-import androidx.lifecycle.SavedStateHandle
+import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.launch
 import nikeno.Tenki.Area
-import nikeno.Tenki.TenkiApp
-import nikeno.Tenki.feature.weather.searchAddress
-import nikeno.Tenki.prefs
+import nikeno.Tenki.Prefs
+import nikeno.Tenki.feature.weather.YahooWeatherClient
 
 data class SelectAreaState(
     val keyword: String = "",
@@ -22,15 +19,15 @@ data class SelectAreaState(
     val foundAreaList: List<Area>? = null,
 )
 
-class SelectAreaViewModel(application: Application, handle: SavedStateHandle) :
-    AndroidViewModel(application) {
+class SelectAreaViewModel(private val prefs: Prefs, private val client: YahooWeatherClient) :
+    ViewModel() {
 
     private val mState = MutableStateFlow(SelectAreaState())
     val state = mState.asStateFlow()
 
     init {
         viewModelScope.launch {
-            application.prefs.recentAreaList.collect {
+            prefs.recentAreaList.collect {
                 mState.value = mState.value.copy(savedAreaList = it)
             }
         }
@@ -50,10 +47,7 @@ class SelectAreaViewModel(application: Application, handle: SavedStateHandle) :
         )
         viewModelScope.launch(Dispatchers.IO) {
             try {
-                val result = searchAddress(
-                    TenkiApp.from(getApplication()).downloader,
-                    keyword
-                )
+                val result = client.searchAddress(keyword)
                 Log.d(TAG, "検索結果: $result")
                 mState.value = mState.value.copy(
                     foundAreaList = result,

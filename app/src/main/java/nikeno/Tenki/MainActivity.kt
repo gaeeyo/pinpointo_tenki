@@ -7,6 +7,7 @@ import nikeno.Tenki.ui.app.MyAppNavHost
 import nikeno.Tenki.ui.app.MyAppTheme
 import nikeno.Tenki.ui.app.ScreenMain
 import nikeno.Tenki.ui.app.ScreenMainWithUrl
+import org.koin.compose.KoinContext
 
 class MainActivity : ComponentActivity() {
     public override fun onCreate(savedInstanceState: Bundle?) {
@@ -18,8 +19,10 @@ class MainActivity : ComponentActivity() {
             startDestination = ScreenMainWithUrl(uri.toString())
         }
         setContent {
-            MyAppTheme {
-                MyAppNavHost(startDestination)
+            KoinContext {
+                MyAppTheme {
+                    MyAppNavHost(startDestination)
+                }
             }
         }
     }

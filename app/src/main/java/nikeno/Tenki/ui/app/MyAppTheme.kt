@@ -5,17 +5,16 @@ import androidx.compose.runtime.CompositionLocalProvider
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.compositionLocalOf
 import androidx.compose.ui.graphics.Color
-import androidx.compose.ui.platform.LocalContext
 import com.example.compose.AppTheme
 import nikeno.Tenki.Prefs
-import nikeno.Tenki.prefs
+import org.koin.compose.koinInject
 
 
 @Composable
 fun MyAppTheme(content: @Composable () -> Unit) {
-    val context = LocalContext.current
+    val prefs: Prefs = koinInject()
 
-    val currentTheme = context.prefs.theme.collectAsState().value
+    val currentTheme = prefs.theme.collectAsState().value
 
     val weatherTheme = when (currentTheme) {
         Prefs.ThemeNames.DEFAULT -> WEATHER_THEME_LIGHT

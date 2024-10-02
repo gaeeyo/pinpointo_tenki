@@ -60,15 +60,15 @@ import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
-import androidx.lifecycle.viewmodel.compose.viewModel
 import nikeno.Tenki.ImageDownloader
 import nikeno.Tenki.Prefs
 import nikeno.Tenki.R
 import nikeno.Tenki.feature.weather.YahooWeather
-import nikeno.Tenki.prefs
 import nikeno.Tenki.ui.app.LocalWeatherTheme
 import nikeno.Tenki.ui.app.MyAppNavigator
 import nikeno.Tenki.ui.app.MyTopBar
+import org.koin.compose.koinInject
+import org.koin.compose.viewmodel.koinViewModel
 import kotlin.math.max
 import kotlin.math.roundToInt
 
@@ -82,8 +82,9 @@ fun MainScreen(
 ) {
 
     val context = LocalContext.current
+    val prefs: Prefs = koinInject()
 
-    val vm = viewModel<MainViewModel>()
+    val vm = koinViewModel<MainViewModel>()
 
     val state = vm.state.collectAsState().value
 
@@ -96,7 +97,7 @@ fun MainScreen(
         }
     } else {
         // url指定なしのときは設定のurlを表示
-        val prefUrl = context.prefs.currentAreaUrl.collectAsState().value
+        val prefUrl = prefs.currentAreaUrl.collectAsState().value
 
         LaunchedEffect(prefUrl) {
             if (prefUrl != null) {
@@ -108,9 +109,10 @@ fun MainScreen(
     // 地域選択画面からの選択結果を処理
     val result = navigator.getSelectedArea()
 
+
     LaunchedEffect(result) {
         if (result != null) {
-            context.prefs.setCurrentArea(result)
+            prefs.setCurrentArea(result)
         }
     }
 
@@ -131,7 +133,6 @@ fun MainScreen(
             navigator.toHelp()
         },
         onClickTheme = {
-            val prefs = context.prefs
             prefs.setTheme(
                 if (prefs.theme.value == Prefs.ThemeNames.DEFAULT)
                     Prefs.ThemeNames.DARK else Prefs.ThemeNames.DEFAULT

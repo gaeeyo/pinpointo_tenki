@@ -1,9 +1,8 @@
 package nikeno.Tenki.ui.screen.main
 
-import android.app.Application
 import android.text.format.DateUtils
 import android.util.Log
-import androidx.lifecycle.AndroidViewModel
+import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.MutableStateFlow
@@ -11,13 +10,11 @@ import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.flow
 import kotlinx.coroutines.launch
 import kotlinx.datetime.Clock
-import nikeno.Tenki.TenkiApp
 import nikeno.Tenki.feature.weather.YahooWeather
-import nikeno.Tenki.feature.weather.YahooWeatherHtmlParser
-import nikeno.Tenki.feature.weather.getYahooWeather
+import nikeno.Tenki.feature.weather.YahooWeatherClient
 import kotlin.time.Duration.Companion.minutes
 
-class MainViewModel(application: Application) : AndroidViewModel(application) {
+class MainViewModel(private val client: YahooWeatherClient) : ViewModel() {
     data class MainViewState(
         val now: Long = Clock.System.now().toEpochMilliseconds(),
         val url: String? = null,
@@ -85,9 +82,7 @@ class MainViewModel(application: Application) : AndroidViewModel(application) {
         )
         viewModelScope.launch(Dispatchers.IO) {
             try {
-                val data = getYahooWeather(
-                    TenkiApp.from(getApplication()).downloader, url
-                )
+                val data = client.getYahooWeather(url)
                 mState.value = mState.value.copy(
                     data = data,
                     dataTime = System.currentTimeMillis(),
@@ -105,14 +100,16 @@ class MainViewModel(application: Application) : AndroidViewModel(application) {
     }
 
     private fun loadCache() {
-        val entry = TenkiApp.from(getApplication()).downloader.getCache(
-            mState.value.url, System.currentTimeMillis() - 24 * DateUtils.HOUR_IN_MILLIS
+        val url = mState.value.url ?: return
+
+        val weather = client.getCachedWeather(
+            url, System.currentTimeMillis() - 12 * DateUtils.HOUR_IN_MILLIS
         )
-        if (entry != null) {
+        if (weather != null) {
             try {
                 mState.value = mState.value.copy(
-                    data = YahooWeatherHtmlParser().parse(entry.data),
-                    dataTime = entry.time,
+                    data = weather.data,
+                    dataTime = weather.time,
                     isCache = true,
                 )
 

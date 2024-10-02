@@ -6,15 +6,25 @@ import android.app.NotificationManager
 import android.content.Context
 import android.os.Build
 import android.text.format.DateUtils
+import org.koin.android.ext.android.inject
+import org.koin.android.ext.koin.androidContext
+import org.koin.android.ext.koin.androidLogger
+import org.koin.core.context.startKoin
 
 class TenkiApp : Application() {
-    private lateinit var mPrefs: Prefs
-    private var mDownloader: Downloader? = null
+    val prefs: Prefs by inject()
+
+    @get:Synchronized
+    val downloader: Downloader by inject()
 
     override fun onCreate() {
         super.onCreate()
 
-        mPrefs = Prefs(getSharedPreferences("AF.Tenki", MODE_PRIVATE))
+        startKoin {
+            androidLogger()
+            androidContext(this@TenkiApp)
+            modules(tenkiAppModule)
+        }
 
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
             val nc = NotificationChannel(
@@ -27,21 +37,7 @@ class TenkiApp : Application() {
         }
     }
 
-    val prefs: Prefs
-        get() = mPrefs
-
-    @get:Synchronized
-    val downloader: Downloader
-        get() {
-            if (mDownloader == null) {
-                mDownloader = Downloader(this, DEFAULT_CACHE_FILENAME)
-            }
-            return mDownloader!!
-        }
-
     companion object {
-        private const val DEFAULT_CACHE_FILENAME = "file_cache.db"
-
         const val IMAGE_SIZE_MAX: Int = 16 * 1024
         const val HTML_SIZE_MAX: Int = 50 * 1024
 
@@ -61,7 +57,4 @@ class TenkiApp : Application() {
         }
     }
 }
-
-val Context.prefs
-    get() = (this.applicationContext as TenkiApp).prefs
 

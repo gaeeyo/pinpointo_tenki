@@ -35,15 +35,17 @@ import androidx.compose.ui.text.input.ImeAction
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
-import androidx.lifecycle.viewmodel.compose.viewModel
 import nikeno.Tenki.Area
 import nikeno.Tenki.R
 import nikeno.Tenki.ui.app.MyTopBar
+import org.koin.compose.viewmodel.koinViewModel
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun SelectAreaScreen(
-    vm: SelectAreaViewModel = viewModel(), onSelectArea: (Area) -> Unit, onBackPressed: () -> Unit
+    vm: SelectAreaViewModel = koinViewModel(),
+    onSelectArea: (Area) -> Unit,
+    onBackPressed: () -> Unit
 ) {
 
     val state = vm.state.collectAsState().value

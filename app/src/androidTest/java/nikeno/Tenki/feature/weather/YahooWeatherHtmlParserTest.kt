@@ -1,7 +1,21 @@
 package nikeno.Tenki.feature.weather
 
 import androidx.test.platform.app.InstrumentationRegistry
+import io.ktor.client.HttpClient
+import io.ktor.client.plugins.cache.HttpCache
+import io.ktor.client.plugins.cache.storage.FileStorage
+import io.ktor.client.plugins.logging.LogLevel
+import io.ktor.client.plugins.logging.Logger
+import io.ktor.client.plugins.logging.Logging
+import io.ktor.client.plugins.logging.SIMPLE
+import io.ktor.client.request.HttpRequestBuilder
+import io.ktor.client.request.get
+import io.ktor.client.request.headers
+import io.ktor.client.request.url
+import io.ktor.client.statement.bodyAsText
+import kotlinx.coroutines.runBlocking
 import org.junit.Test
+import java.io.File
 import java.io.IOException
 
 
@@ -19,6 +33,33 @@ class YahooWeatherHtmlParserTest {
         println(yw2)
     }
 
+    @Test
+    fun testClient() {
+        val context = InstrumentationRegistry.getInstrumentation().context
+        val client = HttpClient() {
+            install(Logging) {
+                logger = Logger.SIMPLE
+                level = LogLevel.HEADERS
+            }
+            install(HttpCache) {
+                val path = File(context.filesDir, "http_cache")
+                path.mkdirs()
+                publicStorage(FileStorage(path))
+            }
+        }
+        runBlocking {
+            val req = HttpRequestBuilder().apply {
+                url("https://syoboi.jp/")
+                headers {
+                    append("Cache-Control", "max-age=600")
+                }
+            }
+//            val res = client.get("https://syoboi.jp/")
+            val res = client.get(req)
+            res.bodyAsText()
+            client.close()
+        }
+    }
 }
 
 val x = """
