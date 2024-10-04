@@ -7,8 +7,6 @@ import android.util.Log;
 
 import androidx.annotation.NonNull;
 
-import nikeno.Tenki.Utils;
-
 public class WeatherWidgetPrefs {
     static final String TAG = "WidgetSettings";
 
@@ -30,7 +28,7 @@ public class WeatherWidgetPrefs {
 
     @NonNull
     public static WeatherWidgetConfig getWidgetConfig(@NonNull Context context, int id) {
-        String url = Utils.httpsUrl(getPrefs(context).getString(prefKey(id, NAME_URL), ""));;
+        String url = getPrefs(context).getString(prefKey(id, NAME_URL), "");
         return new WeatherWidgetConfig(url);
     }
 

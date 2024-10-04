@@ -16,6 +16,7 @@ import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.verticalScroll
@@ -60,9 +61,10 @@ import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
-import nikeno.Tenki.ImageDownloader
+import kotlinx.coroutines.DelicateCoroutinesApi
 import nikeno.Tenki.Prefs
 import nikeno.Tenki.R
+import nikeno.Tenki.feature.fetcher.ImageFetcher
 import nikeno.Tenki.feature.weather.YahooWeather
 import nikeno.Tenki.ui.app.LocalWeatherTheme
 import nikeno.Tenki.ui.app.MyAppNavigator
@@ -443,7 +445,6 @@ fun WeatherDay(data: YahooWeather.Day, now: Long) {
                         WeatherIcon(url = hour.getImageUrl(!isPast(hour.hour)))
                         Text(
                             hour.text,
-
                             color = if (isPast(hour.hour)) wt.pastContent else wt.weather,
                             textAlign = TextAlign.Center
                         )
@@ -533,7 +534,7 @@ fun WeatherWeek(data: List<YahooWeather.WeeklyDay>) {
                 }
             }
             // アイコン、天気
-            Row(modifier = rowModifier.padding(top = 4.dp)) {
+            Row(modifier = rowModifier.padding(top = 0.dp)) {
                 val textStyle = LocalTextStyle.current.copy(fontSize = 12.sp)
                 for (d in data) {
                     Column(
@@ -568,23 +569,34 @@ fun WeatherWeek(data: List<YahooWeather.WeeklyDay>) {
     }
 }
 
+@OptIn(DelicateCoroutinesApi::class)
 @Composable
 fun WeatherIcon(modifier: Modifier = Modifier, url: String) {
+    WeatherIcon3(modifier, url)
+}
+
+@OptIn(DelicateCoroutinesApi::class)
+@Composable
+fun WeatherIcon3(modifier: Modifier = Modifier, url: String) {
     var bitmap by remember { mutableStateOf<Bitmap?>(null) }
-    val downloader: ImageDownloader = koinInject()
+    val downloader: ImageFetcher = koinInject()
 
     LaunchedEffect(url) {
-        downloader.setImage(url) {
-            bitmap = it
-        }
+        bitmap = downloader.getImage2(url)
     }
-    if (bitmap != null) {
-        Image(
-            bitmap!!.asImageBitmap(), "",
-            modifier = modifier,
-            contentScale = ContentScale.Inside
-        )
-    } else {
-        Box(modifier = modifier)
+
+    Box(
+        modifier = modifier
+            .fillMaxWidth()
+            .height(32.dp)
+    ) {
+        if (bitmap != null) {
+            Image(
+                bitmap!!.asImageBitmap(), "",
+                modifier = modifier.fillMaxSize(),
+                contentScale = ContentScale.Inside,
+                alignment = Alignment.Center
+            )
+        }
     }
 }

@@ -1,5 +1,6 @@
 package nikeno.Tenki.feature.weather
 
+import androidx.compose.runtime.Immutable
 import kotlinx.datetime.Clock
 import kotlinx.datetime.Instant
 import kotlinx.datetime.LocalDateTime
@@ -11,9 +12,11 @@ const val SERVER_ENCODING = "utf-8"
 val TZ_TOKYO = TimeZone.of("Asia/Tokyo")
 
 
+@Immutable
 data class YahooWeather(
     val areaName: String, val today: Day, val tomorrow: Day, val days: List<WeeklyDay>
 ) {
+    @Immutable
     data class Hour(
         val hour: Int,
         val text: String,
@@ -32,10 +35,12 @@ data class YahooWeather(
 
     }
 
+    @Immutable
     data class Day(
         val date: Instant, val hours: List<Hour>
     )
 
+    @Immutable
     data class WeeklyDay(
         val date: String,
         val text: String,

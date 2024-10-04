@@ -121,7 +121,7 @@ class MainViewModel(private val client: YahooWeatherClient) : ViewModel() {
     }
 
     private val isDataOutdated: Boolean
-        get() = mState.value.dataTime < Clock.System.now().minus(5.minutes).toEpochMilliseconds()
+        get() = mState.value.dataTime < Clock.System.now().minus(15.minutes).toEpochMilliseconds()
 
     companion object {
         const val TAG = "MainViewModel"

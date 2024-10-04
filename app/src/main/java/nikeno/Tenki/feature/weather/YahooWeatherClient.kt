@@ -7,7 +7,7 @@ import java.net.URLEncoder
 class YahooWeatherClient(private val downloader: Downloader) {
 
     suspend fun getYahooWeather(url: String): YahooWeather {
-        val data = downloader.download(url, 1024 * 1024, 0, true)
+        val data = downloader.download(url, true)
         return YahooWeatherHtmlParser().parse(data)
     }
 
@@ -31,7 +31,7 @@ class YahooWeatherClient(private val downloader: Downloader) {
         ))
 
         val buff: ByteArray =
-            downloader.download(url, 50 * 1024, -1, false) ?: throw Exception("Download error.")
+            downloader.download(url, false) ?: throw Exception("Download error.")
 
         val html = String(buff, charset(encoding))
 

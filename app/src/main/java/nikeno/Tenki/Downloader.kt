@@ -18,7 +18,7 @@ class Downloader(context: Context?, filename: String?, private val client: HttpC
     private val mFileCache = ResourceCache(context, filename)
     private val mBitmapCache = WeakHashMap<String, Bitmap?>()
 
-    suspend fun download(url: String, maxSize: Int, storeCache: Boolean): ByteArray {
+    suspend fun download(url: String, storeCache: Boolean): ByteArray {
         val res = client.get(url)
         val body = res.body<ByteArray>()
         if (storeCache) {
@@ -31,37 +31,25 @@ class Downloader(context: Context?, filename: String?, private val client: HttpC
         return body
     }
 
-    fun download(url: String, maxSize: Int, since: Long, storeCache: Boolean): ByteArray {
+    suspend fun download(url: String, since: Long, storeCache: Boolean): ByteArray {
         if (since != -1L) {
             val entry = mFileCache[url, since]
             if (entry != null) {
                 return entry.data
             }
         }
-        return download(url, maxSize, 0, storeCache)
+        return download(url, storeCache)
     }
 
-    fun getCache(url: String?, since: Long): ResourceCacheEntity {
+    fun getCache(url: String?, since: Long): ResourceCacheEntity? {
         return mFileCache[url, since]
     }
 
     @Throws(Exception::class)
-    fun downloadImage(url: String, maxSize: Int, since: Long): Bitmap? {
-        var bmp = mBitmapCache[url]
-        if (bmp == null) {
-            val data = download(url, maxSize, since, true)
-            if (data != null) {
-                bmp = BitmapFactory.decodeByteArray(data, 0, data.size)
-                bmp.setDensity(DisplayMetrics.DENSITY_MEDIUM)
-                mBitmapCache[url] = bmp
-            }
-        } else {
-            //Log.d(TAG, "Found in BitmapCache");
-        }
+    suspend fun downloadImage(url: String, since: Long): Bitmap {
+        val data = download(url, since, true)
+        val bmp = BitmapFactory.decodeByteArray(data, 0, data.size)
+        bmp.setDensity(DisplayMetrics.DENSITY_MEDIUM)
         return bmp
-    }
-
-    fun getImageFromMemCache(url: String): Bitmap? {
-        return mBitmapCache[url]
     }
 }

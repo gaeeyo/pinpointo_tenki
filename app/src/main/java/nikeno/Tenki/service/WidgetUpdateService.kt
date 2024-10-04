@@ -19,6 +19,7 @@ import android.text.format.DateUtils
 import android.text.style.ForegroundColorSpan
 import android.util.Log
 import android.widget.RemoteViews
+import kotlinx.coroutines.runBlocking
 import nikeno.Tenki.MainActivity
 import nikeno.Tenki.R
 import nikeno.Tenki.TenkiApp
@@ -53,7 +54,9 @@ class WidgetUpdateService : IntentService("WidgetUpdateService") {
 
         Log.d(TAG, "ウィジェット更新中")
         val isManualUpdate = (intent != null && ACTION_MANUAL_UPDATE == intent.action)
-        UpdateTask().updateWidgets(this, isManualUpdate)
+        runBlocking {
+            UpdateTask().updateWidgets(this@WidgetUpdateService, isManualUpdate)
+        }
         Log.d(TAG, "ウィジェット更新完了")
     }
 
@@ -80,7 +83,7 @@ class WidgetUpdateService : IntentService("WidgetUpdateService") {
 //                        if (retryCount > 0) {
 //                            Thread.sleep((retryCount - 1) * 3000);
 //                        }
-                        updateWidget(context, manager, id, theme, false)
+                        runBlocking { updateWidget(context, manager, id, theme, false) }
                         error = null
                         break
                     } catch (e: UnknownHostException) {
@@ -95,7 +98,7 @@ class WidgetUpdateService : IntentService("WidgetUpdateService") {
                 if (error != null) {
                     try {
                         Log.d(TAG, "キッシュで更新")
-                        updateWidget(context, manager, id, theme, true)
+                        runBlocking { updateWidget(context, manager, id, theme, true) }
                     } catch (e: Exception) {
                         manager.updateAppWidget(id, createErrorView(context, error))
                     }
@@ -104,7 +107,7 @@ class WidgetUpdateService : IntentService("WidgetUpdateService") {
         }
 
         @Throws(Exception::class)
-        fun updateWidget(
+        suspend fun updateWidget(
             context: Context, manager: AppWidgetManager,
             id: Int, theme: WidgetTheme, forceCache: Boolean
         ) {
@@ -118,7 +121,7 @@ class WidgetUpdateService : IntentService("WidgetUpdateService") {
                 html = entry.data
             } else {
                 html = downloader.download(
-                    config.url, TenkiApp.HTML_SIZE_MAX,
+                    config.url,
                     System.currentTimeMillis() - 15 * DateUtils.MINUTE_IN_MILLIS, true
                 )
             }
@@ -305,7 +308,7 @@ class WidgetUpdateService : IntentService("WidgetUpdateService") {
                 var bmp = mCache[url]
                 if (bmp != null) return bmp
 
-                bmp = from(mContext).downloader.downloadImage(url, 8000, 0)
+                bmp = runBlocking { from(mContext).downloader.downloadImage(url, 0) }
                 if (bmp != null) {
                     val newBitmap = convertBitmap(bmp)
                     if (newBitmap != null) {

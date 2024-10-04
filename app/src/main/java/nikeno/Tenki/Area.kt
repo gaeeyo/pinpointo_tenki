@@ -1,8 +1,10 @@
 package nikeno.Tenki
 
 import android.os.Parcelable
+import androidx.compose.runtime.Immutable
 import kotlinx.parcelize.Parcelize
 
+@Immutable
 @Parcelize
 data class Area(
     val zipCode: String, val address1: String, val address2: String, val url: String
