@@ -4,7 +4,8 @@ import nikeno.Tenki.Area
 
 class YahooSearchHtmlParser {
 
-    fun parse(html: String): ArrayList<Area> {
+    fun parse(body: ByteArray): ArrayList<Area> {
+        val html = body.toString(Charsets.UTF_8)
         val result = ArrayList<Area>()
 
         // ざっくりとした

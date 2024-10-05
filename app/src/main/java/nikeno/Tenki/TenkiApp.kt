@@ -14,9 +14,6 @@ import org.koin.core.context.startKoin
 class TenkiApp : Application() {
     val prefs: Prefs by inject()
 
-    @get:Synchronized
-    val downloader: Downloader by inject()
-
     override fun onCreate() {
         super.onCreate()
 

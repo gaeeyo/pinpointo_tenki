@@ -5,7 +5,6 @@ import android.content.Intent
 import android.graphics.Bitmap
 import android.net.Uri
 import android.text.format.DateUtils
-import android.util.Log
 import android.widget.Toast
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
@@ -62,9 +61,11 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import kotlinx.coroutines.DelicateCoroutinesApi
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.withContext
 import nikeno.Tenki.Prefs
 import nikeno.Tenki.R
-import nikeno.Tenki.feature.fetcher.ImageFetcher
+import nikeno.Tenki.feature.fetcher.WeatherFetcher
 import nikeno.Tenki.feature.weather.YahooWeather
 import nikeno.Tenki.ui.app.LocalWeatherTheme
 import nikeno.Tenki.ui.app.MyAppNavigator
@@ -162,8 +163,6 @@ fun MainScreen(
     val snackbarHostState = remember { SnackbarHostState() }
 
     LaunchedEffect(state.error) {
-        Log.d(TAG, "エラーの有無: ${!state.error.isNullOrEmpty()}")
-
         if (!state.error.isNullOrEmpty()) {
             if (snackbarHostState.showSnackbar(
                     state.error,
@@ -197,7 +196,7 @@ fun MainScreen(
                 onClickOpenYahooWeather = onClickOpenYahooWeather,
                 onClickChangeArea = onClickChangeArea,
             )
-            if (state.loading) {
+            if (state.isLoading) {
                 Box(contentAlignment = Alignment.Center) {
                     CircularProgressIndicator()
                 }
@@ -579,10 +578,10 @@ fun WeatherIcon(modifier: Modifier = Modifier, url: String) {
 @Composable
 fun WeatherIcon3(modifier: Modifier = Modifier, url: String) {
     var bitmap by remember { mutableStateOf<Bitmap?>(null) }
-    val downloader: ImageFetcher = koinInject()
+    val fetcher: WeatherFetcher = koinInject()
 
     LaunchedEffect(url) {
-        bitmap = downloader.getImage2(url)
+        bitmap = withContext(Dispatchers.IO) { fetcher.getImage2(url) }
     }
 
     Box(

@@ -10,8 +10,8 @@ import io.ktor.client.plugins.logging.Logger
 import io.ktor.client.plugins.logging.Logging
 import io.ktor.client.plugins.logging.SIMPLE
 import io.ktor.http.headers
-import nikeno.Tenki.feature.fetcher.ImageFetcher
-import nikeno.Tenki.feature.weather.YahooWeatherClient
+import nikeno.Tenki.feature.cache.ResourceCache
+import nikeno.Tenki.feature.fetcher.WeatherFetcher
 import nikeno.Tenki.ui.screen.main.MainViewModel
 import nikeno.Tenki.ui.screen.selectarea.SelectAreaViewModel
 import org.koin.core.module.dsl.viewModel
@@ -36,19 +36,16 @@ val tenkiAppModule = module {
     }
 
     single {
+        ResourceCache(get(), CACHE_FILENAME)
+    }
+
+    single {
         val context: Context = get()
         Prefs(context.getSharedPreferences("AF.Tenki", MODE_PRIVATE))
     }
 
     single {
-        YahooWeatherClient(get())
-    }
-
-    single {
-        Downloader(get(), CACHE_FILENAME, get())
-    }
-    single {
-        ImageFetcher(get())
+        WeatherFetcher(get(), get())
     }
 
     viewModel { MainViewModel(get()) }

@@ -9,7 +9,7 @@ import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.launch
 import nikeno.Tenki.Area
 import nikeno.Tenki.Prefs
-import nikeno.Tenki.feature.weather.YahooWeatherClient
+import nikeno.Tenki.feature.fetcher.WeatherFetcher
 
 data class SelectAreaState(
     val keyword: String = "",
@@ -19,7 +19,7 @@ data class SelectAreaState(
     val foundAreaList: List<Area>? = null,
 )
 
-class SelectAreaViewModel(private val prefs: Prefs, private val client: YahooWeatherClient) :
+class SelectAreaViewModel(private val prefs: Prefs, private val fetcher: WeatherFetcher) :
     ViewModel() {
 
     private val mState = MutableStateFlow(SelectAreaState())
@@ -46,18 +46,21 @@ class SelectAreaViewModel(private val prefs: Prefs, private val client: YahooWea
             error = null
         )
         viewModelScope.launch(Dispatchers.IO) {
-            try {
-                val result = client.searchAddress(keyword)
-                Log.d(TAG, "検索結果: $result")
-                mState.value = mState.value.copy(
-                    foundAreaList = result,
-                    loading = false
-                )
-            } catch (e: Exception) {
-                mState.value = mState.value.copy(
-                    loading = false,
-                    error = e.message
-                )
+            val result = fetcher.searchArea(keyword)
+            Log.d(TAG, "検索結果: $result")
+            when (result) {
+                is WeatherFetcher.SearchAreaResult.Error ->
+                    mState.value = mState.value.copy(
+                        foundAreaList = null,
+                        error = result.error.message,
+                        loading = false
+                    )
+
+                is WeatherFetcher.SearchAreaResult.Success ->
+                    mState.value = mState.value.copy(
+                        foundAreaList = result.list,
+                        loading = false
+                    )
             }
         }
     }

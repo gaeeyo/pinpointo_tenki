@@ -20,23 +20,36 @@ import android.text.style.ForegroundColorSpan
 import android.util.Log
 import android.widget.RemoteViews
 import kotlinx.coroutines.runBlocking
+import kotlinx.datetime.Clock
 import nikeno.Tenki.MainActivity
 import nikeno.Tenki.R
 import nikeno.Tenki.TenkiApp
 import nikeno.Tenki.TenkiApp.Companion.from
 import nikeno.Tenki.TenkiWidgetProvider
 import nikeno.Tenki.appwidget.weatherwidget.WeatherWidgetPrefs
+import nikeno.Tenki.feature.fetcher.WeatherFetcher
 import nikeno.Tenki.feature.weather.YahooWeather
 import nikeno.Tenki.feature.weather.YahooWeather.Hour
 import nikeno.Tenki.feature.weather.YahooWeatherHtmlParser
 import nikeno.Tenki.util.PendingIntentCompat
+import org.koin.compose.koinInject
+import org.koin.core.component.KoinComponent
+import org.koin.core.component.inject
 import java.io.IOException
 import java.net.UnknownHostException
 import java.util.Calendar
 import java.util.Locale
 import kotlin.math.max
+import kotlin.time.Duration.Companion.hours
+import kotlin.time.Duration.Companion.minutes
+
+
+class WidgetUpdateServiceComponent : KoinComponent {
+    val fetcher: WeatherFetcher by inject()
+}
 
 class WidgetUpdateService : IntentService("WidgetUpdateService") {
+
     override fun onBind(intent: Intent): IBinder? {
         return null
     }
@@ -61,6 +74,9 @@ class WidgetUpdateService : IntentService("WidgetUpdateService") {
     }
 
     internal class UpdateTask {
+
+        val fetcher = WidgetUpdateServiceComponent().fetcher
+
         fun updateWidgets(context: Context, isManualUpdate: Boolean) {
             val manager = AppWidgetManager.getInstance(context)
             val ids = manager.getAppWidgetIds(
@@ -113,21 +129,22 @@ class WidgetUpdateService : IntentService("WidgetUpdateService") {
         ) {
             val config = WeatherWidgetPrefs.getWidgetConfig(context, id)
 
-            val downloader = from(context).downloader
-            val html: ByteArray
-            if (forceCache) {
-                val entry = downloader.getCache(config.url, 0)
-                    ?: throw IOException("データの取得エラー。タップして再読み込み")
-                html = entry.data
+            val weather = if (forceCache) {
+                fetcher.getWeather(config.url, 0)
             } else {
-                html = downloader.download(
+                fetcher.getWeather(
                     config.url,
-                    System.currentTimeMillis() - 15 * DateUtils.MINUTE_IN_MILLIS, true
+                    Clock.System.now().minus(15.minutes).toEpochMilliseconds()
                 )
             }
-            val data = YahooWeatherHtmlParser().parse(html)
 
-            val views = buildUpdate(context, id, data, theme, forceCache)
+            val views = when (weather) {
+                is WeatherFetcher.WeatherResult.Error ->
+                    createErrorView(context, weather.error)
+
+                is WeatherFetcher.WeatherResult.Success ->
+                    buildUpdate(context, id, weather.data, theme, forceCache)
+            }
 
             val i = Intent(context, MainActivity::class.java)
             i.setFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP or Intent.FLAG_ACTIVITY_NEW_TASK or Intent.FLAG_ACTIVITY_NO_HISTORY)
@@ -293,6 +310,7 @@ class WidgetUpdateService : IntentService("WidgetUpdateService") {
 
 
     internal class WeatherIconManager(private val mContext: Context) {
+        val fetcher = WidgetUpdateServiceComponent().fetcher
         private val mCache = HashMap<String, Bitmap>()
         var mIconSize: Int
         var mShadowOffset: Int
@@ -308,7 +326,7 @@ class WidgetUpdateService : IntentService("WidgetUpdateService") {
                 var bmp = mCache[url]
                 if (bmp != null) return bmp
 
-                bmp = runBlocking { from(mContext).downloader.downloadImage(url, 0) }
+                bmp = runBlocking { fetcher.getImage2(url) }
                 if (bmp != null) {
                     val newBitmap = convertBitmap(bmp)
                     if (newBitmap != null) {
