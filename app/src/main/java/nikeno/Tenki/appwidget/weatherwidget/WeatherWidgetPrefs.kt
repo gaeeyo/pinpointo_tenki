@@ -1,44 +1,39 @@
-package nikeno.Tenki.appwidget.weatherwidget;
+package nikeno.Tenki.appwidget.weatherwidget
 
-import android.content.Context;
-import android.content.SharedPreferences;
-import android.preference.PreferenceManager;
-import android.util.Log;
+import android.content.Context
+import android.content.SharedPreferences
+import android.preference.PreferenceManager
+import android.util.Log
 
-import androidx.annotation.NonNull;
+object WeatherWidgetPrefs {
+    const val TAG: String = "WidgetSettings"
 
-public class WeatherWidgetPrefs {
-    static final String TAG = "WidgetSettings";
+    const val NAME_URL: String = "name"
 
-    static final String NAME_URL = "name";
-
-    @NonNull
-    private static SharedPreferences getPrefs(@NonNull Context context) {
-        return PreferenceManager.getDefaultSharedPreferences(context);
+    private fun getPrefs(context: Context): SharedPreferences {
+        return PreferenceManager.getDefaultSharedPreferences(context)
     }
 
-    @NonNull
-    private static String prefKey(int id, @NonNull String name) {
-        return "widget_" + id + name;
+    private fun prefKey(id: Int, name: String): String {
+        return "widget_$id$name"
     }
 
-    public static void addWidgetConfig(@NonNull Context context, int id, String url) {
-        getPrefs(context).edit().putString(prefKey(id, NAME_URL), url).apply();
+    fun addWidgetConfig(context: Context, id: Int, url: String?) {
+        getPrefs(context).edit().putString(prefKey(id, NAME_URL), url).apply()
     }
 
-    @NonNull
-    public static WeatherWidgetConfig getWidgetConfig(@NonNull Context context, int id) {
-        String url = getPrefs(context).getString(prefKey(id, NAME_URL), "");
-        return new WeatherWidgetConfig(url);
+    fun getWidgetConfig(context: Context, id: Int): WeatherWidgetConfig {
+        val url = getPrefs(context).getString(prefKey(id, NAME_URL), "")
+        return WeatherWidgetConfig(url)
     }
 
-    public static void deleteWidgetConfig(@NonNull Context context, @NonNull int[] ids) {
-        SharedPreferences.Editor edit = getPrefs(context).edit();
+    fun deleteWidgetConfig(context: Context, ids: IntArray) {
+        val edit = getPrefs(context).edit()
 
-        for (int id : ids) {
-            Log.d(TAG, "deleteWidgetConfig id:" + id);
-            edit.remove(prefKey(id, "url"));
+        for (id in ids) {
+            Log.d(TAG, "deleteWidgetConfig id:$id")
+            edit.remove(prefKey(id, "url"))
         }
-        edit.apply();
+        edit.apply()
     }
 }

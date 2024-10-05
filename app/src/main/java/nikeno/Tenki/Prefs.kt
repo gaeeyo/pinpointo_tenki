@@ -93,9 +93,6 @@ class Prefs(val mPrefs: SharedPreferences) {
     fun setCurrentArea(area: Area) {
         // 設定地域を変更
         setCurrentAreaUrl(area.url)
-
-        // 最近使った地域に登録
-        addRecentArea(area)
     }
 
     fun get(key: BoolValue): Boolean {

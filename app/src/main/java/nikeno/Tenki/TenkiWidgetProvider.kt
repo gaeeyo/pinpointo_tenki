@@ -1,105 +1,56 @@
-package nikeno.Tenki;
+package nikeno.Tenki
 
-import android.annotation.TargetApi;
-import android.app.AlarmManager;
-import android.app.PendingIntent;
-import android.app.job.JobInfo;
-import android.app.job.JobScheduler;
-import android.appwidget.AppWidgetManager;
-import android.appwidget.AppWidgetProvider;
-import android.content.ComponentName;
-import android.content.Context;
-import android.content.Intent;
-import android.os.Build;
-import android.os.SystemClock;
-import android.text.format.DateUtils;
+import android.appwidget.AppWidgetManager
+import android.appwidget.AppWidgetProvider
+import android.content.Context
+import android.content.Intent
+import android.util.Log
+import nikeno.Tenki.appwidget.weatherwidget.WeatherWidgetPrefs
+import nikeno.Tenki.appwidget.weatherwidget.clearWork
+import nikeno.Tenki.appwidget.weatherwidget.setupWork
 
-import nikeno.Tenki.service.MyJobService;
-import nikeno.Tenki.service.WidgetUpdateService;
-import nikeno.Tenki.appwidget.weatherwidget.WeatherWidgetPrefs;
-import nikeno.Tenki.util.PendingIntentCompat;
+private const val TAG = "TenkiWidgetProvider"
 
-public class TenkiWidgetProvider extends AppWidgetProvider {
+class TenkiWidgetProvider : AppWidgetProvider() {
 
-    @Override
-    public void onReceive(Context context, Intent intent) {
-        super.onReceive(context, intent);
+    override fun onReceive(context: Context?, intent: Intent?) {
+        super.onReceive(context, intent)
 
-        if (intent != null && Intent.ACTION_MY_PACKAGE_REPLACED.equals(intent.getAction())) {
-            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
-                context.startForegroundService(new Intent(context, WidgetUpdateService.class));
-            } else {
-                context.startService(new Intent(context, WidgetUpdateService.class));
-            }
-            ScheduleCompat.getInstance().setup(context);
+        Log.d(TAG, "onReceive action=${intent?.action}")
+        if (context != null && intent?.action == ACTION_UPDATE) {
+            Log.d(TAG, "更新ボタンによる更新")
+            setupWork(context)
         }
     }
 
-    @Override
-    public void onUpdate(Context context, AppWidgetManager appWidgetManager,
-                         int[] appWidgetIds) {
-        super.onUpdate(context, appWidgetManager, appWidgetIds);
-        ScheduleCompat.getInstance().setup(context);
+    override fun onEnabled(context: Context?) {
+        super.onEnabled(context)
+        Log.d(TAG, "onEnabled")
+        setupWork(context!!)
     }
 
-    @Override
-    public void onDeleted(Context context, int[] appWidgetIds) {
-        super.onDeleted(context, appWidgetIds);
-        WeatherWidgetPrefs.deleteWidgetConfig(context, appWidgetIds);
+    override fun onDisabled(context: Context?) {
+        super.onDisabled(context)
+        Log.d(TAG, "onDisabled")
+        clearWork(context!!)
     }
 
-    abstract static class ScheduleCompat {
-
-        static ScheduleCompat sInstance;
-
-        static ScheduleCompat getInstance() {
-            if (sInstance == null) {
-                if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP) {
-                    sInstance = new ScheduleCompat_Lolipop();
-                } else {
-                    sInstance = new ScheduleCompat_v4();
-                }
-            }
-            return sInstance;
-        }
-
-        abstract void setup(Context context);
+    override fun onUpdate(
+        context: Context, appWidgetManager: AppWidgetManager,
+        appWidgetIds: IntArray
+    ) {
+        super.onUpdate(context, appWidgetManager, appWidgetIds)
+        Log.d(TAG, "onUpdate ids=[${appWidgetIds.joinToString(",")}]")
+//        updateWidgetOnce(context)
     }
 
-    static class ScheduleCompat_v4 extends ScheduleCompat {
-        @Override
-        public void setup(Context context) {
-            AlarmManager am = (AlarmManager) context.getSystemService(Context.ALARM_SERVICE);
-
-            Intent intent = new Intent(context, WidgetUpdateService.class);
-            PendingIntent pi = PendingIntent.getService(context, 0, intent,
-                    PendingIntentCompat.FLAG_MUTABLE);
-
-            am.setInexactRepeating(AlarmManager.ELAPSED_REALTIME,
-                    SystemClock.elapsedRealtime() + 30 * DateUtils.MINUTE_IN_MILLIS,
-                    AlarmManager.INTERVAL_HOUR, pi);
-
-            context.startService(intent);
-        }
+    override fun onDeleted(context: Context, appWidgetIds: IntArray) {
+        super.onDeleted(context, appWidgetIds)
+        Log.d(TAG, "onDeleted ids=[${appWidgetIds.joinToString(",")}]")
+        WeatherWidgetPrefs.deleteWidgetConfig(context, appWidgetIds)
     }
 
-    @TargetApi(Build.VERSION_CODES.LOLLIPOP)
-    static class ScheduleCompat_Lolipop extends ScheduleCompat {
-        @Override
-        public void setup(Context context) {
-
-            AlarmManager am = (AlarmManager) context.getSystemService(Context.ALARM_SERVICE);
-            Intent intent = new Intent(context, WidgetUpdateService.class);
-            PendingIntent pi = PendingIntent.getService(context, 0, intent,
-                    PendingIntentCompat.FLAG_MUTABLE);
-            am.cancel(pi);
-
-            JobScheduler js = (JobScheduler) context.getSystemService(Context.JOB_SCHEDULER_SERVICE);
-            JobInfo job = new JobInfo.Builder(1, new ComponentName(context, MyJobService.class))
-                    .setPeriodic(30 * DateUtils.MINUTE_IN_MILLIS)
-                    .setRequiredNetworkType(JobInfo.NETWORK_TYPE_ANY)
-                    .build();
-            js.schedule(job);
-        }
+    companion object {
+        const val ACTION_UPDATE = "nikeno.Tenki.action.update"
     }
 }

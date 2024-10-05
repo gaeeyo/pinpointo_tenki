@@ -66,13 +66,14 @@ dependencies {
     implementation("androidx.lifecycle:lifecycle-viewmodel-compose:2.8.6")
     implementation("androidx.navigation:navigation-compose:2.8.1")
 
+    implementation("androidx.work:work-runtime-ktx:2.9.1")
+
     implementation("org.jetbrains.kotlinx:kotlinx-datetime:0.6.0")
     implementation("org.jetbrains.kotlinx:kotlinx-serialization-json:1.7.1")
 
     implementation("io.ktor:ktor-client-core:2.3.12")
     implementation("io.ktor:ktor-client-cio:2.3.12")
     implementation("uk.uuid.slf4j:slf4j-android:2.0.7-0")
-
     implementation("io.ktor:ktor-client-logging:2.3.12")
 
     implementation(project.dependencies.platform("io.insert-koin:koin-bom:4.0.0"))

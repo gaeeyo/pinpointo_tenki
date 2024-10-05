@@ -36,8 +36,10 @@ import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
 import nikeno.Tenki.Area
+import nikeno.Tenki.Prefs
 import nikeno.Tenki.R
 import nikeno.Tenki.ui.app.MyTopBar
+import org.koin.compose.koinInject
 import org.koin.compose.viewmodel.koinViewModel
 
 @OptIn(ExperimentalMaterial3Api::class)
@@ -49,6 +51,12 @@ fun SelectAreaScreen(
 ) {
 
     val state = vm.state.collectAsState().value
+
+    val prefs = koinInject<Prefs>()
+    val selectAreaHandler = { area: Area ->
+        prefs.addRecentArea(area)
+        onSelectArea(area)
+    }
 
     Scaffold(modifier = Modifier.fillMaxSize(), topBar = {
         MyTopBar(title = { Text(stringResource(R.string.area_select_title)) }, navigationIcon = {
@@ -71,7 +79,7 @@ fun SelectAreaScreen(
                 savedAreaList = state.savedAreaList,
                 foundAreaList = state.foundAreaList,
                 loading = state.loading,
-                onSelectArea = onSelectArea,
+                onSelectArea = selectAreaHandler,
                 onSearch = vm::search
             )
         }
